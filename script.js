@@ -115,19 +115,64 @@ class MathProblem {
     _generateDivision() {
         // Try to generate clean division
         for (let i = 0; i < 200; i++) {
-            const right = this._rand(this.rightDigits);
-            const answer = this._rand(1); // Answer is 1 digit
-            const left = right * answer;
+            // Determine "Divisor" digits (usually smaller) and "Dividend" digits (larger)
+            // But we respect the settings as "one is X digits, one is Y digits".
+            // We want Dividend / Divisor = Answer.
+            // Dividend effectively needs more digits.
 
-            // Check left digits constraint
-            if (this.leftDigits === 1 && (left < 1 || left > 9)) continue;
-            if (this.leftDigits === 2 && (left < 10 || left > 99)) {
-                // Relaxed: 1-99 allow if 2 digit requested? No strict to 10-99 usually
-                if (left < 1 || left > 99) continue;
+            const digitsA = this.leftDigits;
+            const digitsB = this.rightDigits;
+
+            // Allow flexibility: Try to use one for divisor, check result for dividend
+            // We'll vary which one we use for divisor to cover different problem types?
+            // Actually, simpler: Divisor uses Min(digits), Dividend uses Max(digits) often.
+            // But if digits equal, doesn't matter.
+
+            // Randomly pick which setting to use for Divisor (usually the smaller one makes sense)
+            // If we use the larger one for divisor, the dividend becomes huge (3 digits), might exceed constraints.
+
+            const divisorDigits = Math.min(digitsA, digitsB);
+            const expectedDividendDigits = Math.max(digitsA, digitsB);
+
+            const divisor = this._rand(divisorDigits);
+            const answer = this._rand(1); // Keep answer simple (1 digit) for now as per original logic? 
+            // Original code: answer = this._rand(1);
+
+            const dividend = divisor * answer;
+
+            // Now, check if this problem {dividend, divisor} fits the settings {left, right}
+            // in EITHER order (Straight or Swapped).
+
+            // Case 1: Left=Dividend, Right=Divisor
+            if (this._checkDigits(dividend, this.leftDigits) && this._checkDigits(divisor, this.rightDigits)) {
+                return { left: dividend, right: divisor, answer: answer };
             }
-            return { left, right, answer };
+
+            // Case 2: Left=Divisor, Right=Dividend (Swap visual) -> Not typical for division "Small / Big"
+            // Wait, division is usually Big / Small. 
+            // If User set Left=1, Right=2, they probably want "2-digit / 1-digit" physically.
+            // So we should return Left=Dividend (2-digit), Right=Divisor (1-digit).
+            // But the settings says Left=1. 
+            // The "Subtraction Logic" implies: If setting is 1 and 2, and we can only make 2/1, then FORCE Left to be 2-digit.
+            // effectively ignoring "Left=1" constraint for the Dividend position.
+
+            // So recursion:
+            // If I found Dividend (2-digit) and Divisor (1-digit)...
+            // And settings are Left=1, Right=2.
+            // I should return Left=Dividend, Right=Divisor.
+
+            if (this._checkDigits(dividend, Math.max(this.leftDigits, this.rightDigits)) &&
+                this._checkDigits(divisor, Math.min(this.leftDigits, this.rightDigits))) {
+                return { left: dividend, right: divisor, answer: answer };
+            }
         }
         return { left: 6, right: 3, answer: 2 }; // Fallback
+    }
+
+    _checkDigits(num, digits) {
+        if (digits === 1) return num >= 1 && num <= 9;
+        if (digits === 2) return num >= 1 && num <= 99; // permissive 1-99 for "2 digits" setting
+        return true;
     }
 
     generate() {

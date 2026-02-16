@@ -595,9 +595,19 @@ input[type="text"]:focus {
     overflow-y: auto;
 }
 
-#time-list li {
+#result-screen li {
     padding: 8px;
     border-bottom: 1px solid #333;
     display: flex;
     justify-content: space-between;
+}
+
+/* Footer / Copyright */
+.setup-footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 20px 0;
+    color: #5a6275;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
 }
