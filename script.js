@@ -222,19 +222,19 @@ class Monster {
 
 /* Monster File List (From previous list_dir) */
 const MONSTER_FILES = [
-    "01_うんちぼうや.png", "01_ざっそうだま.png", "01_もちもち.png",
-    "02_いもむしくん.png", "02_こにゃんにゃん.png", "02_びくびくねずみ.png",
-    "03_もえろう.png", "03_わんこぞう.png", "03_オレンジュー.png",
-    "04_おばけん.png", "04_カメゴンス.png", "04_カルボーン.png",
-    "05_ちょうちょふじん.png", "05_もふもふがふじん.png",
-    "06_あんさつかまきり.png", "06_はちのじょおう.png", "06_ばさばさどり.png",
-    "07_あかとげがに.png", "07_くませんし.png", "07_ラフレッシア.png",
-    "08_ガブドリア.png", "08_ブラックタイガー.png", "08_プテライリュウ.png",
-    "09_おばけむかで.png", "09_ドラゴーン.png", "09_ペラペラポトス.png",
-    "Boss01_まおうかずのり.png", "Boss02_いかりのドラゴーン.png", "Boss03_はかいのマシーン.png",
-    "Boss04_インセクトキング.png", "Boss05_ぼうくんティラノザウルス.png", "Boss06_こうてつカブトサムライ.png",
-    "Heal_かいふくぐさ.png", "Heal_ペロキャン.png", "Lastboss_しんのかみダイオウグソクナイト.png",
-    "Rare_ダイアゴーレム.png", "Rare_宝箱.png"
+    "01_うんちぼうや.webp", "01_ざっそうだま.webp", "01_もちもち.webp",
+    "02_いもむしくん.webp", "02_こにゃんにゃん.webp", "02_びくびくねずみ.webp",
+    "03_もえろう.webp", "03_わんこぞう.webp", "03_オレンジュー.webp",
+    "04_おばけん.webp", "04_カメゴンス.webp", "04_カルボーン.webp",
+    "05_ちょうちょふじん.webp", "05_もふもふがふじん.webp",
+    "06_あんさつかまきり.webp", "06_はちのじょおう.webp", "06_ばさばさどり.webp",
+    "07_あかとげがに.webp", "07_くませんし.webp", "07_ラフレッシア.webp",
+    "08_ガブドリア.webp", "08_ブラックタイガー.webp", "08_プテライリュウ.webp",
+    "09_おばけむかで.webp", "09_ドラゴーン.webp", "09_ペラペラポトス.webp",
+    "Boss01_よるをしはいするもの.webp", "Boss02_いかりのドラゴーン.webp", "Boss03_はかいのマシーン.webp",
+    "Boss04_インセクトキング.webp", "Boss05_ぼうくんティラノザウルス.webp", "Boss06_こうてつカブトサムライ.webp",
+    "Heal_かいふくぐさ.webp", "Heal_ペロキャン.webp", "Lastboss_しんのかみダイオウグソクナイト.webp",
+    "Rare_ダイアゴーレム.webp", "Rare_宝箱.webp"
 ];
 
 function findMonsterImage(monster) {
@@ -262,8 +262,8 @@ function findMonsterImage(monster) {
     const choice = candidates[Math.floor(Math.random() * candidates.length)];
 
     // Update name from filename (Simple parsing: remove prefix, remove extension)
-    // E.g. 01_もちもち.png -> もちもち
-    let name = choice.replace('.png', '');
+    // E.g. 01_もちもち.webp -> もちもち
+    let name = choice.replace('.webp', '');
     // Remove prefixes
     name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
     monster.name = name; // Update name in place
@@ -550,7 +550,7 @@ class Game {
             m.hasTransformed = true;
             m.hp = 10;
             m.attackPower = 10; // Hard!
-            m.imageSrc = 'assets/img/Lastboss_しんのかみダイオウグソクナイト.png'; // Direct hardcode path
+            m.imageSrc = 'assets/img/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
             document.getElementById('monster-img').src = m.imageSrc;
             m.name = "しんのかみ";
             document.getElementById('monster-name').textContent = m.name;
