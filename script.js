@@ -802,9 +802,27 @@ class Game {
 
         const list = document.getElementById('time-list');
         list.innerHTML = '';
+
+        // Calculate Total
+        const times = this.defeatTimes.map(t => parseFloat(t));
+        const totalTime = times.reduce((a, b) => a + b, 0).toFixed(1);
+        document.getElementById('total-time-display').textContent = `${totalTime}秒`;
+
+        // Find Min/Max for highlighting
+        // Note: multiple items can be min or max
+        const minTime = Math.min(...times);
+        const maxTime = Math.max(...times);
+
         this.defeatTimes.forEach((t, i) => {
+            const val = parseFloat(t);
             const li = document.createElement('li');
-            li.innerHTML = `<span>モンスター ${i + 1}</span><span>${t}秒</span>`;
+
+            let className = '';
+            if (val === minTime) className = 'time-fastest';
+            else if (val === maxTime) className = 'time-slowest';
+
+            // Apply color to the time span
+            li.innerHTML = `<span>モンスター ${i + 1}</span><span class="${className}">${t}秒</span>`;
             list.appendChild(li);
         });
     }

@@ -605,6 +605,44 @@ input[type="text"]:focus {
     justify-content: space-between;
 }
 
+.time-fastest {
+    color: var(--primary-color);
+    /* Blue/Cyan */
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+}
+
+.time-slowest {
+    color: var(--danger-color);
+    /* Red */
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 75, 75, 0.5);
+}
+
+.result-total-container {
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.total-label {
+    display: block;
+    font-size: 1.5rem;
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.total-time-display {
+    display: block;
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    font-family: var(--font-pixel);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
 /* Footer / Copyright */
 .setup-footer {
     margin-top: auto;
