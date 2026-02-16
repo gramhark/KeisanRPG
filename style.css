@@ -51,15 +51,9 @@ body {
 .screen {
     display: none;
     flex-direction: column;
-    /* height: 100%; removed to rely on flex-grow */
+    height: 100%;
     width: 100%;
     padding: 20px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    flex: 1;
-    /* Fill remaining space */
-    min-height: 0;
-    /* Important for scrolling in flex item */
 }
 
 .screen.active {

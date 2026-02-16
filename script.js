@@ -297,8 +297,31 @@ class Game {
 
         this.rareBuff = false;
 
+        // Auto Scaling
+        window.addEventListener('resize', () => this.adjustScale());
+        this.adjustScale();
+
         this._bindEvents();
         this._updateTimerBar(1); // Reset
+    }
+
+    adjustScale() {
+        // Base logic: Ensure content fits in height.
+        // Assumed safe design height ~750px (Title + Setup inputs)
+        const minHeight = 750;
+        const winH = window.innerHeight;
+        const app = document.getElementById('app');
+
+        if (winH < minHeight) {
+            const scale = winH / minHeight;
+            app.style.transform = `scale(${scale})`;
+            app.style.transformOrigin = 'top center';
+            // Adjust height to occupy full space visually even when scaled
+            app.style.height = `${minHeight}px`;
+        } else {
+            app.style.transform = 'none';
+            app.style.height = '100vh';
+        }
     }
 
     /* Event Binding */
