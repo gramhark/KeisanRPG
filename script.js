@@ -260,12 +260,28 @@ class Monster {
         return findMonsterImage(this);
     }
 
-    get isBoss05() {
-        return this.number === 10 && this.opCount === 4 && this.leftDigits === 2 && !this.isBoss06;
-    }
+    get bossId() {
+        if (this.number !== 10) return 0;
 
-    get isBoss06() {
-        return this.number === 10 && this.opCount === 4 && this.leftDigits === 2 && this.rightDigits === 2;
+        // Based on Difficulty: Left Digits (1 or 2), Right Digits (1 or 2), Op Count (1-4)
+        // Table Mapping:
+        // L=1, R=1 -> Boss01-04
+        // L=1, R=2 -> Boss05-08
+        // L=2, R=1 -> Boss09-12
+        // L=2, R=2 -> Boss13-16
+
+        // Base Offset Calculation
+        let base = 0;
+        if (this.leftDigits === 1 && this.rightDigits === 1) base = 0;
+        else if (this.leftDigits === 1 && this.rightDigits === 2) base = 4;
+        else if (this.leftDigits === 2 && this.rightDigits === 1) base = 8;
+        else if (this.leftDigits === 2 && this.rightDigits === 2) base = 12;
+
+        // Add opCount (1-4)
+        // If opCount exceeds 4, cap at 4? Or assume valid 1-4.
+        const add = Math.min(4, Math.max(1, this.opCount));
+
+        return base + add;
     }
 
     takeDamage(amount) {
@@ -297,18 +313,18 @@ function findMonsterImage(monster) {
         candidates = assets.filter(f => f.toLowerCase().startsWith('rare_'));
     } else if (monster.isHeal) {
         candidates = assets.filter(f => f.toLowerCase().startsWith('heal_'));
-    } else if (monster.number === 10) {
-        // Boss Logic
-        let prefix = `boss${String(monster.opCount).padStart(2, '0')}_`;
-        if (monster.isBoss06) prefix = "boss06_";
-        else if (monster.isBoss05) prefix = "boss05_";
-
-        // 1. Exact match boss prefix
-        candidates = assets.filter(f => f.toLowerCase().startsWith(prefix.toLowerCase()));
     } else {
-        // Normal
-        let prefix = String(monster.number).padStart(2, '0') + "_";
-        candidates = assets.filter(f => f.startsWith(prefix));
+        // Try specific Boss prefix first if it's the boss stage (10)
+        if (monster.number === 10) {
+            let bossPrefix = `boss${String(monster.bossId).padStart(2, '0')}_`;
+            candidates = assets.filter(f => f.toLowerCase().startsWith(bossPrefix.toLowerCase()));
+        }
+
+        // Fallback: If no boss-specific image found (or not a boss), try generic number prefix (e.g. "10_" or "01_")
+        if (candidates.length === 0) {
+            let prefix = String(monster.number).padStart(2, '0') + "_";
+            candidates = assets.filter(f => f.startsWith(prefix));
+        }
     }
 
     if (candidates.length === 0) return '';
@@ -665,8 +681,8 @@ class Game {
     }
 
     _checkBossEvents(m) {
-        // Boss 6 Transform
-        if (m.isBoss06 && m.hp <= 4 && !m.hasTransformed) {
+        // Boss 16 Transform (was Boss 06)
+        if (m.bossId === 16 && m.hp <= 4 && !m.hasTransformed) {
             m.hasTransformed = true;
             m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
@@ -679,8 +695,8 @@ class Game {
             this.sound.playSe('lastboss'); // New SE
             return true;
         }
-        // Boss 6 Sap
-        if (m.isBoss06 && m.hp <= 6 && !m.hasLickedSap) {
+        // Boss 16 Sap (was Boss 06)
+        if (m.bossId === 16 && m.hp <= 6 && !m.hasLickedSap) {
             m.hasLickedSap = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
@@ -688,8 +704,8 @@ class Game {
             this.sound.playSe('sap'); // New SE
             return true;
         }
-        // Boss 5 Meat
-        if (m.isBoss05 && m.hp < 5 && !m.hasEatenMeat) {
+        // Boss 15 Meat (was Boss 05)
+        if (m.bossId === 15 && m.hp < 5 && !m.hasEatenMeat) {
             m.hasEatenMeat = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
