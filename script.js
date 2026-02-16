@@ -1,7 +1,7 @@
 /* Game Constants */
 const CONSTANTS = {
     PLAYER_MAX_HP: 10,
-    TOTAL_MONSTERS: 10,
+    TOTAL_MONSTERS: 10, // Will be updated by calculateTotalMonsters() on load
     TIMER_SECONDS: 10,
     CRITICAL_THRESHOLD: 3.0,
     NORMAL_DAMAGE: 1,
@@ -232,30 +232,26 @@ class Monster {
     }
 }
 
-/* Monster File List (From previous list_dir) */
-const MONSTER_FILES = [
-    "01_うんちぼうや.webp", "01_ざっそうだま.webp", "01_もちもち.webp",
-    "02_いもむしくん.webp", "02_こにゃんにゃん.webp", "02_びくびくねずみ.webp",
-    "03_もえろう.webp", "03_わんこぞう.webp", "03_オレンジュー.webp",
-    "04_おばけん.webp", "04_カメゴンス.webp", "04_カルボーン.webp",
-    "05_ちょうちょふじん.webp", "05_もふもふがふじん.webp",
-    "06_あんさつかまきり.webp", "06_はちのじょおう.webp", "06_ばさばさどり.webp",
-    "07_あかとげがに.webp", "07_くませんし.webp", "07_ラフレッシア.webp",
-    "08_ガブドリア.webp", "08_ブラックタイガー.webp", "08_プテライリュウ.webp",
-    "09_おばけむかで.webp", "09_ドラゴーン.webp", "09_ペラペラポトス.webp",
-    "Boss01_よるをしはいするもの.webp", "Boss02_いかりのドラゴーン.webp", "Boss03_はかいのマシーン.webp",
-    "Boss04_インセクトキング.webp", "Boss05_ぼうくんティラノザウルス.webp", "Boss06_こうてつカブトサムライ.webp",
-    "Heal_かいふくぐさ.webp", "Heal_ペロキャン.webp", "Lastboss_しんのかみダイオウグソクナイト.webp",
-    "Rare_ダイアゴーレム.webp", "Rare_宝箱.webp"
-];
+/* Monster File List */
+/* 
+   We now use window.MONSTER_ASSETS (loaded from assets/monster_list.js) if available.
+   Fallback to empty if not found (or handle gracefully).
+*/
+
+function getMonsterAssets() {
+    return window.MONSTER_ASSETS || [];
+}
 
 function findMonsterImage(monster) {
+    const assets = getMonsterAssets();
+    if (assets.length === 0) return '';
+
     let candidates = [];
 
     if (monster.isRare) {
-        candidates = MONSTER_FILES.filter(f => f.toLowerCase().startsWith('rare_'));
+        candidates = assets.filter(f => f.toLowerCase().startsWith('rare_'));
     } else if (monster.isHeal) {
-        candidates = MONSTER_FILES.filter(f => f.toLowerCase().startsWith('heal_'));
+        candidates = assets.filter(f => f.toLowerCase().startsWith('heal_'));
     } else if (monster.number === 10) {
         // Boss Logic
         let prefix = `boss${String(monster.opCount).padStart(2, '0')}_`;
@@ -263,24 +259,52 @@ function findMonsterImage(monster) {
         else if (monster.isBoss05) prefix = "boss05_";
 
         // 1. Exact match boss prefix
-        candidates = MONSTER_FILES.filter(f => f.toLowerCase().startsWith(prefix.toLowerCase()));
+        candidates = assets.filter(f => f.toLowerCase().startsWith(prefix.toLowerCase()));
     } else {
         // Normal
-        let prefix = String(monster.number).padStart(2, '0');
-        candidates = MONSTER_FILES.filter(f => f.startsWith(prefix));
+        let prefix = String(monster.number).padStart(2, '0') + "_";
+        candidates = assets.filter(f => f.startsWith(prefix));
     }
 
-    if (candidates.length === 0) return ''; // fallback?
+    if (candidates.length === 0) return '';
     const choice = candidates[Math.floor(Math.random() * candidates.length)];
 
     // Update name from filename (Simple parsing: remove prefix, remove extension)
     // E.g. 01_もちもち.webp -> もちもち
-    let name = choice.replace('.webp', '');
+    let name = choice.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     // Remove prefixes
     name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
     monster.name = name; // Update name in place
 
     return `assets/img/${choice}`;
+}
+
+function calculateTotalMonsters() {
+    const assets = getMonsterAssets();
+    let maxNum = 10; // default to 10 to be safe, or start at 0 and calculate
+
+    if (assets.length > 0) {
+        maxNum = 0;
+        // Find highest number prefix (e.g. "12_...")
+        const numbers = assets.map(f => {
+            const match = f.match(/^(\d+)_/);
+            return match ? parseInt(match[1]) : 0;
+        });
+        maxNum = Math.max(...numbers);
+
+        // Check for Boss files (implies Stage 10 exists)
+        const hasBoss = assets.some(f => f.toLowerCase().startsWith('boss'));
+        if (hasBoss && maxNum < 10) {
+            maxNum = 10;
+        }
+
+        // Final fallback if something is weird, though 0 is possible if no files.
+        // But we want at least 10 if we fall back to existing behavior?
+        // Actually if user deletes all files, game might break.
+        // Let's ensure minimum 10 if we have the standard set.
+        if (maxNum === 0) maxNum = 10;
+    }
+    return maxNum;
 }
 
 
@@ -451,8 +475,8 @@ class Game {
         this.sound.playBgm(m.number === 10);
 
         let msg = "";
-        if (m.isRare) msg = "珍しいモンスターだ！";
-        else if (m.isHeal) msg = "回復のチャンスだ！";
+        if (m.isRare) msg = "レアモンスターだ！";
+        else if (m.isHeal) msg = "かいふくの チャンスだ！";
         else msg = `${m.name} が あらわれた！`;
 
         document.getElementById('interval-msg').textContent = msg;
@@ -606,7 +630,7 @@ class Game {
             m.name = "しんのかみ";
             document.getElementById('monster-name').textContent = m.name;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが真の姿を解放した！", true, 3000);
+            this._showMessage("モンスターが しんの すがたを かいほうした！", true, 3000);
             this.sound.playSe('lastboss'); // New SE
             return true;
         }
@@ -615,7 +639,7 @@ class Game {
             m.hasLickedSap = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが樹液を舐めた！(HP全回復)", false, 3000);
+            this._showMessage("モンスターが じゅえきを なめた！(HP全回復)", false, 3000);
             this.sound.playSe('sap'); // New SE
             return true;
         }
@@ -624,7 +648,7 @@ class Game {
             m.hasEatenMeat = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが肉を食べた！(HP全回復)", false, 3000);
+            this._showMessage("モンスターが にくを たべた！(HP全回復)", false, 3000);
             this.sound.playSe('meat'); // New SE
             return true;
         }
@@ -652,13 +676,13 @@ class Game {
         // Bonuses
         if (m.isRare) {
             this.rareBuff = true;
-            setTimeout(() => this._showMessage("攻撃力が上がった！", false, 2500), 1000);
+            setTimeout(() => this._showMessage("こうげきりょくが あがった！", false, 2500), 1000);
         }
         if (m.isHeal) {
             this.playerHp = CONSTANTS.PLAYER_MAX_HP;
             this._updatePlayerHpUI();
             this.sound.playSe('heal'); // New SE
-            setTimeout(() => this._showMessage("HPが全回復した！", false, 2500), 1000);
+            setTimeout(() => this._showMessage("HPが ぜんかいふくした！", false, 2500), 1000);
         }
 
         setTimeout(() => {
@@ -694,7 +718,7 @@ class Game {
         this.sound.stopBgm();
         this._showMessage("ゲームオーバー...", true);
         setTimeout(() => {
-            alert("ゲームオーバー！ タイトルに戻ります。");
+            alert("ゲームオーバー！ つぎはまけないぞ！");
             location.reload();
         }, 2000);
     }
@@ -775,5 +799,10 @@ class Game {
 
 // Init
 window.addEventListener('DOMContentLoaded', () => {
+    // Dynamic Monster Count
+    if (typeof calculateTotalMonsters === 'function') {
+        CONSTANTS.TOTAL_MONSTERS = calculateTotalMonsters();
+        console.log("Total Monsters set to:", CONSTANTS.TOTAL_MONSTERS);
+    }
     new Game();
 });
