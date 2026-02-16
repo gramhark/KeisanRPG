@@ -307,8 +307,8 @@ class Game {
 
     adjustScale() {
         // Base logic: Ensure content fits in height.
-        // Assumed safe design height ~750px (Title + Setup inputs)
-        const minHeight = 750;
+        // Assumed safe design height ~1000px (Title + Setup inputs)
+        const minHeight = 1000;
         const winH = window.innerHeight;
         const app = document.getElementById('app');
 
