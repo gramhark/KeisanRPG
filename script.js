@@ -306,18 +306,30 @@ class Game {
     }
 
     adjustScale() {
-        // Base logic: Ensure content fits in height.
-        // Assumed safe design height ~1000px (Title + Setup inputs)
-        const minHeight = 1000;
-        const winH = window.innerHeight;
         const app = document.getElementById('app');
+        const activeScreen = document.querySelector('.screen.active');
 
-        if (winH < minHeight) {
-            const scale = winH / minHeight;
+        if (!activeScreen) return;
+
+        // Reset to measure natural height
+        app.style.height = 'auto';
+        app.style.transform = 'none';
+
+        // Measure content
+        // Math.max(1000, ...) ensures we don't zoom in too much on small content (like Battle screen)
+        // keeping the "just right" feel the user liked.
+        // We add a buffer (50px) to ensure margins aren't cut off.
+        const contentHeight = activeScreen.scrollHeight;
+        const targetHeight = Math.max(900, contentHeight + 50);
+
+        const winH = window.innerHeight;
+
+        if (winH < targetHeight) {
+            const scale = winH / targetHeight;
             app.style.transform = `scale(${scale})`;
             app.style.transformOrigin = 'top center';
-            // Adjust height to occupy full space visually even when scaled
-            app.style.height = `${minHeight}px`;
+            // Force app height to match target so background fills covering scaling
+            app.style.height = `${targetHeight}px`;
         } else {
             app.style.transform = 'none';
             app.style.height = '100vh';
@@ -413,6 +425,10 @@ class Game {
 
         this.sound.playBgm(false);
         this.showInterval();
+
+        // Adjust scale for Battle Screen (uses default minHeight)
+        this.state = GameState.INTERVAL; // showInterval sets this, but let's be safe
+        this.adjustScale();
     }
 
     showInterval() {

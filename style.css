@@ -10,7 +10,7 @@
     --danger-color: #ff4b4b;
     --success-color: #00e676;
     --border-color: #3b4259;
-    --font-pixel: 'DotGothic16', sans-serif;
+    --font-pixel: 'M PLUS Rounded 1c', sans-serif;
     --font-main: 'M PLUS Rounded 1c', sans-serif;
 }
 
@@ -39,7 +39,7 @@ body {
     max-width: 500px;
     height: 100vh;
     /* Fill screen on mobile */
-    max-height: 900px;
+    /* max-height: 900px; - Removed to allow scaling */
     background-color: var(--bg-color);
     position: relative;
     display: flex;
@@ -63,7 +63,7 @@ body {
 /* Typography */
 .title {
     font-family: var(--font-pixel);
-    font-size: 3rem;
+    font-size: 5rem;
     text-align: center;
     color: var(--accent-color);
     margin-top: 40px;
@@ -74,7 +74,7 @@ body {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 40px;
-    font-size: 1.2rem;
+    font-size: 2rem;
 }
 
 /* Setup Form */
@@ -94,6 +94,7 @@ body {
     margin-bottom: 8px;
     font-weight: bold;
     color: #a0aabf;
+    font-size: 1.5rem;
 }
 
 input[type="text"] {
@@ -103,7 +104,7 @@ input[type="text"] {
     border: 2px solid var(--border-color);
     background: #0f1320;
     color: white;
-    font-size: 1.2rem;
+    font-size: 2rem;
     text-align: center;
     outline: none;
 }
@@ -121,7 +122,7 @@ input[type="text"]:focus {
 .toggle-btn,
 .checkbox-btn {
     flex: 1;
-    padding: 10px;
+    padding: 15px;
     background: #252b42;
     border: 2px solid var(--border-color);
     color: #888;
@@ -129,6 +130,7 @@ input[type="text"]:focus {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s;
+    font-size: 1.8rem;
 }
 
 .toggle-btn.active,
@@ -151,7 +153,7 @@ input[type="text"]:focus {
     border: none;
     padding: 18px;
     border-radius: 50px;
-    font-size: 1.3rem;
+    font-size: 2.5rem;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
@@ -279,7 +281,7 @@ input[type="text"]:focus {
 }
 
 #monster-name {
-    font-size: 1.1rem;
+    font-size: 1.8rem;
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -354,7 +356,12 @@ input[type="text"]:focus {
 }
 
 #player-name-display {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+}
+
+#player-hp-text {
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
 .hp-status {
@@ -375,7 +382,7 @@ input[type="text"]:focus {
 }
 
 .problem-text {
-    font-size: 2.5rem;
+    font-size: 4rem;
     font-weight: bold;
     color: var(--accent-color);
     font-family: var(--font-pixel);
@@ -392,9 +399,9 @@ input[type="text"]:focus {
     background: transparent;
     border: none;
     color: white;
-    font-size: 2rem;
+    font-size: 3rem;
     text-align: center;
-    width: 150px;
+    width: 200px;
     border-bottom: 2px solid var(--primary-color);
     font-family: var(--font-pixel);
     padding-bottom: 5px;
@@ -452,7 +459,7 @@ input[type="text"]:focus {
     border: none;
     border-radius: 8px;
     color: white;
-    font-size: 1.5rem;
+    font-size: 3rem;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 4px 0 #0f1320;
