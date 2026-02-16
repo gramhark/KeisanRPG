@@ -643,6 +643,18 @@ input[type="text"]:focus {
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+.result-settings-container {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #a0aabf;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: #252b42;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
 /* Footer / Copyright */
 .setup-footer {
     margin-top: auto;

@@ -733,7 +733,7 @@ class Game {
         this._updateInputUI();
 
         const totalTime = (Date.now() - this.monsterBattleStart) / 1000;
-        this.defeatTimes.push(totalTime.toFixed(1));
+        this.defeatTimes.push({ time: totalTime.toFixed(1), name: m.name });
 
         this.sound.playSe('defeat');
         this._showMessage(`${m.name} をたおした！`);
@@ -804,17 +804,24 @@ class Game {
         list.innerHTML = '';
 
         // Calculate Total
-        const times = this.defeatTimes.map(t => parseFloat(t));
+        const times = this.defeatTimes.map(item => parseFloat(item.time));
         const totalTime = times.reduce((a, b) => a + b, 0).toFixed(1);
         document.getElementById('total-time-display').textContent = `${totalTime}秒`;
+
+        // Display Settings
+        const opDisplay = this.operators.map(op => {
+            return { '+': '＋', '-': '－', '*': '×', '/': '÷' }[op];
+        }).join(' ');
+        const settingsText = `ひだり:${this.leftDigits}けた  みぎ:${this.rightDigits}けた  (${opDisplay})`;
+        document.getElementById('result-settings-text').textContent = settingsText;
 
         // Find Min/Max for highlighting
         // Note: multiple items can be min or max
         const minTime = Math.min(...times);
         const maxTime = Math.max(...times);
 
-        this.defeatTimes.forEach((t, i) => {
-            const val = parseFloat(t);
+        this.defeatTimes.forEach((item, i) => {
+            const val = parseFloat(item.time);
             const li = document.createElement('li');
 
             let className = '';
@@ -822,7 +829,7 @@ class Game {
             else if (val === maxTime) className = 'time-slowest';
 
             // Apply color to the time span
-            li.innerHTML = `<span>モンスター ${i + 1}</span><span class="${className}">${t}秒</span>`;
+            li.innerHTML = `<span>${item.name}</span><span class="${className}">${item.time}秒</span>`;
             list.appendChild(li);
         });
     }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>けいさんバトル - けいさんバトルRPG</title>
+    <title>けいさんモンスター - けいさんバトルRPG</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,7 @@
     <div id="app">
         <!-- Setup Screen -->
         <div id="setup-screen" class="screen active">
-            <h1 class="title">⚔ けいさんバトル ⚔</h1>
+            <h1 class="title">⚔ けいさんモンスター ⚔</h1>
             <p class="subtitle">〜 けいさんバトルRPG 〜</p>
 
             <div class="setup-container">
@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <button id="start-btn" class="primary-btn">ぼうけんスタート</button>
+                <button id="start-btn" class="primary-btn">バトルスタート</button>
             </div>
             <footer class="setup-footer">
                 <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
@@ -129,13 +129,16 @@
                 <span class="total-label">ごうけいタイム</span>
                 <span id="total-time-display" class="total-time-display">0.0秒</span>
             </div>
+            <div class="result-settings-container">
+                <span id="result-settings-text">1けた x 1けた (＋)</span>
+            </div>
             <div class="result-stats">
                 <h3>げきはタイム</h3>
                 <ul id="time-list">
                     <!-- Javascript will populate this -->
                 </ul>
             </div>
-            <button id="restart-btn" class="primary-btn">タイトルに戻る</button>
+            <button id="restart-btn" class="primary-btn">タイトルにもどる</button>
         </div>
 
         <!-- Audio Elements -->
