@@ -33,15 +33,23 @@ class SoundManager {
         this.seDamage = document.getElementById('se-damage');
         this.seDefeat = document.getElementById('se-defeat');
         this.seClear = document.getElementById('se-clear');
+        this.seLastboss = document.getElementById('se-lastboss');
+        this.seHeal = document.getElementById('se-heal');
+        this.seMeat = document.getElementById('se-meat');
+        this.seSap = document.getElementById('se-sap');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/battle.mp3';
         this.bgmBoss.src = 'assets/audio/Bossbattle.mp3';
-        this.seAttack.src = 'assets/audio/attack.wav';
-        this.seCritical.src = 'assets/audio/critical.wav';
-        this.seDamage.src = 'assets/audio/damage.wav';
-        this.seDefeat.src = 'assets/audio/defeat.wav';
-        this.seClear.src = 'assets/audio/clear.wav';
+        this.seAttack.src = 'assets/audio/attack.mp3';
+        this.seCritical.src = 'assets/audio/critical.mp3';
+        this.seDamage.src = 'assets/audio/damage.mp3';
+        this.seDefeat.src = 'assets/audio/defeat.mp3';
+        this.seClear.src = 'assets/audio/clear.mp3';
+        this.seLastboss.src = 'assets/audio/lastboss.mp3';
+        this.seHeal.src = 'assets/audio/heal.mp3';
+        this.seMeat.src = 'assets/audio/meat.mp3';
+        this.seSap.src = 'assets/audio/sap.mp3';
 
         this.currentBgm = null;
     }
@@ -76,6 +84,10 @@ class SoundManager {
             case 'damage': se = this.seDamage; break;
             case 'defeat': se = this.seDefeat; break;
             case 'clear': se = this.seClear; break;
+            case 'lastboss': se = this.seLastboss; break;
+            case 'heal': se = this.seHeal; break;
+            case 'meat': se = this.seMeat; break;
+            case 'sap': se = this.seSap; break;
         }
         if (se) {
             se.currentTime = 0;
@@ -559,10 +571,10 @@ class Game {
         } else {
             // Boss Logic Check
             if (this._checkBossEvents(m)) {
-                // Event triggered, delay next problem
-                setTimeout(() => this.nextProblem(), 2000);
+                // Event triggered, delay next problem (increased to 3s for user to see boss msg)
+                setTimeout(() => this.nextProblem(), 3000);
             } else {
-                setTimeout(() => this.nextProblem(), 500); // slight delay to see msg
+                setTimeout(() => this.nextProblem(), 1000); // delay increased to 1s for better pacing
             }
         }
     }
@@ -587,15 +599,15 @@ class Game {
         // Boss 6 Transform
         if (m.isBoss06 && m.hp <= 4 && !m.hasTransformed) {
             m.hasTransformed = true;
-            m.hp = 10;
+            m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
             m.imageSrc = 'assets/img/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
             document.getElementById('monster-img').src = m.imageSrc;
             m.name = "しんのかみ";
             document.getElementById('monster-name').textContent = m.name;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが真の姿を解放した！", true);
-            this.sound.playSe('critical');
+            this._showMessage("モンスターが真の姿を解放した！", true, 3000);
+            this.sound.playSe('lastboss'); // New SE
             return true;
         }
         // Boss 6 Sap
@@ -603,7 +615,8 @@ class Game {
             m.hasLickedSap = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが樹液を舐めた！(HP全回復)", false);
+            this._showMessage("モンスターが樹液を舐めた！(HP全回復)", false, 3000);
+            this.sound.playSe('sap'); // New SE
             return true;
         }
         // Boss 5 Meat
@@ -611,7 +624,8 @@ class Game {
             m.hasEatenMeat = true;
             m.hp = 10;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが肉を食べた！(HP全回復)", false);
+            this._showMessage("モンスターが肉を食べた！(HP全回復)", false, 3000);
+            this.sound.playSe('meat'); // New SE
             return true;
         }
         return false;
@@ -638,12 +652,13 @@ class Game {
         // Bonuses
         if (m.isRare) {
             this.rareBuff = true;
-            setTimeout(() => this._showMessage("攻撃力が上がった！"), 1000);
+            setTimeout(() => this._showMessage("攻撃力が上がった！", false, 2500), 1000);
         }
         if (m.isHeal) {
             this.playerHp = CONSTANTS.PLAYER_MAX_HP;
             this._updatePlayerHpUI();
-            setTimeout(() => this._showMessage("HPが全回復した！"), 1000);
+            this.sound.playSe('heal'); // New SE
+            setTimeout(() => this._showMessage("HPが全回復した！", false, 2500), 1000);
         }
 
         setTimeout(() => {
@@ -741,7 +756,7 @@ class Game {
         app.classList.add('shake-effect');
     }
 
-    _showMessage(text, isCrit = false) {
+    _showMessage(text, isCrit = false, duration = 1500) {
         const ov = document.getElementById('message-overlay');
         ov.textContent = text;
         ov.classList.remove('show', 'critical');
@@ -750,10 +765,11 @@ class Game {
         void ov.offsetWidth;
         ov.classList.add('show');
 
-        // Auto hide after 1.5s
-        setTimeout(() => {
+        // Auto hide after specified duration
+        if (this.messageTimeout) clearTimeout(this.messageTimeout);
+        this.messageTimeout = setTimeout(() => {
             ov.classList.remove('show');
-        }, 1500);
+        }, duration);
     }
 }
 
