@@ -383,6 +383,9 @@ input[type="text"]:focus {
 
 .problem-text {
     font-size: 4rem;
+    line-height: 1.5;
+    min-height: 1.5em;
+    /* Increased to prevent shift */
     font-weight: bold;
     color: var(--accent-color);
     font-family: var(--font-pixel);

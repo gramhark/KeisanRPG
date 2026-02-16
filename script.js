@@ -474,6 +474,12 @@ class Game {
 
         // Keyboard
         document.addEventListener('keydown', (e) => {
+            // Interval Screen (Fight Start)
+            if (this.state === GameState.INTERVAL && e.key === 'Enter') {
+                this.startBattle();
+                return;
+            }
+
             if (this.state !== GameState.BATTLE) return;
             if (e.key >= '0' && e.key <= '9') this._handleInput(e.key);
             if (e.key === 'Backspace') this._handleInput('DEL');
@@ -684,6 +690,7 @@ class Game {
         // Boss 16 Transform (was Boss 06)
         if (m.bossId === 16 && m.hp <= 4 && !m.hasTransformed) {
             m.hasTransformed = true;
+            m.maxHp = 20; // Update maxHp for gauge scaling
             m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
             m.imageSrc = 'assets/img/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
