@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>マスバトール - けいさんバトルRPG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="screen active">
+            <h1 class="title">👾 マスバトール 👾</h1>
+            <p class="subtitle">〜 けいさんバトルRPG 〜</p>
+
+            <div class="setup-container">
+                <div class="input-group">
+                    <label>なまえ</label>
+                    <input type="text" id="player-name" placeholder="ゆうしゃ" maxlength="10">
+                </div>
+
+                <div class="input-group">
+                    <label>ひだりのけた</label>
+                    <div class="toggle-group" id="left-digits-group">
+                        <button class="toggle-btn active" data-value="1">1けた</button>
+                        <button class="toggle-btn" data-value="2">2けた</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>みぎのけた</label>
+                    <div class="toggle-group" id="right-digits-group">
+                        <button class="toggle-btn active" data-value="1">1けた</button>
+                        <button class="toggle-btn" data-value="2">2けた</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>けいさんのしゅるい</label>
+                    <div class="checkbox-group" id="operators-group">
+                        <button class="checkbox-btn active" data-op="+">＋</button>
+                        <button class="checkbox-btn" data-op="-">－</button>
+                        <button class="checkbox-btn" data-op="*">×</button>
+                        <button class="checkbox-btn" data-op="/">÷</button>
+                    </div>
+                </div>
+
+                <button id="start-btn" class="primary-btn">バトルスタート</button>
+            </div>
+            <footer class="setup-footer">
+                <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
+            </footer>
+        </div>
+
+        <!-- Battle Screen -->
+        <div id="battle-screen" class="screen">
+            <div class="battle-view">
+                <div id="message-overlay" class="message-overlay"></div>
+                <div class="monster-container">
+                    <img id="monster-img" src="" alt="Monster">
+                    <div class="monster-stat">
+                        <span id="monster-name">モンスター</span>
+                        <div class="hp-bar-container small">
+                            <div id="monster-hp-bar" class="hp-bar-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="status-row">
+                    <span id="player-name-display">ゆうしゃ</span>
+                    <div class="hp-status">
+                        <div class="hp-bar-container">
+                            <div id="player-hp-bar" class="hp-bar-fill" style="width: 100%;"></div>
+                        </div>
+                        <span id="player-hp-text">HP 10/10</span>
+                    </div>
+                </div>
+
+                <div class="problem-area">
+                    <div id="problem-text" class="problem-text">5 + 3 = ?</div>
+                    <div class="input-wrapper">
+                        <input type="tel" id="answer-input" class="answer-input" readonly>
+                        <span class="cursor"></span>
+                    </div>
+                </div>
+
+                <div class="timer-container">
+                    <div id="timer-bar" class="timer-bar" style="width: 100%;"></div>
+                </div>
+
+                <div class="numpad">
+                    <button class="num-btn" data-key="7">7</button>
+                    <button class="num-btn" data-key="8">8</button>
+                    <button class="num-btn" data-key="9">9</button>
+                    <button class="num-btn" data-key="4">4</button>
+                    <button class="num-btn" data-key="5">5</button>
+                    <button class="num-btn" data-key="6">6</button>
+                    <button class="num-btn" data-key="1">1</button>
+                    <button class="num-btn" data-key="2">2</button>
+                    <button class="num-btn" data-key="3">3</button>
+                    <button class="num-btn action-btn red" data-key="DEL">けす</button>
+                    <button class="num-btn" data-key="0">0</button>
+                    <button class="num-btn action-btn green" data-key="ENTER">いけ!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interval Screen Overlay -->
+        <div id="interval-overlay" class="overlay">
+            <div class="overlay-content">
+                <img id="interval-monster-img" class="interval-img" src="" alt="Monster">
+                <h2 id="interval-msg">モンスターが あらわれた！</h2>
+                <button id="battle-start-btn" class="primary-btn">たたかう</button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <h1 class="title">🎉 クリアおめでとう！ 🎉</h1>
+            <div class="result-total-container">
+                <span class="total-label">ごうけいタイム</span>
+                <span id="total-time-display" class="total-time-display">0.0秒</span>
+            </div>
+            <div class="result-settings-container">
+                <span id="result-settings-text">1けた x 1けた (＋)</span>
+            </div>
+            <div class="result-stats">
+                <h3>げきはタイム</h3>
+                <ul id="time-list">
+                    <!-- Javascript will populate this -->
+                </ul>
+            </div>
+            <button id="restart-btn" class="primary-btn">タイトルにもどる</button>
+        </div>
+
+        <!-- Audio Elements -->
+        <div id="audio-container">
+            <audio id="bgm-battle" loop></audio>
+            <audio id="bgm-boss" loop></audio>
+            <audio id="se-attack"></audio>
+            <audio id="se-critical"></audio>
+            <audio id="se-damage"></audio>
+            <audio id="se-defeat"></audio>
+            <audio id="se-clear"></audio>
+            <audio id="se-lastboss"></audio>
+            <audio id="se-heal"></audio>
+            <audio id="se-meat"></audio>
+            <audio id="se-sap"></audio>
+        </div>
+    </div>
+    <script src="assets/monster_list.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
