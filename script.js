@@ -408,37 +408,53 @@ class Game {
 
         if (!activeScreen) return;
 
-        // Reset to measure natural height
+        // リセットして自然なサイズとレイアウトフローを取得
         app.style.height = 'auto';
+        app.style.width = '100%';
         app.style.transform = 'none';
 
-        // 戦闘画面は構成要素が多いため最低高さを引き上げ
-        const contentHeight = activeScreen.scrollHeight;
+        // Viewportの取得 (visualViewport API推奨: キーボードやバーの影響を正確に取得)
+        const viewport = window.visualViewport;
+        const winW = viewport ? viewport.width : window.innerWidth;
+        const winH = viewport ? viewport.height : window.innerHeight;
+
+        // コンテンツの実際の高さを計測
+        // スクロール可能な高さ(scrollHeight)を基準にするが、
+        // 画面切り替え直後はレイアウトが安定していない場合があるため、最低保証値を設定
+        let contentHeight = activeScreen.scrollHeight;
+
+        // セットアップ画面と戦闘画面で最低高さを少し変える（UX調整）
         const isSetup = activeScreen.id === 'setup-screen';
-        const minHeight = isSetup ? 700 : 950;
-        const targetHeight = Math.max(minHeight, contentHeight + 80);
+        const minSafeHeight = isSetup ? 600 : 800; // 最低でも確保したい高さ
+        const targetHeight = Math.max(minSafeHeight, contentHeight + 40); // +40px padding
 
-        const winH = window.innerHeight;
-        const winW = window.innerWidth;
+        // コンテンツ幅（通常は画面幅あるいはmax-width: 500px）
+        const contentWidth = app.offsetWidth;
 
-        // 横幅も考慮してスケールを決める（appの基準幅と画面幅を比較）
-        const targetWidth = 500; // #appのmax-widthに合わせた基準幅
+        // スケール比率の計算
+        // 1. 縦方向: 画面高さ / コンテンツ高さ
         const scaleH = winH / targetHeight;
-        const scaleW = winW / targetWidth;
-        // 縦・横どちらか小さい方に合わせてはみ出しを防ぐ
-        // ただし縦画面スマホ(winW <= 500)では横スケールは1.0固定にして幅を活かす
-        const scale = winW <= 500
-            ? scaleH
-            : Math.min(scaleH, scaleW);
+        // 2. 横方向: 画面幅 / コンテンツ幅
+        const scaleW = winW / contentWidth;
 
-        if (scale < 1) {
+        // 縦横どちらかがはみ出す場合、小さいほうの比率に合わせて全体を縮小
+        // ただし、拡大(>1.0)はしない（画質劣化防止・レイアウト維持のため）
+        let scale = Math.min(scaleH, scaleW, 1.0);
+
+        if (scale < 1.0) {
             app.style.transform = `scale(${scale})`;
             app.style.transformOrigin = 'top center';
+            // スケール適用時、appの高さは「縮小前の高さ」に固定し、
+            // 視覚的に縮小されて画面にフィットするようにする
             app.style.height = `${targetHeight}px`;
         } else {
-            app.style.transform = 'none';
+            // スケール不要な場合は通常通り画面いっぱいに
             app.style.height = '100vh';
+            app.style.transform = 'none';
         }
+
+        // デバッグ用ログ (必要なければ削除)
+        // console.log(`AdjustScale: W=${winW}, H=${winH}, TgtH=${targetHeight}, Scale=${scale}`);
     }
 
     /* Event Binding */
