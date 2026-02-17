@@ -61,6 +61,16 @@ body {
 }
 
 /* Typography */
+.title-img {
+    max-width: 90%;
+    height: auto;
+    margin-top: 40px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+}
+
 .title {
     font-family: var(--font-pixel);
     font-size: 5rem;
@@ -560,6 +570,13 @@ input[type="text"]:focus {
         margin-bottom: 20px;
     }
 
+    .title-img {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+
+
     .subtitle {
         font-size: 1.5rem;
         margin-bottom: 20px;
@@ -616,6 +633,15 @@ input[type="text"]:focus {
 
     .title {
         font-size: 4rem;
+    }
+
+    .title-img {
+        max-width: 60%;
+    }
+
+
+    .title-img {
+        max-width: 60%;
     }
 
     #monster-img {
