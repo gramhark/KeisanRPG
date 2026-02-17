@@ -758,7 +758,11 @@ class Game {
         this._updateInputUI();
 
         const totalTime = (Date.now() - this.monsterBattleStart) / 1000;
-        this.defeatTimes.push({ time: totalTime.toFixed(1), name: m.name });
+        this.defeatTimes.push({
+            time: totalTime.toFixed(1),
+            name: m.name,
+            imageSrc: m.imageSrc // Store image for result screen
+        });
 
         this.sound.playSe('defeat');
         this._showMessage(`${m.name} をたおした！`);
@@ -825,6 +829,9 @@ class Game {
         document.getElementById('battle-screen').classList.remove('active');
         document.getElementById('result-screen').classList.add('active');
 
+        // Adjust scale for result screen content
+        this.adjustScale();
+
         const list = document.getElementById('time-list');
         list.innerHTML = '';
 
@@ -848,13 +855,22 @@ class Game {
         this.defeatTimes.forEach((item, i) => {
             const val = parseFloat(item.time);
             const li = document.createElement('li');
+            li.className = 'result-card'; // Add class for styling
 
-            let className = '';
-            if (val === minTime) className = 'time-fastest';
-            else if (val === maxTime) className = 'time-slowest';
+            let timeClass = 'result-time';
+            if (val === minTime) timeClass += ' time-fastest';
+            else if (val === maxTime) timeClass += ' time-slowest';
 
-            // Apply color to the time span
-            li.innerHTML = `<span>${item.name}</span><span class="${className}">${item.time}秒</span>`;
+            // Construct Inner HTML with Image
+            li.innerHTML = `
+                <div class="result-img-container">
+                    <img src="${item.imageSrc}" class="result-img" alt="${item.name}" loading="lazy">
+                </div>
+                <div class="result-info">
+                    <span class="result-name">${item.name}</span>
+                    <span class="${timeClass}">${item.time}秒</span>
+                </div>
+            `;
             list.appendChild(li);
         });
     }
