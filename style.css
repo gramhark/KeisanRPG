@@ -190,6 +190,80 @@ input[type="text"]:focus {
     background: radial-gradient(circle at center, #1a2138 0%, #0b0f19 70%);
 }
 
+/* Stage Progress */
+.stage-progress {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stage-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3b4259;
+    border: 1px solid #5a6275;
+    transition: all 0.3s;
+}
+
+.stage-dot.current {
+    background: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-color);
+    border-color: #fff;
+    transform: scale(1.2);
+}
+
+.stage-dot.cleared {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    opacity: 0.7;
+}
+
+.stage-dot.boss {
+    border: 2px solid var(--danger-color);
+}
+
+.stage-dot.rare {
+    background: #554400;
+    /* Dark Yellow base */
+    border-color: #887700;
+}
+
+.stage-dot.rare.current {
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.stage-dot.rare.cleared {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.stage-dot.heal {
+    background: #002244;
+    /* Dark Blue base */
+    border-color: #004488;
+}
+
+.stage-dot.heal.current {
+    background: var(--primary-color);
+    /* Light Blue */
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.stage-dot.heal.cleared {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
 .monster-container {
     position: relative;
     display: flex;

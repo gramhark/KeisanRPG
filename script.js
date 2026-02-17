@@ -521,7 +521,7 @@ class Game {
         const nameInput = document.getElementById('player-name').value.trim();
         this.playerName = nameInput || 'ゆうしゃ';
         if (this.operators.length === 0) {
-            alert('演算子を少なくとも1つ選んでください');
+            alert('どの けいさんに するか えらんでね！');
             return;
         }
 
@@ -549,6 +549,9 @@ class Game {
         // Switch Screen
         document.getElementById('setup-screen').classList.remove('active');
         document.getElementById('battle-screen').classList.add('active');
+
+        // Clear previous progress
+        document.getElementById('stage-progress').innerHTML = '';
 
         this.sound.playBgm(false);
         this.showInterval();
@@ -582,6 +585,46 @@ class Game {
 
         this._updateMonsterHpUI(m);
         document.getElementById('monster-name').textContent = m.name;
+        this._updateStageProgressUI();
+    }
+
+    _updateStageProgressUI() {
+        const container = document.getElementById('stage-progress');
+        if (!container) return;
+
+        // Create dots if empty (first run)
+        if (container.children.length === 0) {
+            for (let i = 0; i < CONSTANTS.TOTAL_MONSTERS; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'stage-dot';
+                // Boss marker
+                if (i === CONSTANTS.TOTAL_MONSTERS - 1) {
+                    dot.classList.add('boss');
+                }
+                container.appendChild(dot);
+            }
+        }
+
+        // Update states
+        const dots = container.querySelectorAll('.stage-dot');
+        dots.forEach((dot, index) => {
+            const m = this.monsters[index];
+
+            // Reset classes (keep base and boss)
+            dot.className = 'stage-dot';
+            if (index === CONSTANTS.TOTAL_MONSTERS - 1) dot.classList.add('boss');
+
+            // Type classes
+            if (m.isRare) dot.classList.add('rare');
+            if (m.isHeal) dot.classList.add('heal');
+
+            // Status classes
+            if (index < this.currentMonsterIdx) {
+                dot.classList.add('cleared');
+            } else if (index === this.currentMonsterIdx) {
+                dot.classList.add('current');
+            }
+        });
     }
 
     startBattle() {
