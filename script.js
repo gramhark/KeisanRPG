@@ -540,7 +540,7 @@ class Game {
         // Adjust scale for Battle Screen (uses default minHeight)
         this.state = GameState.INTERVAL; // showInterval sets this, but let's be safe
         // レイアウト確定後に計測するため少し遅延
-        setTimeout(() => this.adjustScale(), 50);
+        setTimeout(() => this.adjustScale(), 200);
     }
 
     showInterval() {
