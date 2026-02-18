@@ -1020,6 +1020,12 @@ input[type="text"]:focus {
     font-size: 0.7rem;
 }
 
+#app.portrait-mode #open-request-btn {
+    width: 50%;
+    margin: 10px auto;
+    font-size: 0.8rem;
+}
+
 /* --- Battle Screen (Portrait): vertical stacking --- */
 #app.portrait-mode #battle-screen {
     flex-direction: column;
@@ -1254,6 +1260,32 @@ input[type="text"]:focus {
     }
 }
 
+
+
+/* --- Request Form (Portrait) --- */
+#app.portrait-mode .button-group {
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    /* Add space at the bottom */
+}
+
+#app.portrait-mode #submit-request-btn {
+    width: 45%;
+    /* Use percentage to ensure equal width */
+    min-width: unset;
+    font-size: 1.0rem;
+    padding: 12px 10px;
+}
+
+#app.portrait-mode .button-group .secondary-btn {
+    width: 45%;
+    /* Use percentage to ensure equal width */
+    min-width: unset;
+    margin-top: 0;
+}
+
 /* ============================================================
    モバイル Safe Area / dvh 互換性保証ブロック（末尾に追記）
    ============================================================ */
@@ -1278,4 +1310,101 @@ input[type="text"]:focus {
     #app.portrait-mode .panel {
         padding-bottom: 12px;
     }
+}
+
+/* Request Form */
+.secondary-btn {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: #888;
+    padding: 12px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: var(--font-pixel);
+    transition: all 0.2s;
+    width: 100%;
+}
+
+/* Specific override for the request button outside container */
+#open-request-btn {
+    margin-top: 20px;
+    width: 100%;
+    /* Default full width in landscape if outside, or handle in media query? */
+    /* Let's keep it full width or auto in landscape context if needed?
+       User didn't specify landscape width, but "outside container".
+       It might look too wide if full screen width.
+       Let's restrict max-width or let it be full width of setup container width if it was inside.
+       But now it is child of #setup-screen directly.
+    */
+    max-width: 400px;
+    /* Limit width so it doesn't span entire screen in landscape */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.secondary-btn:hover {
+    color: white;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.secondary-btn:active {
+    transform: scale(0.98);
+}
+
+#request-overlay .overlay-content {
+    background: var(--panel-color);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 500px;
+}
+
+#request-text {
+    width: 100%;
+    height: 150px;
+    background: #000;
+    color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    /* prevent iOS zoom */
+    resize: none;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+#request-text:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Request Form Buttons (Landscape / Default) */
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+#submit-request-btn {
+    margin-top: 0;
+    font-size: 1.5rem;
+    padding: 10px 30px;
+    /* Reset from primary-btn if needed, but primary-btn has padding 18px */
+    padding: 12px 30px;
+}
+
+/* Reset width for secondary button in group */
+.button-group .secondary-btn {
+    width: auto;
+    margin-top: 0;
+    padding: 12px 30px;
 }

@@ -54,6 +54,7 @@
 
                 <button id="start-btn" class="primary-btn">バトルスタート</button>
             </div>
+            <button id="open-request-btn" class="secondary-btn">アイデアを おくる</button>
             <footer class="setup-footer">
                 <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
             </footer>
@@ -146,6 +147,22 @@
                 </ul>
             </div>
             <button id="restart-btn" class="primary-btn">タイトルにもどる</button>
+        </div>
+
+        <!-- Request Form Modal -->
+        <div id="request-overlay" class="overlay">
+            <div class="overlay-content">
+                <h2 style="color: var(--primary-color);">はかせに アイデアを おくる</h2>
+                <p style="color: var(--danger-color); font-weight: bold; margin-bottom: 10px;">
+                    ※じゅうしょや でんわばんごうを かかないでね！
+                </p>
+                <textarea id="request-text"
+                    placeholder="じぶんの ニックネームと、モンスターの アイデアを かいてね！&#10;ゲームに とうじょうするかも！"></textarea>
+                <div class="button-group">
+                    <button id="cancel-request-btn" class="secondary-btn">やめる</button>
+                    <button id="submit-request-btn" class="primary-btn">おくる</button>
+                </div>
+            </div>
         </div>
 
         <!-- Audio Elements -->

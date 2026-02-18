@@ -9,6 +9,11 @@ const CONSTANTS = {
     FONT_PIXEL: 'DotGothic16, sans-serif'
 };
 
+const FORM_CONFIG = {
+    ACTION_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSe-dlcdvSBPkMlQ1Zj2S0xV7nmSz-nCK58mp76N7gq4G0PIoQ/formResponse',
+    ENTRY_ID: 'entry.2141365113'
+};
+
 /* State Management */
 const GameState = {
     SETUP: 'setup',
@@ -513,6 +518,15 @@ class Game {
             if (e.key === 'Backspace') this._handleInput('DEL');
             if (e.key === 'Enter') this._handleInput('ENTER');
         });
+
+        // Request Form
+        document.getElementById('open-request-btn').addEventListener('click', () => {
+            document.getElementById('request-overlay').classList.add('active');
+        });
+        document.getElementById('cancel-request-btn').addEventListener('click', () => {
+            document.getElementById('request-overlay').classList.remove('active');
+        });
+        document.getElementById('submit-request-btn').addEventListener('click', () => this.submitRequest());
     }
 
     _updateOperators() {
@@ -564,6 +578,48 @@ class Game {
         this.state = GameState.INTERVAL; // showInterval sets this, but let's be safe
         // レイアウト確定後に計測するため少し遅延
         setTimeout(() => this.adjustScale(), 200);
+    }
+
+    async submitRequest() {
+        const textEl = document.getElementById('request-text');
+        const submitBtn = document.getElementById('submit-request-btn');
+        const text = textEl.value.trim();
+
+        if (!text) {
+            return;
+        }
+
+        // Disable UI
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'おくっています...';
+
+        const formData = new FormData();
+        formData.append(FORM_CONFIG.ENTRY_ID, text);
+
+        try {
+            await fetch(FORM_CONFIG.ACTION_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            });
+
+            // Success (no-cors means we assume success if no error)
+            textEl.value = 'おくりました！ありがとう！';
+            submitBtn.textContent = 'おくりました！';
+
+            setTimeout(() => {
+                document.getElementById('request-overlay').classList.remove('active');
+                textEl.value = ''; // Reset
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'おくる';
+            }, 2000);
+
+        } catch (e) {
+            console.error(e);
+            alert('おくれませんでした...');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'おくる';
+        }
     }
 
     showInterval() {
