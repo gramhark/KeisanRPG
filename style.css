@@ -193,6 +193,7 @@ input[type="text"]:focus {
 /* Stage Progress */
 .stage-progress {
     position: absolute;
+    /* Default: Overlay for landscape/standard */
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
@@ -203,6 +204,27 @@ input[type="text"]:focus {
     padding: 6px 12px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Portrait Mode: Top Section (Sandwich Strategy) */
+#app.portrait-mode .stage-progress {
+    position: relative;
+    /* Part of flow */
+    transform: none;
+    left: auto;
+    top: 0;
+    margin: 10px auto 0;
+    /* Centered with margin */
+    flex-shrink: 0;
+}
+
+#app.portrait-mode .result-img-container {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.3s;
 }
 
 /* 未戦闘: 中が透けた白丸（線だけ） */
@@ -1176,4 +1198,32 @@ input[type="text"]:focus {
 #app.portrait-mode .result-img-container {
     width: 56px;
     height: 56px;
+}
+
+/* Small Screen Optimization (e.g. iPhone SE) */
+@media screen and (max-height: 700px) and (orientation: portrait) {
+    #app.portrait-mode .panel {
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+
+    #app.portrait-mode .problem-text {
+        font-size: 2.5rem;
+        /* Smaller problem text */
+        margin: 5px 0;
+    }
+
+    #app.portrait-mode .num-btn {
+        padding: 4px 0;
+        /* More compact buttons */
+        font-size: 2rem;
+    }
+
+    #app.portrait-mode .status-row {
+        margin-bottom: 5px;
+    }
+
+    #app.portrait-mode #player-name-display,
+    #app.portrait-mode #player-hp-text {
+        font-size: 1.5rem;
+    }
 }

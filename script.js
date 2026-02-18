@@ -409,69 +409,56 @@ class Game {
 
         if (!activeScreen) return;
 
-        // Portrait Mode → スケーリング無効化、CSSのFlexboxに完全委譲
+        // Portrait Mode → Disable JS Scaling, Rely on CSS Sandwich Layout (dvh + flex)
         const isPortrait = window.innerHeight > window.innerWidth;
+
         if (isPortrait) {
-            app.style.transform = 'none';
+            // Reset styles to allow CSS to take over
+            app.style.transform = '';
             app.style.transformOrigin = '';
-            app.style.height = '100vh';
-            app.style.width = '100%';
+            app.style.width = '';
+            app.style.height = '';
+
+            // Add portrait class for specific overrides if needed
             app.classList.add('portrait-mode');
             app.classList.remove('landscape-mode');
             return;
         }
 
-        // Landscape Mode
+        // Landscape Mode - Keep existing Logic
         app.classList.add('landscape-mode');
         app.classList.remove('portrait-mode');
 
-        // リセットして自然なサイズとレイアウトフローを取得
+        // Reset to acquire natural size for calculation
         app.style.height = 'auto';
         app.style.width = '100%';
         app.style.transform = 'none';
 
-        // Viewportの取得 (visualViewport API推奨: キーボードやバーの影響を正確に取得)
+        // Viewport
         const viewport = window.visualViewport;
         const winW = viewport ? viewport.width : window.innerWidth;
         const winH = viewport ? viewport.height : window.innerHeight;
 
-        // コンテンツの実際の高さを計測
-        // スクロール可能な高さ(scrollHeight)を基準にするが、
-        // 画面切り替え直後はレイアウトが安定していない場合があるため、最低保証値を設定
+        // Measure content
         let contentHeight = activeScreen.scrollHeight;
-
-        // セットアップ画面と戦闘画面で最低高さを少し変える（UX調整）
         const isSetup = activeScreen.id === 'setup-screen';
-        const minSafeHeight = isSetup ? 600 : 800; // 最低でも確保したい高さ
-        const targetHeight = Math.max(minSafeHeight, contentHeight + 40); // +40px padding
-
-        // コンテンツ幅（通常は画面幅あるいはmax-width: 500px）
+        const minSafeHeight = isSetup ? 600 : 800;
+        const targetHeight = Math.max(minSafeHeight, contentHeight + 40);
         const contentWidth = app.offsetWidth;
 
-        // スケール比率の計算
-        // 1. 縦方向: 画面高さ / コンテンツ高さ
+        // Calculate Scale
         const scaleH = winH / targetHeight;
-        // 2. 横方向: 画面幅 / コンテンツ幅
         const scaleW = winW / contentWidth;
-
-        // 縦横どちらかがはみ出す場合、小さいほうの比率に合わせて全体を縮小
-        // ただし、拡大(>1.0)はしない（画質劣化防止・レイアウト維持のため）
         let scale = Math.min(scaleH, scaleW, 1.0);
 
         if (scale < 1.0) {
             app.style.transform = `scale(${scale})`;
             app.style.transformOrigin = 'top center';
-            // スケール適用時、appの高さは「縮小前の高さ」に固定し、
-            // 視覚的に縮小されて画面にフィットするようにする
             app.style.height = `${targetHeight}px`;
         } else {
-            // スケール不要な場合は通常通り画面いっぱいに
             app.style.height = '100vh';
             app.style.transform = 'none';
         }
-
-        // デバッグ用ログ (必要なければ削除)
-        // console.log(`AdjustScale: W=${winW}, H=${winH}, TgtH=${targetHeight}, Scale=${scale}`);
     }
 
     /* Event Binding */
