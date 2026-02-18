@@ -200,7 +200,8 @@ class MathProblem {
         }
 
         const opDisplay = { '+': '＋', '-': '－', '*': '×', '/': '÷' }[this.operator];
-        return `${this.left} ${opDisplay} ${this.right} ＝ ？`;
+        this.displayText = `${this.left} ${opDisplay} ${this.right} ＝ `;
+        return this.displayText;
     }
 
     check(val) {
@@ -585,12 +586,10 @@ class Game {
         // BGM Check (Boss or Normal)
         this.sound.playBgm(m.number === 10);
 
-        let msg = "";
-        if (m.isRare) msg = "レアモンスターだ！";
-        else if (m.isHeal) msg = "かいふくの チャンスだ！";
-        else msg = `${m.name} が あらわれた！`;
+        // Fixed 3-line centered message format
+        const msgEl = document.getElementById('interval-msg');
+        msgEl.innerHTML = `${m.name}<br>が<br>あらわれた！`;
 
-        document.getElementById('interval-msg').textContent = msg;
         document.getElementById('interval-overlay').classList.add('active');
 
         // Preload Image
@@ -603,7 +602,6 @@ class Game {
         document.getElementById('monster-name').textContent = m.name;
         this._updateStageProgressUI();
     }
-
     _updateStageProgressUI() {
         const container = document.getElementById('stage-progress');
         if (!container) return;
@@ -630,19 +628,18 @@ class Game {
             dot.className = 'stage-dot';
             if (index === CONSTANTS.TOTAL_MONSTERS - 1) dot.classList.add('boss');
 
-            // Type classes
-            if (m.isRare) dot.classList.add('rare');
-            if (m.isHeal) dot.classList.add('heal');
-
             // Status classes
             if (index < this.currentMonsterIdx) {
                 dot.classList.add('cleared');
+                // Type classes only shown AFTER battle (cleared)
+                if (m.isRare) dot.classList.add('rare');
+                if (m.isHeal) dot.classList.add('heal');
             } else if (index === this.currentMonsterIdx) {
                 dot.classList.add('current');
             }
+            // Future monsters: stay as default white dot (no type class)
         });
     }
-
     startBattle() {
         document.getElementById('interval-overlay').classList.remove('active');
         this.state = GameState.BATTLE;
@@ -656,8 +653,7 @@ class Game {
     }
 
     nextProblem() {
-        const text = this.problem.generate();
-        document.getElementById('problem-text').textContent = text;
+        this.problem.generate();
         this.inputBuffer = "";
         this._updateInputUI();
 
@@ -693,8 +689,23 @@ class Game {
 
     _updateInputUI() {
         document.getElementById('answer-input').value = this.inputBuffer;
-    }
+        // Render single-line problem: 12＋5＝[answer]
+        const problemEl = document.getElementById('problem-text');
+        const displayText = this.problem.displayText || '';
+        const answerVal = this.inputBuffer || '';
+        const isEmpty = answerVal === '';
+        problemEl.innerHTML = `<span class="problem-part">${displayText}</span><span class="answer-part${isEmpty ? ' empty' : ''}">${answerVal}</span>`;
 
+        // Auto-shrink font if content overflows (prevent 2-line wrapping)
+        problemEl.style.fontSize = '';  // reset to CSS default
+        const maxWidth = problemEl.parentElement.clientWidth;
+        let currentSize = parseFloat(getComputedStyle(problemEl).fontSize);
+        const minSize = 14;  // minimum font size in px
+        while (problemEl.scrollWidth > maxWidth && currentSize > minSize) {
+            currentSize -= 2;
+            problemEl.style.fontSize = currentSize + 'px';
+        }
+    }
     _submitAnswer() {
         if (!this.inputBuffer) return;
 
@@ -812,9 +823,9 @@ class Game {
         this.state = GameState.TRANSITION; // Block input
 
         // Clear problem and input
-        document.getElementById('problem-text').textContent = "";
+        document.getElementById('problem-text').innerHTML = "";
         this.inputBuffer = "";
-        this._updateInputUI();
+        document.getElementById('answer-input').value = "";
 
         const totalTime = (Date.now() - this.monsterBattleStart) / 1000;
         this.defeatTimes.push({
