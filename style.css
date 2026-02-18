@@ -398,7 +398,19 @@ input[type="text"]:focus {
 .message-overlay.critical {
     color: var(--accent-color);
     font-size: 2rem;
-    text-shadow: 0 0 10px var(--accent-color);
+    /* ぼかしを抑え、多方向に影を重ねてクッキリした白縁にする */
+    text-shadow:
+        2px 2px 2px #fff, -2px 2px 2px #fff, 2px -2px 2px #fff, -2px -2px 2px #fff,
+        0px 2px 2px #fff, 0px -2px 2px #fff, 2px 0px 2px #fff, -2px 0px 2px #fff;
+}
+
+.message-overlay.damage {
+    color: var(--danger-color);
+    font-size: 1.8rem;
+    /* ぼかしを最小限にし、多方向に重ねて太い黒縁にする */
+    text-shadow:
+        2px 2px 1px #000, -2px 2px 1px #000, 2px -2px 1px #000, -2px -2px 1px #000,
+        0px 3px 2px #000, 0px -3px 2px #000, 3px 0px 2px #000, -3px 0px 2px #000;
 }
 
 /* Panel Area (Bottom) */

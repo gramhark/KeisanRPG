@@ -776,7 +776,7 @@ ${damage}ダメージ！`, isCrit);
 
         this._shakeScreen();
         this._showMessage(`ミス！
-${damage}ダメージうけた！`);
+${damage}ダメージうけた！`, false, 1500, 'damage');
         this.sound.playSe('damage');
 
         if (this.playerHp <= 0) {
@@ -826,7 +826,7 @@ ${damage}ダメージうけた！`);
         this.state = GameState.TRANSITION; // Block input
 
         // Clear problem and input
-        document.getElementById('problem-text').innerHTML = "";
+        // document.getElementById('problem-text').innerHTML = ""; // Don't clear problem text on defeat
         this.inputBuffer = "";
         document.getElementById('answer-input').value = "";
 
@@ -982,17 +982,20 @@ ${damage}ダメージうけた！`);
     }
 
     _shakeScreen() {
-        const app = document.getElementById('app');
-        app.classList.remove('shake-effect');
-        void app.offsetWidth;
-        app.classList.add('shake-effect');
+        const target = document.querySelector('.screen.active');
+        if (!target) return;
+
+        target.classList.remove('shake-effect');
+        void target.offsetWidth;
+        target.classList.add('shake-effect');
     }
 
-    _showMessage(text, isCrit = false, duration = 1500) {
+    _showMessage(text, isCrit = false, duration = 1500, extraClass = null) {
         const ov = document.getElementById('message-overlay');
         ov.textContent = text;
-        ov.classList.remove('show', 'critical');
+        ov.classList.remove('show', 'critical', 'damage');
         if (isCrit) ov.classList.add('critical');
+        if (extraClass) ov.classList.add(extraClass);
 
         void ov.offsetWidth;
         ov.classList.add('show');
