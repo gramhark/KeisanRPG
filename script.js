@@ -408,6 +408,22 @@ class Game {
 
         if (!activeScreen) return;
 
+        // Portrait Mode → スケーリング無効化、CSSのFlexboxに完全委譲
+        const isPortrait = window.innerHeight > window.innerWidth;
+        if (isPortrait) {
+            app.style.transform = 'none';
+            app.style.transformOrigin = '';
+            app.style.height = '100vh';
+            app.style.width = '100%';
+            app.classList.add('portrait-mode');
+            app.classList.remove('landscape-mode');
+            return;
+        }
+
+        // Landscape Mode
+        app.classList.add('landscape-mode');
+        app.classList.remove('portrait-mode');
+
         // リセットして自然なサイズとレイアウトフローを取得
         app.style.height = 'auto';
         app.style.width = '100%';
