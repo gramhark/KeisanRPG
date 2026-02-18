@@ -60,6 +60,7 @@
     "Boss03_がんせきくじら.webp",
     "Boss04_よるをしはいするもの.webp",
     "Boss05_じごくのきかんしゃ.webp",
+    "Boss07_しんりゃくしゃベムット.webp",
     "Boss08_はかいのマシーン.webp",
     "Boss10_ばけものむかで.webp",
     "Boss11_しんかいのあくむ.webp",

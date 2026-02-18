@@ -964,12 +964,14 @@ input[type="text"]:focus {
 #app.portrait-mode #battle-screen {
     flex-direction: column;
     padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Top area: monster visual — expanded */
 #app.portrait-mode .battle-view {
     flex: 1 1 auto;
-    min-height: 100px;
+    min-height: 80px;
     border-right: none;
     border-bottom: 2px solid var(--border-color);
     padding: 0;
@@ -1021,12 +1023,13 @@ input[type="text"]:focus {
 /* Bottom area: player status, problem, numpad — compact */
 #app.portrait-mode .panel {
     flex: 0 0 auto;
+    flex-shrink: 0;
     border-top: none;
     padding: 6px 8px;
     padding-bottom: env(safe-area-inset-bottom, 6px);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     gap: 2px;
 }
 
@@ -1088,9 +1091,9 @@ input[type="text"]:focus {
 /* Numpad — compact, larger font */
 #app.portrait-mode .numpad {
     flex-grow: 0;
+    flex-shrink: 0;
     gap: 4px;
     min-height: 0;
-    max-height: 38vh;
 }
 
 #app.portrait-mode .num-btn {
