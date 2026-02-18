@@ -588,7 +588,7 @@ class Game {
 
         // Fixed 3-line centered message format
         const msgEl = document.getElementById('interval-msg');
-        msgEl.innerHTML = `${m.name}<br>が<br>あらわれた！`;
+        msgEl.innerHTML = `${m.name}が<br>あらわれた！`;
 
         document.getElementById('interval-overlay').classList.add('active');
 
@@ -742,7 +742,9 @@ class Game {
 
         // VFX
         this._flashScreen();
-        this._showMessage(isCrit ? `クリティカル！ ${damage}ダメージ！` : `${this.playerName}のこうげき！ ${damage}ダメージ！`, isCrit);
+        this._showMessage(isCrit ? `クリティカル！
+${damage}ダメージ！` : `${this.playerName}のこうげき！
+${damage}ダメージ！`, isCrit);
         this.sound.playSe(isCrit ? 'critical' : 'attack');
 
         if (m.hp <= 0) {
@@ -773,7 +775,8 @@ class Game {
         this._updatePlayerHpUI();
 
         this._shakeScreen();
-        this._showMessage(`ミス！ ${damage}ダメージうけた！`);
+        this._showMessage(`ミス！
+${damage}ダメージうけた！`);
         this.sound.playSe('damage');
 
         if (this.playerHp <= 0) {
@@ -835,7 +838,8 @@ class Game {
         });
 
         this.sound.playSe('defeat');
-        this._showMessage(`${m.name} をたおした！`);
+        this._showMessage(`${m.name}
+をたおした！`);
 
         // Fade out
         document.getElementById('monster-img').style.opacity = '0';

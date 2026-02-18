@@ -542,6 +542,7 @@ input[type="text"]:focus {
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     height: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
 .num-btn {
@@ -583,12 +584,14 @@ input[type="text"]:focus {
     height: 100%;
     background: rgba(0, 0, 0, 0.85);
     display: none;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 100;
     backdrop-filter: blur(5px);
-    overflow-y: auto;
-    padding: 20px 0;
+    overflow: hidden;
+    padding: 10px 0 30px;
+    box-sizing: border-box;
 }
 
 .overlay.active {
@@ -726,8 +729,17 @@ input[type="text"]:focus {
 
     #monster-img {
         max-height: 450px;
-        /* Increased by 1.5x */
         max-width: 100%;
+    }
+
+    /* Landscape: problem text slightly smaller to fit more digits */
+    .problem-text {
+        font-size: 3rem;
+    }
+
+    /* Landscape: numpad larger font */
+    .num-btn {
+        font-size: 3.5rem;
     }
 }
 
@@ -735,6 +747,7 @@ input[type="text"]:focus {
 #result-screen {
     text-align: center;
     overflow-y: auto;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 20px));
 }
 
 .result-stats {
