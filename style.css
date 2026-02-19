@@ -223,13 +223,12 @@ input[type="text"]:focus {
 
 /* Portrait Mode: Top Section (Sandwich Strategy) */
 #app.portrait-mode .stage-progress {
-    position: relative;
-    /* Part of flow */
-    transform: none;
-    left: auto;
-    top: 0;
-    margin: 10px auto 0;
-    /* Centered with margin */
+    position: absolute;
+    /* Overlay on top */
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
     flex-shrink: 0;
 }
 
