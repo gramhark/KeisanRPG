@@ -42,6 +42,7 @@ class SoundManager {
         this.seHeal = document.getElementById('se-heal');
         this.seMeat = document.getElementById('se-meat');
         this.seSap = document.getElementById('se-sap');
+        this.seItem = document.getElementById('se-item');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/battle.mp3';
@@ -55,6 +56,7 @@ class SoundManager {
         this.seHeal.src = 'assets/audio/heal.mp3';
         this.seMeat.src = 'assets/audio/meat.mp3';
         this.seSap.src = 'assets/audio/sap.mp3';
+        this.seItem.src = 'assets/audio/item.mp3';
 
         this.currentBgm = null;
     }
@@ -93,6 +95,7 @@ class SoundManager {
             case 'heal': se = this.seHeal; break;
             case 'meat': se = this.seMeat; break;
             case 'sap': se = this.seSap; break;
+            case 'item': se = this.seItem; break;
         }
         if (se) {
             se.currentTime = 0;
@@ -405,6 +408,7 @@ class Game {
         this.inputBuffer = "";
 
         this.rareBuff = false;
+        this.hasSword = false;
 
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
@@ -568,6 +572,8 @@ class Game {
 
         this.currentMonsterIdx = 0;
         this.rareBuff = false;
+        this.hasSword = false;
+        document.getElementById('sword-label').style.display = 'none';
         this.defeatTimes = [];
 
         // Switch Screen
@@ -822,6 +828,7 @@ class Game {
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
         let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
         if (this.rareBuff) damage *= 2;
+        if (this.hasSword) damage += 1;
 
         const m = this.monsters[this.currentMonsterIdx];
         m.takeDamage(damage);
@@ -941,6 +948,42 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             this._updatePlayerHpUI();
             this.sound.playSe('heal'); // New SE
             setTimeout(() => this._showMessage("HPが ぜんかいふくした！", false, 2500), 1000);
+        }
+
+        // Sword Drop Event (1/10 chance, monsters 1-9, not Rare/Heal, once per battle)
+        const canDropSword = !this.hasSword && !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
+        if (canDropSword && Math.random() < 0.1) {
+            // Sword drop sequence
+            setTimeout(() => {
+                // Show sword image in monster container
+                const monsterContainer = document.querySelector('.monster-container');
+                const swordImg = document.createElement('img');
+                swordImg.src = 'assets/otherimg/sword.webp';
+                swordImg.className = 'sword-drop-img';
+                monsterContainer.appendChild(swordImg);
+
+                // Play item SE
+                this.sound.playSe('item');
+
+                // Show "obtained" message
+                this._showMessage("はがねのけんを\nてにいれた！", false, 4500);
+
+                // After 2 seconds, show "equipped" message
+                setTimeout(() => {
+                    this.hasSword = true;
+                    this._showMessage("はがねのけんを\nそうびした！", false, 2000);
+
+                    // Show sword label under player name
+                    document.getElementById('sword-label').style.display = 'block';
+
+                    // Remove sword image and proceed after 2 more seconds
+                    setTimeout(() => {
+                        swordImg.remove();
+                        this._nextMonster();
+                    }, 2000);
+                }, 2000);
+            }, 1500); // Start after defeat message
+            return; // Don't proceed to normal _nextMonster timeout
         }
 
         setTimeout(() => {
