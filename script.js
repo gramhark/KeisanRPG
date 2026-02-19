@@ -1024,7 +1024,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
             // Construct Inner HTML with Image
             li.innerHTML = `
-                <div class="result-img-container">
+                <div class="result-img-container" data-src="${item.imageSrc}" data-name="${item.name}">
                     <img src="${item.imageSrc}" class="result-img" alt="${item.name}" loading="lazy">
                 </div>
                 <div class="result-info">
@@ -1033,7 +1033,24 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
                 </div>
             `;
             list.appendChild(li);
+
+            // Click event for zoom
+            // Bind to the whole card (li) for better UX
+            li.addEventListener('click', (e) => {
+                const src = item.imageSrc; // Use item directly instead of DOM read
+                const name = item.name;
+                this._openImageModal(src, name);
+            });
         });
+    }
+
+    _openImageModal(src, name) {
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('image-modal-img');
+        const captionText = document.getElementById('caption');
+        modal.classList.add('active');
+        modalImg.src = src;
+        captionText.innerHTML = name;
     }
 
     /* UI Helpers */
@@ -1103,4 +1120,12 @@ window.addEventListener('DOMContentLoaded', () => {
         console.log("Total Monsters set to:", CONSTANTS.TOTAL_MONSTERS);
     }
     new Game();
+
+    // Modal Close Event
+    const modal = document.getElementById('image-modal');
+    if (modal) {
+        modal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
 });

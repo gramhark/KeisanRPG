@@ -82,6 +82,7 @@
     "Boss15_ぼうくんティラノザ.webp",
     "Boss16_こうてつカブトサムライ.webp",
     "Heal_かいふくぐさ.webp",
+    "Heal_ポーションびん.webp",
     "Lastboss_しんのかみダイオウグソクナイト.webp",
     "Rare_やまもりたからばこ.webp",
     "Rare_ダイアゴーレム.webp"
