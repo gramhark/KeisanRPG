@@ -571,19 +571,9 @@ class Game {
         this.defeatTimes = [];
 
         // Switch Screen
-        document.getElementById('setup-screen').classList.remove('active');
-        document.getElementById('battle-screen').classList.add('active');
-
-        // Clear previous progress
-        document.getElementById('stage-progress').innerHTML = '';
-
-        this.sound.playBgm(false);
-        this.showInterval();
-
-        // Adjust scale for Battle Screen (uses default minHeight)
-        this.state = GameState.INTERVAL; // showInterval sets this, but let's be safe
-        // レイアウト確定後に計測するため少し遅延
-        setTimeout(() => this.adjustScale(), 200);
+        // 1体目の画像のロード完了後に登場画面を表示する
+        // 画面遷移はロード完了後に行う
+        this._startWithPreload();
     }
 
     async submitRequest() {
@@ -626,6 +616,54 @@ class Game {
             submitBtn.disabled = false;
             submitBtn.textContent = 'おくる';
         }
+    }
+
+    /**
+     * 1体目のモンスター画像をプリロードし、完了したら登場画面を表示する。
+     * その後、残りの画像をバックグラウンドで先読みする。
+     */
+    _startWithPreload() {
+        const firstMonster = this.monsters[0];
+        const firstSrc = firstMonster.imageSrc;
+
+        const img = new Image();
+        const onLoaded = () => {
+            // 画面遷移
+            document.getElementById('setup-screen').classList.remove('active');
+            document.getElementById('battle-screen').classList.add('active');
+            document.getElementById('stage-progress').innerHTML = '';
+
+            this.sound.playBgm(false);
+            this.state = GameState.INTERVAL;
+
+            setTimeout(() => this.adjustScale(), 200);
+
+            this.showInterval();
+            // 1体目の表示後、残りをバックグラウンドでプリロード
+            this._preloadRemainingImages();
+        };
+
+        img.onload = onLoaded;
+        img.onerror = onLoaded; // 失敗しても画面は進める
+        img.src = firstSrc;
+    }
+
+    /**
+     * 2体目以降とボス変身後の画像をバックグラウンドでプリロードする。
+     */
+    _preloadRemainingImages() {
+        const srcs = this.monsters.slice(1).map(m => m.imageSrc);
+        // ボスの変身後画像も先読みしておく
+        srcs.push('assets/img/Lastboss_しんのかみダイオウグソクナイト.webp');
+
+        // 少し遅延させて1体目の表示を妨げない
+        setTimeout(() => {
+            srcs.forEach(src => {
+                if (!src) return;
+                const img = new Image();
+                img.src = src;
+            });
+        }, 500);
     }
 
     showInterval() {
