@@ -1408,3 +1408,67 @@ input[type="text"]:focus {
     margin-top: 0;
     padding: 12px 30px;
 }
+
+/* Horizontal Layout Adjustments (User Request) */
+@media screen and (orientation: landscape) {
+
+    /* 1. Make the 'Send Idea' button bigger */
+    #open-request-btn {
+        max-width: 500px;
+        /* Increased from 400px */
+        font-size: 1.5rem;
+        /* Increased from 0.9rem */
+        padding: 18px;
+        /* Increased from 12px */
+    }
+
+    /* 2. Make the Submission Form bigger */
+    #request-overlay .overlay-content {
+        max-width: 700px;
+        /* Increased from 500px */
+        width: 80%;
+        /* Ensure it takes up space */
+        padding: 40px;
+        /* Increased padding */
+    }
+
+    #request-text {
+        height: 250px;
+        /* Increased from 150px */
+        font-size: 1.5rem;
+        /* Larger text for better readability */
+    }
+
+    /* Adjust form buttons to match scale */
+    #submit-request-btn,
+    .button-group .secondary-btn {
+        font-size: 1.4rem;
+        padding: 15px 40px;
+    }
+
+    /* 3. Make the Text inside Submission Form bigger */
+    #request-overlay .overlay-content h2 {
+        font-size: 2.8rem;
+        /* Increased from 2rem (default) or similar equivalent */
+        margin-bottom: 25px;
+        /* Adjust spacing */
+    }
+
+    #request-overlay .overlay-content p {
+        font-size: 1.6rem !important;
+        /* Override inline 0.9em (approx 1rem) */
+        line-height: 1.6 !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Target the last paragraph (Caution text) separately if needed, or let it scale up too. 
+       The user wants BOTH distinct texts to be bigger. The last one is usually smaller. 
+       Let's make the last one slightly smaller than the main text but still bigger than before.
+    */
+    #request-overlay .overlay-content p:last-of-type {
+        font-size: 1.4rem !important;
+        /* Override inline 0.85em */
+        color: var(--danger-color);
+        /* Maintain color just in case, though inline handles it */
+    }
+}
