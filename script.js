@@ -120,58 +120,64 @@ class MathProblem {
     _generateDivision() {
         // Try to generate clean division
         for (let i = 0; i < 200; i++) {
-            // Determine "Divisor" digits (usually smaller) and "Dividend" digits (larger)
-            // But we respect the settings as "one is X digits, one is Y digits".
-            // We want Dividend / Divisor = Answer.
-            // Dividend effectively needs more digits.
+            // Determine Constraints
+            const leftMin = this.leftDigits === 1 ? 1 : 10;
+            const leftMax = this.leftDigits === 1 ? 9 : 99;
+            const rightMin = this.rightDigits === 1 ? 1 : 10;
+            const rightMax = this.rightDigits === 1 ? 9 : 99;
 
-            const digitsA = this.leftDigits;
-            const digitsB = this.rightDigits;
+            // Strategy: Pick Answer first, then Divisor, then check Dividend
+            // Answer range: Must be >= 2 (user request)
+            // Max possible answer = leftMax / rightMin
+            const maxAnswer = Math.floor(leftMax / rightMin);
 
-            // Allow flexibility: Try to use one for divisor, check result for dividend
-            // We'll vary which one we use for divisor to cover different problem types?
-            // Actually, simpler: Divisor uses Min(digits), Dividend uses Max(digits) often.
-            // But if digits equal, doesn't matter.
-
-            // Randomly pick which setting to use for Divisor (usually the smaller one makes sense)
-            // If we use the larger one for divisor, the dividend becomes huge (3 digits), might exceed constraints.
-
-            const divisorDigits = Math.min(digitsA, digitsB);
-            const expectedDividendDigits = Math.max(digitsA, digitsB);
-
-            const divisor = this._rand(divisorDigits);
-            const answer = this._rand(1); // Keep answer simple (1 digit) for now as per original logic? 
-            // Original code: answer = this._rand(1);
-
-            const dividend = divisor * answer;
-
-            // Now, check if this problem {dividend, divisor} fits the settings {left, right}
-            // in EITHER order (Straight or Swapped).
-
-            // Case 1: Left=Dividend, Right=Divisor
-            if (this._checkDigits(dividend, this.leftDigits) && this._checkDigits(divisor, this.rightDigits)) {
-                return { left: dividend, right: divisor, answer: answer };
+            if (maxAnswer < 2) {
+                // Impossible to satisfy Left/Right constraints with Answer >= 2
+                // Example: Left=1 (max 9), Right=2 (min 10) -> 9/10 < 1.
+                // In this case, we must relax constraints or swap. 
+                // Let's assume user wants valid division, so we swap implicitly or just return fallback for now?
+                // Actually, if user sets Left=1, Right=2, they probably mean "Small / Big" which is < 1.
+                // But this game is integer math. 
+                // So we must assume they mean "Big / Small" regardless of UI order, OR
+                // we strictly follow UI. If UI says Left=1, Right=2, it's impossible for integer result >= 1.
+                // So we'll trigger fallback logic below.
+                continue;
             }
 
-            // Case 2: Left=Divisor, Right=Dividend (Swap visual) -> Not typical for division "Small / Big"
-            // Wait, division is usually Big / Small. 
-            // If User set Left=1, Right=2, they probably want "2-digit / 1-digit" physically.
-            // So we should return Left=Dividend (2-digit), Right=Divisor (1-digit).
-            // But the settings says Left=1. 
-            // The "Subtraction Logic" implies: If setting is 1 and 2, and we can only make 2/1, then FORCE Left to be 2-digit.
-            // effectively ignoring "Left=1" constraint for the Dividend position.
+            // Pick Answer
+            // We want answer to be 2..maxAnswer, but cap at 99 (2 digits max)
+            const effectiveMaxAnswer = Math.min(99, maxAnswer);
+            const answer = Math.floor(Math.random() * (effectiveMaxAnswer - 1)) + 2;
 
-            // So recursion:
-            // If I found Dividend (2-digit) and Divisor (1-digit)...
-            // And settings are Left=1, Right=2.
-            // I should return Left=Dividend, Right=Divisor.
+            // Pick Divisor (Right)
+            // Divisor must be in [rightMin, rightMax]
+            // AND Divisor * Answer <= leftMax
+            // So Divisor <= leftMax / answer
+            const maxDivisor = Math.min(rightMax, Math.floor(leftMax / answer));
 
-            if (this._checkDigits(dividend, Math.max(this.leftDigits, this.rightDigits)) &&
-                this._checkDigits(divisor, Math.min(this.leftDigits, this.rightDigits))) {
+            if (maxDivisor < rightMin) continue; // No valid divisor found
+
+            const divisor = Math.floor(Math.random() * (maxDivisor - rightMin + 1)) + rightMin;
+            const dividend = divisor * answer;
+
+            // Final check (Dividend must be >= leftMin)
+            if (dividend >= leftMin) {
                 return { left: dividend, right: divisor, answer: answer };
             }
         }
-        return { left: 6, right: 3, answer: 2 }; // Fallback
+
+        // Fallback if strict constraints fail (e.g. Left=1, Right=2)
+        // We will generate a valid "2-digit / 1-digit" or similar reasonable fallback
+        // matching at least one constraint if possible.
+        // If user set Left=2, Right=2, we should have found one (e.g. 90/45=2).
+        // If we really can't, return a simple valid one.
+        const fallbackLeft = this.leftDigits === 1 ? 8 : 24;
+        const fallbackRight = this.rightDigits === 1 ? 2 : 12;
+        // Ensure valid division
+        if (fallbackLeft >= fallbackRight && fallbackLeft % fallbackRight === 0) {
+            return { left: fallbackLeft, right: fallbackRight, answer: fallbackLeft / fallbackRight };
+        }
+        return { left: 6, right: 3, answer: 2 };
     }
 
     _checkDigits(num, digits) {
