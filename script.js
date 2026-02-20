@@ -450,7 +450,7 @@ class Game {
         const isPortrait = winH > winW;
 
         // ターゲット仮想解像度
-        const baseW = isPortrait ? 720 : 1200;
+        const baseW = isPortrait ? 840 : 1200;
         const baseH = isPortrait ? 1600 : 800;
 
         if (isPortrait) {

@@ -38,7 +38,8 @@ body {
 /* 仮想キャンバスのベース */
 #app {
     background-color: var(--bg-color);
-    position: absolute; /* script.js が中央配置・スケーリングを行います */
+    position: absolute;
+    /* script.js が中央配置・スケーリングを行います */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -64,7 +65,7 @@ body {
 .title-img {
     display: block;
     margin: 0 auto;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1));
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 1)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
 }
 
 .title {
@@ -92,7 +93,9 @@ body {
     text-align: center;
 }
 
-.primary-btn:active { transform: scale(0.98); }
+.primary-btn:active {
+    transform: scale(0.98);
+}
 
 .secondary-btn {
     background: transparent;
@@ -111,7 +114,10 @@ body {
     border-color: var(--primary-color);
     background: rgba(255, 255, 255, 0.05);
 }
-.secondary-btn:active { transform: scale(0.98); }
+
+.secondary-btn:active {
+    transform: scale(0.98);
+}
 
 /* 入力フォーム共通 */
 .input-group label {
@@ -129,11 +135,19 @@ input[type="text"] {
     text-align: center;
     outline: none;
 }
-input[type="text"]:focus { border-color: var(--primary-color); }
 
-.toggle-group, .checkbox-group { display: flex; gap: 10px; }
+input[type="text"]:focus {
+    border-color: var(--primary-color);
+}
 
-.toggle-btn, .checkbox-btn {
+.toggle-group,
+.checkbox-group {
+    display: flex;
+    gap: 10px;
+}
+
+.toggle-btn,
+.checkbox-btn {
     flex: 1;
     background: #252b42;
     border: 2px solid var(--border-color);
@@ -144,7 +158,8 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     transition: all 0.2s;
 }
 
-.toggle-btn.active, .checkbox-btn.active {
+.toggle-btn.active,
+.checkbox-btn.active {
     background: var(--primary-color);
     color: #fff;
     border-color: var(--primary-color);
@@ -160,17 +175,20 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     position: relative;
     width: 100%;
 }
+
 .hp-bar-fill {
     height: 100%;
     background: var(--success-color);
     transition: width 0.3s ease-out, background-color 0.3s;
 }
+
 .timer-container {
     width: 100%;
     background: #333;
     border-radius: 3px;
     overflow: hidden;
 }
+
 .timer-bar {
     height: 100%;
     background: var(--success-color);
@@ -178,27 +196,63 @@ input[type="text"]:focus { border-color: var(--primary-color); }
 
 /* モンスター画像共通設定（グロウ処理・トランジション復元） */
 #monster-img {
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1.5));
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    ;
     transition: opacity 0.2s, filter 0.2s;
 }
 
 /* エフェクト */
-@keyframes blink-damage { 0%, 50%, 100% { opacity: 1; } 25%, 75% { opacity: 0.2; } }
-.flash-effect { animation: blink-damage 0.2s step-end; }
+@keyframes blink-damage {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0.2;
+    }
+}
+
+.flash-effect {
+    animation: blink-damage 0.2s step-end;
+}
 
 @keyframes shake {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    20% { transform: translate(-3px, 2px) rotate(1deg); }
-    40% { transform: translate(3px, -2px) rotate(-1deg); }
-    60% { transform: translate(-3px, -2px) rotate(1deg); }
-    80% { transform: translate(3px, 2px) rotate(-1deg); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    20% {
+        transform: translate(-3px, 2px) rotate(1deg);
+    }
+
+    40% {
+        transform: translate(3px, -2px) rotate(-1deg);
+    }
+
+    60% {
+        transform: translate(-3px, -2px) rotate(1deg);
+    }
+
+    80% {
+        transform: translate(3px, 2px) rotate(-1deg);
+    }
 }
-.shake-effect { animation: shake 0.4s; }
+
+.shake-effect {
+    animation: shake 0.4s;
+}
 
 /* メッセージオーバーレイ */
 .message-overlay {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     font-weight: bold;
     color: #fff;
@@ -211,18 +265,23 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     opacity: 0;
     transition: opacity 0.2s;
 }
-.message-overlay.show { opacity: 1; }
+
+.message-overlay.show {
+    opacity: 1;
+}
+
 .message-overlay.critical {
     color: var(--accent-color);
     text-shadow: 2px 2px 2px #fff, -2px -2px 2px #fff, 0px 0px 10px #fff;
 }
+
 .message-overlay.damage {
     color: var(--danger-color);
     text-shadow: 2px 2px 2px #000, -2px -2px 2px #000, 0px 0px 10px #000;
 }
 
 /* ============================================================
-   縦画面モード (720x1600)
+   縦画面モード (840x1600)
    ============================================================ */
 #app.portrait-mode .screen {
     padding: 0;
@@ -233,8 +292,17 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     padding: 60px 40px;
     justify-content: flex-start;
 }
-#app.portrait-mode .title-img { max-width: 90%; margin-bottom: 20px; }
-#app.portrait-mode .subtitle { font-size: 32px; margin-bottom: 50px; }
+
+#app.portrait-mode .title-img {
+    max-width: 90%;
+    margin-bottom: 20px;
+}
+
+#app.portrait-mode .subtitle {
+    font-size: 32px;
+    margin-bottom: 50px;
+}
+
 #app.portrait-mode .setup-container {
     background: var(--panel-color);
     padding: 40px;
@@ -244,16 +312,47 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     flex-direction: column;
     gap: 30px;
 }
-#app.portrait-mode .input-group label { font-size: 28px; margin-bottom: 12px; }
-#app.portrait-mode input[type="text"] { font-size: 40px; padding: 20px; }
-#app.portrait-mode .toggle-btn, #app.portrait-mode .checkbox-btn { font-size: 36px; padding: 20px; }
-#app.portrait-mode .primary-btn { font-size: 44px; padding: 24px; margin-top: 20px; }
-#app.portrait-mode #open-request-btn { font-size: 28px; padding: 20px; margin-top: 30px; width: 100%; }
-#app.portrait-mode .setup-footer { margin-top: auto; font-size: 20px; color: #5a6275; text-align: center; }
+
+#app.portrait-mode .input-group label {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+#app.portrait-mode input[type="text"] {
+    font-size: 40px;
+    padding: 20px;
+}
+
+#app.portrait-mode .toggle-btn,
+#app.portrait-mode .checkbox-btn {
+    font-size: 36px;
+    padding: 20px;
+}
+
+#app.portrait-mode .primary-btn {
+    font-size: 44px;
+    padding: 24px;
+    margin-top: 20px;
+}
+
+#app.portrait-mode #open-request-btn {
+    font-size: 28px;
+    padding: 20px;
+    margin-top: 30px;
+    width: 100%;
+}
+
+#app.portrait-mode .setup-footer {
+    margin-top: auto;
+    font-size: 20px;
+    color: #5a6275;
+    text-align: center;
+}
 
 /* バトル画面レイアウト (絶対分割) */
 #app.portrait-mode .battle-view {
-    height: 700px; /* 上半分の固定領域 */
+    height: 700px;
+    /* 上半分の固定領域 */
     width: 100%;
     border-bottom: 4px solid var(--border-color);
     display: flex;
@@ -264,8 +363,10 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     padding-bottom: 40px;
     background: radial-gradient(circle at center, #1a2138 0%, #0b0f19 70%);
 }
+
 #app.portrait-mode .panel {
-    height: 900px; /* 下半分の固定領域 */
+    height: 900px;
+    /* 下半分の固定領域 */
     width: 100%;
     background: var(--panel-color);
     padding: 30px 40px 40px 40px;
@@ -275,54 +376,260 @@ input[type="text"]:focus { border-color: var(--primary-color); }
 }
 
 /* モンスター領域 */
-#app.portrait-mode #monster-img { max-width: 80%; max-height: 400px; object-fit: contain; }
-#app.portrait-mode .monster-stat { width: 400px; text-align: center; margin-top: 20px; }
-#app.portrait-mode #monster-name { font-size: 36px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-#app.portrait-mode .monster-stat .hp-bar-container { height: 16px; margin-top: 10px; }
-#app.portrait-mode .stage-progress { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; }
-#app.portrait-mode .stage-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.6); }
-#app.portrait-mode .stage-dot.current { background: var(--danger-color); border-color: #fff; transform: scale(1.3); }
-#app.portrait-mode .stage-dot.cleared { background: var(--success-color); border-color: var(--success-color); }
-#app.portrait-mode .stage-dot.cleared.rare { background: var(--accent-color); border-color: var(--accent-color); }
-#app.portrait-mode .stage-dot.cleared.heal { background: var(--primary-color); border-color: var(--primary-color); }
+#app.portrait-mode #monster-img {
+    max-width: 80%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+#app.portrait-mode .monster-stat {
+    width: 400px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#app.portrait-mode #monster-name {
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+#app.portrait-mode .monster-stat .hp-bar-container {
+    height: 16px;
+    margin-top: 10px;
+}
+
+#app.portrait-mode .stage-progress {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+}
+
+#app.portrait-mode .stage-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+}
+
+#app.portrait-mode .stage-dot.current {
+    background: var(--danger-color);
+    border-color: #fff;
+    transform: scale(1.3);
+}
+
+#app.portrait-mode .stage-dot.cleared {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+#app.portrait-mode .stage-dot.cleared.rare {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+#app.portrait-mode .stage-dot.cleared.heal {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
 
 /* パネル内部（ステータス・問題・テンキー） */
-#app.portrait-mode .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-#app.portrait-mode #player-name-display { font-size: 36px; font-family: var(--font-pixel); }
-#app.portrait-mode .sword-label { font-size: 24px; color: var(--accent-color); font-family: var(--font-pixel); display: block;}
-#app.portrait-mode .hp-status { display: flex; align-items: center; gap: 16px; }
-#app.portrait-mode .hp-status .hp-bar-container { width: 180px; height: 20px; }
-#app.portrait-mode #player-hp-text { font-size: 32px; font-weight: bold; }
+#app.portrait-mode .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-#app.portrait-mode .problem-area { text-align: center; margin: 30px 0; }
-#app.portrait-mode .problem-text { font-size: 72px; font-family: var(--font-pixel); color: var(--accent-color); letter-spacing: 4px; display: flex; justify-content: center; align-items: baseline; }
-#app.portrait-mode .answer-part { color: white; border-bottom: 6px solid var(--primary-color); min-width: 100px; text-align: center; }
-#app.portrait-mode .answer-part.empty::after { content: ''; display: inline-block; width: 4px; height: 60px; background: white; animation: blink 1s infinite; }
-#app.portrait-mode .answer-input { display: none; }
+#app.portrait-mode #player-name-display {
+    font-size: 36px;
+    font-family: var(--font-pixel);
+}
 
-#app.portrait-mode .timer-container { height: 16px; margin-bottom: 30px; }
-#app.portrait-mode .numpad { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 16px; height: 500px; }
-#app.portrait-mode .num-btn { background: #252b42; border: none; border-radius: 16px; color: white; font-size: 64px; font-family: var(--font-pixel); box-shadow: 0 8px 0 #0f1320; }
-#app.portrait-mode .num-btn:active { transform: translateY(8px); box-shadow: 0 0 0 #0f1320; }
-#app.portrait-mode .action-btn.red { background: var(--danger-color); box-shadow: 0 8px 0 #b30000; font-size: 48px; }
-#app.portrait-mode .action-btn.green { background: var(--success-color); color: #000; box-shadow: 0 8px 0 #00b359; font-size: 48px; }
+#app.portrait-mode .sword-label {
+    font-size: 24px;
+    color: var(--accent-color);
+    font-family: var(--font-pixel);
+    display: block;
+}
 
-#app.portrait-mode .message-overlay { font-size: 48px; }
-#app.portrait-mode .message-overlay.critical { font-size: 56px; }
+#app.portrait-mode .hp-status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#app.portrait-mode .hp-status .hp-bar-container {
+    width: 180px;
+    height: 20px;
+}
+
+#app.portrait-mode #player-hp-text {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+#app.portrait-mode .problem-area {
+    text-align: center;
+    margin: 30px 0;
+}
+
+#app.portrait-mode .problem-text {
+    font-size: 72px;
+    font-family: var(--font-pixel);
+    color: var(--accent-color);
+    letter-spacing: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+#app.portrait-mode .answer-part {
+    color: white;
+    border-bottom: 6px solid var(--primary-color);
+    min-width: 100px;
+    text-align: center;
+}
+
+#app.portrait-mode .answer-part.empty::after {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 60px;
+    background: white;
+    animation: blink 1s infinite;
+}
+
+#app.portrait-mode .answer-input {
+    display: none;
+}
+
+#app.portrait-mode .timer-container {
+    height: 16px;
+    margin-bottom: 30px;
+}
+
+#app.portrait-mode .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 16px;
+    height: 500px;
+}
+
+#app.portrait-mode .num-btn {
+    background: #252b42;
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-size: 64px;
+    font-family: var(--font-pixel);
+    box-shadow: 0 8px 0 #0f1320;
+}
+
+#app.portrait-mode .num-btn:active {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 #0f1320;
+}
+
+#app.portrait-mode .action-btn.red {
+    background: var(--danger-color);
+    box-shadow: 0 8px 0 #b30000;
+    font-size: 48px;
+}
+
+#app.portrait-mode .action-btn.green {
+    background: var(--success-color);
+    color: #000;
+    box-shadow: 0 8px 0 #00b359;
+    font-size: 48px;
+}
+
+#app.portrait-mode .message-overlay {
+    font-size: 48px;
+}
+
+#app.portrait-mode .message-overlay.critical {
+    font-size: 56px;
+}
 
 /* リザルト画面 */
-#app.portrait-mode #result-screen { padding: 40px; overflow-y: auto; }
-#app.portrait-mode .title { font-size: 72px; margin: 40px 0; }
-#app.portrait-mode .total-time-display { font-size: 100px; margin: 20px 0; }
-#app.portrait-mode .result-settings-container { font-size: 28px; padding: 20px; margin-bottom: 40px; background: #252b42; border-radius: 12px; }
-#app.portrait-mode .result-stats { background: var(--panel-color); padding: 30px; border-radius: 16px; }
-#app.portrait-mode .result-stats h3 { font-size: 36px; margin-bottom: 20px; text-align: center; }
-#app.portrait-mode #time-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-#app.portrait-mode .result-card { background: #1a2138; border: 3px solid var(--border-color); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-#app.portrait-mode .result-img-container { width: 100px; height: 100px; }
-#app.portrait-mode .result-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-#app.portrait-mode .result-name { font-size: 24px; color: #cbd5e1; }
-#app.portrait-mode .result-time { font-size: 32px; font-weight: bold; font-family: var(--font-pixel); }
+#app.portrait-mode #result-screen {
+    padding: 40px;
+    overflow-y: auto;
+}
+
+#app.portrait-mode .title {
+    font-size: 72px;
+    margin: 40px 0;
+}
+
+#app.portrait-mode .total-time-display {
+    font-size: 100px;
+    margin: 20px 0;
+}
+
+#app.portrait-mode .result-settings-container {
+    font-size: 28px;
+    padding: 20px;
+    margin-bottom: 40px;
+    background: #252b42;
+    border-radius: 12px;
+}
+
+#app.portrait-mode .result-stats {
+    background: var(--panel-color);
+    padding: 30px;
+    border-radius: 16px;
+}
+
+#app.portrait-mode .result-stats h3 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#app.portrait-mode #time-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+#app.portrait-mode .result-card {
+    background: #1a2138;
+    border: 3px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#app.portrait-mode .result-img-container {
+    width: 100px;
+    height: 100px;
+}
+
+#app.portrait-mode .result-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#app.portrait-mode .result-name {
+    font-size: 24px;
+    color: #cbd5e1;
+}
+
+#app.portrait-mode .result-time {
+    font-size: 32px;
+    font-weight: bold;
+    font-family: var(--font-pixel);
+}
 
 
 /* ============================================================
@@ -338,33 +645,78 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     align-items: center;
     justify-content: center;
 }
-#app.landscape-mode .title-img { max-height: 100px; margin-bottom: 10px; }
-#app.landscape-mode .subtitle { font-size: 24px; margin-bottom: 20px; }
+
+#app.landscape-mode .title-img {
+    max-height: 200px;
+    margin-bottom: 0px;
+}
+
+#app.landscape-mode .subtitle {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
 #app.landscape-mode .setup-container {
     background: var(--panel-color);
-    padding: 20px 40px;
+    padding: 10px 25px;
     border-radius: 16px;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 40px;
+    gap: 7px 35px;
     width: 900px;
 }
+
 #app.landscape-mode .setup-container .input-group:nth-of-type(1),
-#app.landscape-mode .setup-container .input-group:nth-of-type(4) { grid-column: span 2; }
-#app.landscape-mode .input-group label { font-size: 24px; margin-bottom: 8px; }
-#app.landscape-mode input[type="text"] { font-size: 32px; padding: 12px; }
-#app.landscape-mode .toggle-btn, #app.landscape-mode .checkbox-btn { font-size: 28px; padding: 16px; }
-#app.landscape-mode #start-btn { grid-column: span 2; font-size: 32px; padding: 16px; margin-top: 5px; }
-#app.landscape-mode #open-request-btn { width: 400px; font-size: 24px; padding: 12px; margin-top: 15px; }
-#app.landscape-mode .setup-footer { margin-top: auto; font-size: 14px; color: #5a6275; padding-top: 10px; }
+#app.landscape-mode .setup-container .input-group:nth-of-type(4) {
+    grid-column: span 2;
+}
+
+#app.landscape-mode .input-group label {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#app.landscape-mode input[type="text"] {
+    font-size: 30px;
+    padding: 10px;
+}
+
+#app.landscape-mode .toggle-btn,
+#app.landscape-mode .checkbox-btn {
+    font-size: 26px;
+    padding: 10px;
+}
+
+#app.landscape-mode #start-btn {
+    grid-column: span 2;
+    font-size: 28px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+#app.landscape-mode #open-request-btn {
+    width: 300px;
+    font-size: 16px;
+    padding: 8px;
+    margin-top: 18px;
+}
+
+#app.landscape-mode .setup-footer {
+    margin-top: auto;
+    font-size: 12px;
+    color: #5a6275;
+    padding-top: 12px;
+}
 
 /* バトル画面レイアウト (絶対分割) */
 #app.landscape-mode #battle-screen {
     flex-direction: row;
 }
+
 #app.landscape-mode .battle-view {
-    width: 650px; /* 左側 */
+    width: 650px;
+    /* 左側 */
     height: 100%;
     border-right: 4px solid var(--border-color);
     display: flex;
@@ -374,8 +726,10 @@ input[type="text"]:focus { border-color: var(--primary-color); }
     position: relative;
     background: radial-gradient(circle at center, #1a2138 0%, #0b0f19 70%);
 }
+
 #app.landscape-mode .panel {
-    width: 550px; /* 右側 */
+    width: 550px;
+    /* 右側 */
     height: 100%;
     background: var(--panel-color);
     padding: 30px;
@@ -385,103 +739,465 @@ input[type="text"]:focus { border-color: var(--primary-color); }
 }
 
 /* モンスター領域 */
-#app.landscape-mode #monster-img { max-width: 80%; max-height: 400px; object-fit: contain; }
-#app.landscape-mode .monster-stat { width: 350px; text-align: center; margin-top: 30px; }
-#app.landscape-mode #monster-name { font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-#app.landscape-mode .monster-stat .hp-bar-container { height: 16px; margin-top: 10px; }
-#app.landscape-mode .stage-progress { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; }
-#app.landscape-mode .stage-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.6); }
-#app.landscape-mode .stage-dot.current { background: var(--danger-color); border-color: #fff; transform: scale(1.3); }
-#app.landscape-mode .stage-dot.cleared { background: var(--success-color); border-color: var(--success-color); }
+#app.landscape-mode #monster-img {
+    max-width: 80%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+#app.landscape-mode .monster-stat {
+    width: 350px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+#app.landscape-mode #monster-name {
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+#app.landscape-mode .monster-stat .hp-bar-container {
+    height: 16px;
+    margin-top: 10px;
+}
+
+#app.landscape-mode .stage-progress {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+}
+
+#app.landscape-mode .stage-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+}
+
+#app.landscape-mode .stage-dot.current {
+    background: var(--danger-color);
+    border-color: #fff;
+    transform: scale(1.3);
+}
+
+#app.landscape-mode .stage-dot.cleared {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
 
 /* パネル内部（ステータス・問題・テンキー） */
-#app.landscape-mode .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-#app.landscape-mode #player-name-display { font-size: 32px; font-family: var(--font-pixel); }
-#app.landscape-mode .sword-label { font-size: 20px; color: var(--accent-color); font-family: var(--font-pixel); display: block;}
-#app.landscape-mode .hp-status { display: flex; align-items: center; gap: 12px; }
-#app.landscape-mode .hp-status .hp-bar-container { width: 140px; height: 16px; }
-#app.landscape-mode #player-hp-text { font-size: 28px; font-weight: bold; }
+#app.landscape-mode .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-#app.landscape-mode .problem-area { text-align: center; margin: 20px 0; }
-#app.landscape-mode .problem-text { font-size: 64px; font-family: var(--font-pixel); color: var(--accent-color); letter-spacing: 4px; display: flex; justify-content: center; align-items: baseline; }
-#app.landscape-mode .answer-part { color: white; border-bottom: 6px solid var(--primary-color); min-width: 80px; text-align: center; }
-#app.landscape-mode .answer-part.empty::after { content: ''; display: inline-block; width: 4px; height: 50px; background: white; animation: blink 1s infinite; }
-#app.landscape-mode .answer-input { display: none; }
+#app.landscape-mode #player-name-display {
+    font-size: 32px;
+    font-family: var(--font-pixel);
+}
 
-#app.landscape-mode .timer-container { height: 12px; margin-bottom: 20px; }
-#app.landscape-mode .numpad { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 12px; height: 400px; }
-#app.landscape-mode .num-btn { background: #252b42; border: none; border-radius: 12px; color: white; font-size: 48px; font-family: var(--font-pixel); box-shadow: 0 6px 0 #0f1320; }
-#app.landscape-mode .num-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #0f1320; }
-#app.landscape-mode .action-btn.red { background: var(--danger-color); box-shadow: 0 6px 0 #b30000; font-size: 36px; }
-#app.landscape-mode .action-btn.green { background: var(--success-color); color: #000; box-shadow: 0 6px 0 #00b359; font-size: 36px; }
+#app.landscape-mode .sword-label {
+    font-size: 20px;
+    color: var(--accent-color);
+    font-family: var(--font-pixel);
+    display: block;
+}
 
-#app.landscape-mode .message-overlay { font-size: 40px; }
-#app.landscape-mode .message-overlay.critical { font-size: 48px; }
+#app.landscape-mode .hp-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#app.landscape-mode .hp-status .hp-bar-container {
+    width: 140px;
+    height: 16px;
+}
+
+#app.landscape-mode #player-hp-text {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#app.landscape-mode .problem-area {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#app.landscape-mode .problem-text {
+    font-size: 64px;
+    font-family: var(--font-pixel);
+    color: var(--accent-color);
+    letter-spacing: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+#app.landscape-mode .answer-part {
+    color: white;
+    border-bottom: 6px solid var(--primary-color);
+    min-width: 80px;
+    text-align: center;
+}
+
+#app.landscape-mode .answer-part.empty::after {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 50px;
+    background: white;
+    animation: blink 1s infinite;
+}
+
+#app.landscape-mode .answer-input {
+    display: none;
+}
+
+#app.landscape-mode .timer-container {
+    height: 12px;
+    margin-bottom: 20px;
+}
+
+#app.landscape-mode .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 12px;
+    height: 400px;
+}
+
+#app.landscape-mode .num-btn {
+    background: #252b42;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 48px;
+    font-family: var(--font-pixel);
+    box-shadow: 0 6px 0 #0f1320;
+}
+
+#app.landscape-mode .num-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #0f1320;
+}
+
+#app.landscape-mode .action-btn.red {
+    background: var(--danger-color);
+    box-shadow: 0 6px 0 #b30000;
+    font-size: 36px;
+}
+
+#app.landscape-mode .action-btn.green {
+    background: var(--success-color);
+    color: #000;
+    box-shadow: 0 6px 0 #00b359;
+    font-size: 36px;
+}
+
+#app.landscape-mode .message-overlay {
+    font-size: 40px;
+}
+
+#app.landscape-mode .message-overlay.critical {
+    font-size: 48px;
+}
 
 /* リザルト画面 */
-#app.landscape-mode #result-screen { padding: 40px; overflow-y: auto; }
-#app.landscape-mode .title { font-size: 64px; margin: 20px 0; }
-#app.landscape-mode .total-time-display { font-size: 80px; margin: 10px 0; }
-#app.landscape-mode .result-settings-container { font-size: 24px; padding: 16px; margin-bottom: 30px; background: #252b42; border-radius: 12px; display: inline-block; width: auto; margin-left: auto; margin-right: auto; }
-#app.landscape-mode .result-stats { background: var(--panel-color); padding: 30px; border-radius: 16px; width: 80%; margin: 0 auto; }
-#app.landscape-mode #time-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-#app.landscape-mode .result-card { background: #1a2138; border: 3px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-#app.landscape-mode .result-img-container { width: 80px; height: 80px; }
-#app.landscape-mode .result-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-#app.landscape-mode .result-name { font-size: 20px; color: #cbd5e1; }
-#app.landscape-mode .result-time { font-size: 28px; font-weight: bold; font-family: var(--font-pixel); }
+#app.landscape-mode #result-screen {
+    padding: 40px;
+    overflow-y: auto;
+}
+
+#app.landscape-mode .title {
+    font-size: 64px;
+    margin: 20px 0;
+}
+
+#app.landscape-mode .total-time-display {
+    font-size: 80px;
+    margin: 10px 0;
+}
+
+#app.landscape-mode .result-settings-container {
+    font-size: 24px;
+    padding: 16px;
+    margin-bottom: 30px;
+    background: #252b42;
+    border-radius: 12px;
+    display: inline-block;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#app.landscape-mode .result-stats {
+    background: var(--panel-color);
+    padding: 30px;
+    border-radius: 16px;
+    width: 80%;
+    margin: 0 auto;
+}
+
+#app.landscape-mode #time-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+#app.landscape-mode .result-card {
+    background: #1a2138;
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#app.landscape-mode .result-img-container {
+    width: 80px;
+    height: 80px;
+}
+
+#app.landscape-mode .result-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#app.landscape-mode .result-name {
+    font-size: 20px;
+    color: #cbd5e1;
+}
+
+#app.landscape-mode .result-time {
+    font-size: 28px;
+    font-weight: bold;
+    font-family: var(--font-pixel);
+}
 
 
 /* ============================================================
    各種オーバーレイ・モーダル (共通)
    ============================================================ */
-@keyframes blink { 50% { opacity: 0; } }
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
 
 .overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.85);
-    display: none; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 100; backdrop-filter: blur(5px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
 }
-.overlay.active { display: flex; }
-.overlay-content { text-align: center; }
+
+.overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    text-align: center;
+}
 
 /* インターバル画面 */
-.interval-img { max-width: 400px; max-height: 400px; margin-bottom: 30px; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1.5)); animation: bounce 2s infinite ease-in-out; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-#interval-msg { font-family: var(--font-pixel); font-size: 48px; margin-bottom: 40px; line-height: 1.4; }
-#battle-start-btn { font-size: 48px; padding: 20px 60px; }
+.interval-img {
+    max-width: 400px;
+    max-height: 400px;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+#interval-msg {
+    font-family: var(--font-pixel);
+    font-size: 48px;
+    margin-bottom: 40px;
+    line-height: 1.4;
+}
+
+#battle-start-btn {
+    font-size: 48px;
+    padding: 20px 60px;
+}
 
 /* リクエストフォーム */
-#request-overlay .overlay-content { background: var(--panel-color); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); width: 800px; }
-#request-overlay h2 { font-size: 40px; color: var(--primary-color); margin-bottom: 30px; }
-#request-overlay p { font-size: 24px; color: var(--primary-color); margin-bottom: 15px; text-align: left; font-weight: bold; }
-#request-overlay p:last-of-type { color: var(--danger-color); font-size: 20px; margin-bottom: 20px; }
-#request-text { width: 100%; height: 250px; background: #000; color: white; border: 2px solid var(--border-color); border-radius: 8px; padding: 20px; font-family: var(--font-pixel); font-size: 28px; resize: none; margin-bottom: 30px; }
-#request-text:focus { border-color: var(--primary-color); outline: none; }
-.button-group { display: flex; gap: 20px; justify-content: center; }
-#submit-request-btn, #cancel-request-btn { font-size: 32px; padding: 20px 40px; margin: 0; }
+#request-overlay .overlay-content {
+    background: var(--panel-color);
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    width: 800px;
+}
+
+#request-overlay h2 {
+    font-size: 40px;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+#request-overlay p {
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: left;
+    font-weight: bold;
+}
+
+#request-overlay p:last-of-type {
+    color: var(--danger-color);
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#request-text {
+    width: 100%;
+    height: 250px;
+    background: #000;
+    color: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: var(--font-pixel);
+    font-size: 28px;
+    resize: none;
+    margin-bottom: 30px;
+}
+
+#request-text:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+#submit-request-btn,
+#cancel-request-btn {
+    font-size: 32px;
+    padding: 20px 40px;
+    margin: 0;
+}
 
 /* 剣のドロップアニメーション */
 .sword-drop-img {
-    position: absolute; top: 50%; left: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 60%; max-height: 35%; object-fit: contain;
+    max-width: 60%;
+    max-height: 35%;
+    object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-    animation: sword-appear 0.5s ease-out; z-index: 5;
+    animation: sword-appear 0.5s ease-out;
+    z-index: 5;
 }
-@keyframes sword-appear { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+@keyframes sword-appear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
 
 /* 画像拡大モーダル */
-.image-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); }
-.image-modal.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.image-modal.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .modal-frame-wrapper {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: 6px solid #ffd700; border-radius: 16px; padding: 20px;
+    border: 6px solid #ffd700;
+    border-radius: 16px;
+    padding: 20px;
     box-shadow: 0 0 0 6px #b8860b, 0 0 0 12px #1a1a2e, 0 0 30px rgba(255, 215, 0, 0.6);
-    position: relative; animation: zoom 0.3s;
+    position: relative;
+    animation: zoom 0.3s;
 }
-.modal-content { max-width: 800px; max-height: 800px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)); }
-@keyframes zoom { from { transform: scale(0) } to { transform: scale(1) } }
-.close-modal { position: absolute; top: 30px; right: 50px; color: #f1f1f1; font-size: 80px; font-weight: bold; cursor: pointer; z-index: 201; }
-#caption { color: #ccc; font-family: var(--font-pixel); font-size: 40px; margin-top: 30px; text-align: center; }
+
+.modal-content {
+    max-width: 800px;
+    max-height: 800px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+@keyframes zoom {
+    from {
+        transform: scale(0)
+    }
+
+    to {
+        transform: scale(1)
+    }
+}
+
+.close-modal {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    color: #f1f1f1;
+    font-size: 80px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 201;
+}
+
+#caption {
+    color: #ccc;
+    font-family: var(--font-pixel);
+    font-size: 40px;
+    margin-top: 30px;
+    text-align: center;
+}
