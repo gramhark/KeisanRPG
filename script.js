@@ -59,6 +59,26 @@ class SoundManager {
         this.seItem.src = 'assets/audio/item.mp3';
 
         this.currentBgm = null;
+        this.isPausedByVisibility = false;
+        this._bindVisibilityChange();
+    }
+
+    _bindVisibilityChange() {
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (this.currentBgm && !this.currentBgm.paused) {
+                    this.currentBgm.pause();
+                    this.isPausedByVisibility = true;
+                }
+            } else {
+                if (this.isPausedByVisibility && this.currentBgm) {
+                    this.currentBgm.play().catch(error => {
+                        console.warn('BGM resume failed (Autoplay Policy):', error);
+                    });
+                }
+                this.isPausedByVisibility = false;
+            }
+        });
     }
 
     playBgm(isBoss) {
@@ -81,6 +101,7 @@ class SoundManager {
             this.currentBgm.currentTime = 0;
             this.currentBgm = null;
         }
+        this.isPausedByVisibility = false;
     }
 
     playSe(type) {
