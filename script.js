@@ -441,60 +441,37 @@ class Game {
 
     adjustScale() {
         const app = document.getElementById('app');
-        const activeScreen = document.querySelector('.screen.active');
-
-        if (!activeScreen) return;
-
-        // Portrait Mode → Disable JS Scaling, Rely on CSS Sandwich Layout (dvh + flex)
-        const isPortrait = window.innerHeight > window.innerWidth;
-
-        if (isPortrait) {
-            // Reset styles to allow CSS to take over
-            app.style.transform = '';
-            app.style.transformOrigin = '';
-            app.style.width = '';
-            app.style.height = '';
-
-            // Add portrait class for specific overrides if needed
-            app.classList.add('portrait-mode');
-            app.classList.remove('landscape-mode');
-            return;
-        }
-
-        // Landscape Mode - Keep existing Logic
-        app.classList.add('landscape-mode');
-        app.classList.remove('portrait-mode');
-
-        // Reset to acquire natural size for calculation
-        app.style.height = 'auto';
-        app.style.width = '100%';
-        app.style.transform = 'none';
 
         // Viewport
         const viewport = window.visualViewport;
         const winW = viewport ? viewport.width : window.innerWidth;
         const winH = viewport ? viewport.height : window.innerHeight;
 
-        // Measure content
-        let contentHeight = activeScreen.scrollHeight;
-        const isSetup = activeScreen.id === 'setup-screen';
-        const minSafeHeight = isSetup ? 600 : 800;
-        const targetHeight = Math.max(minSafeHeight, contentHeight + 40);
-        const contentWidth = app.offsetWidth;
+        const isPortrait = winH > winW;
 
-        // Calculate Scale
-        const scaleH = winH / targetHeight;
-        const scaleW = winW / contentWidth;
-        let scale = Math.min(scaleH, scaleW, 1.0);
+        // ターゲット仮想解像度
+        const baseW = isPortrait ? 720 : 1200;
+        const baseH = isPortrait ? 1600 : 800;
 
-        if (scale < 1.0) {
-            app.style.transform = `scale(${scale})`;
-            app.style.transformOrigin = 'top center';
-            app.style.height = `${targetHeight}px`;
+        if (isPortrait) {
+            app.classList.add('portrait-mode');
+            app.classList.remove('landscape-mode');
         } else {
-            app.style.height = '100vh';
-            app.style.transform = 'none';
+            app.classList.add('landscape-mode');
+            app.classList.remove('portrait-mode');
         }
+
+        // Calculate Scale to fit
+        const scale = Math.min(winW / baseW, winH / baseH);
+
+        // Apply CSS
+        app.style.width = baseW + 'px';
+        app.style.height = baseH + 'px';
+        app.style.position = 'absolute';
+        app.style.left = '50%';
+        app.style.top = '50%';
+        app.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        app.style.transformOrigin = 'center center';
     }
 
     /* Event Binding */
