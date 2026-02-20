@@ -33,6 +33,7 @@ class SoundManager {
     constructor() {
         this.bgmBattle = document.getElementById('bgm-battle');
         this.bgmBoss = document.getElementById('bgm-boss');
+        this.bgmRare = document.getElementById('bgm-rare');
         this.seAttack = document.getElementById('se-attack');
         this.seCritical = document.getElementById('se-critical');
         this.seDamage = document.getElementById('se-damage');
@@ -47,6 +48,7 @@ class SoundManager {
         // Load sources
         this.bgmBattle.src = 'assets/audio/battle.mp3';
         this.bgmBoss.src = 'assets/audio/Bossbattle.mp3';
+        this.bgmRare.src = 'assets/audio/Rarebattle.mp3';
         this.seAttack.src = 'assets/audio/attack.mp3';
         this.seCritical.src = 'assets/audio/critical.mp3';
         this.seDamage.src = 'assets/audio/damage.mp3';
@@ -81,9 +83,11 @@ class SoundManager {
         });
     }
 
-    playBgm(isBoss) {
+    playBgm(isBoss, isRare = false) {
         // Stop current if different
-        const target = isBoss ? this.bgmBoss : this.bgmBattle;
+        let target = this.bgmBattle;
+        if (isBoss) target = this.bgmBoss;
+        else if (isRare) target = this.bgmRare;
         if (this.currentBgm && this.currentBgm !== target) {
             this.currentBgm.pause();
             this.currentBgm.currentTime = 0;
@@ -674,8 +678,8 @@ class Game {
         this.state = GameState.INTERVAL;
         const m = this.monsters[this.currentMonsterIdx];
 
-        // BGM Check (Boss or Normal)
-        this.sound.playBgm(m.number === 10);
+        // BGM Check (Boss or Normal or Rare)
+        this.sound.playBgm(m.number === 10, m.isRare);
 
         // Fixed 3-line centered message format
         const msgEl = document.getElementById('interval-msg');
