@@ -82,45 +82,50 @@
             </div>
 
             <div class="panel">
-                <div class="status-row">
-                    <div class="player-info">
-                        <span id="player-name-display">ゆうしゃ</span>
-                        <img id="sword-label" class="sword-label" src="assets/otherimg/sword.webp" alt="はがねのけん"
-                            style="display:none;">
-                    </div>
-                    <div class="hp-status">
-                        <div class="hp-bar-container">
-                            <div id="player-hp-bar" class="hp-bar-fill" style="width: 100%;"></div>
+                <div class="panel-section panel-section--status">
+                    <div class="status-row">
+                        <div class="player-info">
+                            <span id="player-name-display">ゆうしゃ</span>
+                            <img id="sword-label" class="sword-label" src="assets/otherimg/sword.webp" alt="はがねのけん"
+                                style="display:none;">
                         </div>
-                        <span id="player-hp-text">HP 10/10</span>
+                        <div class="hp-status">
+                            <div class="hp-bar-container">
+                                <div id="player-hp-bar" class="hp-bar-fill" style="width: 100%;"></div>
+                            </div>
+                            <span id="player-hp-text">HP 10/10</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="problem-area">
-                    <div id="problem-text" class="problem-text">5 + 3 = ?</div>
-                    <div class="input-wrapper">
-                        <input type="tel" id="answer-input" class="answer-input" readonly>
-                        <span class="cursor"></span>
+                <div class="panel-section panel-section--problem">
+                    <div class="problem-area">
+                        <div id="problem-text" class="problem-text">5 + 3 = ?</div>
+                        <div class="input-wrapper">
+                            <input type="tel" id="answer-input" class="answer-input" readonly>
+                            <span class="cursor"></span>
+                        </div>
+                    </div>
+                    <div class="timer-container">
+                        <div id="timer-bar" class="timer-bar" style="width: 100%;"></div>
                     </div>
                 </div>
 
-                <div class="timer-container">
-                    <div id="timer-bar" class="timer-bar" style="width: 100%;"></div>
-                </div>
-
-                <div class="numpad">
-                    <button class="num-btn" data-key="7">7</button>
-                    <button class="num-btn" data-key="8">8</button>
-                    <button class="num-btn" data-key="9">9</button>
-                    <button class="num-btn" data-key="4">4</button>
-                    <button class="num-btn" data-key="5">5</button>
-                    <button class="num-btn" data-key="6">6</button>
-                    <button class="num-btn" data-key="1">1</button>
-                    <button class="num-btn" data-key="2">2</button>
-                    <button class="num-btn" data-key="3">3</button>
-                    <button class="num-btn action-btn red" data-key="DEL">けす</button>
-                    <button class="num-btn" data-key="0">0</button>
-                    <button class="num-btn action-btn green" data-key="ENTER">いけ!</button>
+                <div class="panel-section panel-section--numpad">
+                    <div class="numpad">
+                        <button class="num-btn" data-key="7">7</button>
+                        <button class="num-btn" data-key="8">8</button>
+                        <button class="num-btn" data-key="9">9</button>
+                        <button class="num-btn" data-key="4">4</button>
+                        <button class="num-btn" data-key="5">5</button>
+                        <button class="num-btn" data-key="6">6</button>
+                        <button class="num-btn" data-key="1">1</button>
+                        <button class="num-btn" data-key="2">2</button>
+                        <button class="num-btn" data-key="3">3</button>
+                        <button class="num-btn action-btn red" data-key="DEL">けす</button>
+                        <button class="num-btn" data-key="0">0</button>
+                        <button class="num-btn action-btn green" data-key="ENTER">いけ!</button>
+                    </div>
                 </div>
             </div>
         </div>

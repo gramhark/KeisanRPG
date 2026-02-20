@@ -268,6 +268,13 @@ class Monster {
         else if (number == 10) this.attackPower = 4;
 
         if (isRare || isHeal) this.maxHp = 1;
+        else if (number === 10) {
+            const bId = this.bossId;
+            if (bId >= 13) this.maxHp = 16;
+            else if (bId >= 9) this.maxHp = 14;
+            else if (bId >= 5) this.maxHp = 12;
+            else this.maxHp = 10;
+        }
         else this.maxHp = number;
 
         this.hp = this.maxHp;
@@ -899,7 +906,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         // Boss 16 Sap (was Boss 06)
         if (m.bossId === 16 && m.hp <= 6 && !m.hasLickedSap) {
             m.hasLickedSap = true;
-            m.hp = 10;
+            m.hp = 16;
             this._updateMonsterHpUI(m);
             this._showMessage("モンスターが じゅえきを なめた！(HP全回復)", false, 3000);
             this.sound.playSe('sap'); // New SE
@@ -908,7 +915,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         // Boss 15 Meat (was Boss 05)
         if (m.bossId === 15 && m.hp < 5 && !m.hasEatenMeat) {
             m.hasEatenMeat = true;
-            m.hp = 10;
+            m.hp = 16;
             this._updateMonsterHpUI(m);
             this._showMessage("モンスターが にくを たべた！(HP全回復)", false, 3000);
             this.sound.playSe('meat'); // New SE
@@ -954,7 +961,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
         // Sword Drop Event (1/10 chance, monsters 1-9, not Rare/Heal, once per battle)
         const canDropSword = !this.hasSword && !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
-        if (canDropSword && Math.random() < 0.12) {
+        if (canDropSword && Math.random() < 0.15) {
             // Sword drop sequence
             setTimeout(() => {
                 // Show sword image in monster container
@@ -1004,7 +1011,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         // If HP <= half, not rare, not boss(10), 10% chance -> Heal Monster
         const nextM = this.monsters[this.currentMonsterIdx];
         if (this.playerHp / CONSTANTS.PLAYER_MAX_HP <= 0.5 && !nextM.isRare && nextM.number !== 10) {
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.2) {
                 // convert to heal
                 const newM = new Monster(nextM.number, false, true, nextM.opCount, nextM.leftDigits, nextM.rightDigits);
                 this.monsters[this.currentMonsterIdx] = newM;
@@ -1105,7 +1112,9 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         const ratio = this.playerHp / CONSTANTS.PLAYER_MAX_HP;
 
         bar.style.width = `${ratio * 100}%`;
-        bar.style.backgroundColor = ratio > 0.3 ? 'var(--success-color)' : 'var(--danger-color)';
+        if (ratio > 0.75) bar.style.backgroundColor = 'var(--success-color)';
+        else if (ratio > 0.3) bar.style.backgroundColor = 'var(--accent-color)';
+        else bar.style.backgroundColor = 'var(--danger-color)';
         text.textContent = `HP ${this.playerHp}/${CONSTANTS.PLAYER_MAX_HP}`;
     }
 
@@ -1113,6 +1122,9 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         const bar = document.getElementById('monster-hp-bar');
         const ratio = m.hpRatio;
         bar.style.width = `${ratio * 100}%`;
+        if (ratio > 0.75) bar.style.backgroundColor = 'var(--success-color)';
+        else if (ratio > 0.3) bar.style.backgroundColor = 'var(--accent-color)';
+        else bar.style.backgroundColor = 'var(--danger-color)';
     }
 
     _updateTimerBar(ratio) {
