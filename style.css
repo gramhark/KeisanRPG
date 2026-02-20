@@ -84,7 +84,10 @@ body {
 .primary-btn {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
-    border: none;
+    border: 2px solid transparent;
+    /* secondary と枠線分同じ高さを確保 */
+    box-sizing: border-box;
+    /* padding と border を含めてサイズを計算 */
     border-radius: 50px;
     font-weight: bold;
     cursor: pointer;
@@ -100,6 +103,8 @@ body {
 .secondary-btn {
     background: transparent;
     border: 2px solid var(--border-color);
+    box-sizing: border-box;
+    /* padding と border を含めてサイズを計算 */
     color: #888;
     border-radius: 50px;
     font-weight: bold;
@@ -289,7 +294,7 @@ input[type="text"]:focus {
 
 /* セットアップ画面 */
 #app.portrait-mode #setup-screen {
-    padding: 60px 40px;
+    padding: 40px 40px;
     justify-content: flex-start;
 }
 
@@ -336,10 +341,12 @@ input[type="text"]:focus {
 }
 
 #app.portrait-mode #open-request-btn {
-    font-size: 28px;
-    padding: 20px;
+    font-size: 22px;
+    padding: 10px;
     margin-top: 30px;
-    width: 100%;
+    margin-bottom: 20px;
+    width: 60%;
+    align-self: center;
 }
 
 #app.portrait-mode .setup-footer {
@@ -714,6 +721,24 @@ input[type="text"]:focus {
     flex-direction: row;
 }
 
+/* インターバル画面 (横画面専用) */
+#app.landscape-mode .interval-img {
+    max-height: 480px;
+    margin-bottom: 0px;
+}
+
+/* 横画面専用の設定を追加する場合 */
+#app.landscape-mode #interval-msg {
+    font-size: 30px;
+    /* 横画面用サイズ */
+    margin-bottom: 20px;
+}
+
+#app.landscape-mode #battle-start-btn {
+    font-size: 36px;
+    padding: 15px 40px;
+}
+
 #app.landscape-mode .battle-view {
     width: 650px;
     /* 左側 */
@@ -1060,13 +1085,13 @@ input[type="text"]:focus {
 }
 
 #request-overlay h2 {
-    font-size: 40px;
+    font-size: 50px;
     color: var(--primary-color);
     margin-bottom: 30px;
 }
 
 #request-overlay p {
-    font-size: 24px;
+    font-size: 28px;
     color: var(--primary-color);
     margin-bottom: 15px;
     text-align: left;
@@ -1075,7 +1100,7 @@ input[type="text"]:focus {
 
 #request-overlay p:last-of-type {
     color: var(--danger-color);
-    font-size: 20px;
+    font-size: 26px;
     margin-bottom: 20px;
 }
 
@@ -1088,7 +1113,7 @@ input[type="text"]:focus {
     border-radius: 8px;
     padding: 20px;
     font-family: var(--font-pixel);
-    font-size: 28px;
+    font-size: 30px;
     resize: none;
     margin-bottom: 30px;
 }
@@ -1100,14 +1125,22 @@ input[type="text"]:focus {
 
 .button-group {
     display: flex;
-    gap: 20px;
+    gap: 15px;
+    /* 隙間も少し狭める */
     justify-content: center;
+    width: 70%;
+    /* 全体の幅を70%に */
+    margin: 0 auto;
+    /* 中央寄せ */
 }
 
-#submit-request-btn,
-#cancel-request-btn {
-    font-size: 32px;
-    padding: 20px 40px;
+#request-overlay #submit-request-btn,
+#request-overlay #cancel-request-btn {
+    flex: 1;
+    font-size: 24px;
+    /* 32px の約70% */
+    padding: 14px 0;
+    /* 20px の約70% */
     margin: 0;
 }
 
@@ -1117,10 +1150,10 @@ input[type="text"]:focus {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 60%;
-    max-height: 35%;
+    max-width: 80%;
+    max-height: 80%;
     object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 1))drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
     animation: sword-appear 0.5s ease-out;
     z-index: 5;
 }
