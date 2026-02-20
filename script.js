@@ -954,7 +954,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
         // Sword Drop Event (1/10 chance, monsters 1-9, not Rare/Heal, once per battle)
         const canDropSword = !this.hasSword && !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
-        if (canDropSword && Math.random() < 0.1) {
+        if (canDropSword && Math.random() < 0.12) {
             // Sword drop sequence
             setTimeout(() => {
                 // Show sword image in monster container
@@ -976,7 +976,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
                     this._showMessage("はがねのけんを\nそうびした！", false, 2000);
 
                     // Show sword label under player name
-                    document.getElementById('sword-label').style.display = 'block';
+                    document.getElementById('sword-label').style.display = 'inline-block';
 
                     // Remove sword image and proceed after 2 more seconds
                     setTimeout(() => {

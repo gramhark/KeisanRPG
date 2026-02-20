@@ -457,16 +457,21 @@ input[type="text"]:focus {
     margin-bottom: 20px;
 }
 
+#app.portrait-mode .player-info {
+    display: flex;
+    align-items: center;
+}
+
 #app.portrait-mode #player-name-display {
     font-size: 36px;
     font-family: var(--font-pixel);
 }
 
 #app.portrait-mode .sword-label {
-    font-size: 24px;
-    color: var(--accent-color);
-    font-family: var(--font-pixel);
-    display: block;
+    height: 55px;
+    width: auto;
+    margin-left: 10px;
+    vertical-align: middle;
 }
 
 #app.portrait-mode .hp-status {
@@ -492,6 +497,7 @@ input[type="text"]:focus {
 
 #app.portrait-mode .problem-text {
     font-size: 72px;
+    font-weight: bold;
     font-family: var(--font-pixel);
     color: var(--accent-color);
     letter-spacing: 4px;
@@ -502,6 +508,7 @@ input[type="text"]:focus {
 
 #app.portrait-mode .answer-part {
     color: white;
+    font-weight: bold;
     border-bottom: 6px solid var(--primary-color);
     min-width: 100px;
     text-align: center;
@@ -828,16 +835,21 @@ input[type="text"]:focus {
     margin-bottom: 20px;
 }
 
+#app.landscape-mode .player-info {
+    display: flex;
+    align-items: center;
+}
+
 #app.landscape-mode #player-name-display {
     font-size: 32px;
     font-family: var(--font-pixel);
 }
 
 #app.landscape-mode .sword-label {
-    font-size: 20px;
-    color: var(--accent-color);
-    font-family: var(--font-pixel);
-    display: block;
+    height: 40px;
+    width: auto;
+    margin-left: 10px;
+    vertical-align: middle;
 }
 
 #app.landscape-mode .hp-status {
@@ -863,6 +875,7 @@ input[type="text"]:focus {
 
 #app.landscape-mode .problem-text {
     font-size: 64px;
+    font-weight: bold;
     font-family: var(--font-pixel);
     color: var(--accent-color);
     letter-spacing: 4px;
@@ -873,6 +886,7 @@ input[type="text"]:focus {
 
 #app.landscape-mode .answer-part {
     color: white;
+    font-weight: bold;
     border-bottom: 6px solid var(--primary-color);
     min-width: 80px;
     text-align: center;
@@ -1156,8 +1170,8 @@ input[type="text"]:focus {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 70%;
+    max-height: 70%;
     object-fit: contain;
     filter: drop-shadow(0 0 2px rgba(255, 215, 0, 1))drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
     animation: sword-appear 0.5s ease-out;
