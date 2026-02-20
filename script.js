@@ -151,7 +151,7 @@ class MathProblem {
             // Determine Constraints
             const leftMin = this.leftDigits === 1 ? 1 : 10;
             const leftMax = this.leftDigits === 1 ? 9 : 99;
-            const rightMin = this.rightDigits === 1 ? 1 : 10;
+            const rightMin = this.rightDigits === 1 ? 2 : 10;
             const rightMax = this.rightDigits === 1 ? 9 : 99;
 
             // Strategy: Pick Answer first, then Divisor, then check Dividend
@@ -454,7 +454,7 @@ class Game {
         const isPortrait = winH > winW;
 
         // ターゲット仮想解像度
-        const baseW = isPortrait ? 840 : 1200;
+        const baseW = isPortrait ? 800 : 1200;
         const baseH = isPortrait ? 1600 : 800;
 
         if (isPortrait) {

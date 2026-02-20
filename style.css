@@ -21,8 +21,8 @@
 
 body {
     background-color: var(--bg-color);
-    background: radial-gradient(circle at center, #1a2138 0%, #05070b 100%);
-    background-size: cover;
+    background-image: url('assets/otherimg/BG.webp');
+    background-repeat: repeat;
     color: var(--text-color);
     font-family: var(--font-main);
     display: flex;
@@ -197,6 +197,12 @@ input[type="text"]:focus {
 .timer-bar {
     height: 100%;
     background: var(--success-color);
+}
+
+.monster-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* モンスター画像共通設定（グロウ処理・トランジション復元） */
