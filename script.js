@@ -75,25 +75,25 @@ class SoundManager {
         this.seCrush = document.getElementById('se-crush');
 
         // Load sources
-        this.bgmBattle.src = 'assets/audio/battle.mp3';
-        this.bgmBoss.src = 'assets/audio/Bossbattle.mp3';
-        this.bgmRare.src = 'assets/audio/Rarebattle.mp3';
-        this.bgmHeal.src = 'assets/audio/Healbattle.mp3';
-        this.seAttack.src = 'assets/audio/attack.mp3';
-        this.seCritical.src = 'assets/audio/critical.mp3';
-        this.seDamage.src = 'assets/audio/damage.mp3';
-        this.seDefeat.src = 'assets/audio/defeat.mp3';
-        this.seClear.src = 'assets/audio/clear.mp3';
-        this.seLastboss.src = 'assets/audio/lastboss.mp3';
-        this.seHeal.src = 'assets/audio/heal.mp3';
-        this.seMeat.src = 'assets/audio/meat.mp3';
-        this.seSap.src = 'assets/audio/sap.mp3';
-        this.seItem.src = 'assets/audio/item.mp3';
-        this.seSwordAttack.src = 'assets/audio/swordattack.mp3';
-        this.seSwordCritical.src = 'assets/audio/swordcritical.mp3';
-        this.seShieldDamage.src = 'assets/audio/shielddamage.mp3';
-        this.seEquip.src = 'assets/audio/equip.mp3';
-        this.seCrush.src = 'assets/audio/crush.mp3';
+        this.bgmBattle.src = 'assets/audio/battle.webm';
+        this.bgmBoss.src = 'assets/audio/Bossbattle.webm';
+        this.bgmRare.src = 'assets/audio/Rarebattle.webm';
+        this.bgmHeal.src = 'assets/audio/Healbattle.webm';
+        this.seAttack.src = 'assets/audio/attack.webm';
+        this.seCritical.src = 'assets/audio/critical.webm';
+        this.seDamage.src = 'assets/audio/damage.webm';
+        this.seDefeat.src = 'assets/audio/defeat.webm';
+        this.seClear.src = 'assets/audio/clear.webm';
+        this.seLastboss.src = 'assets/audio/lastboss.webm';
+        this.seHeal.src = 'assets/audio/heal.webm';
+        this.seMeat.src = 'assets/audio/meat.webm';
+        this.seSap.src = 'assets/audio/sap.webm';
+        this.seItem.src = 'assets/audio/item.webm';
+        this.seSwordAttack.src = 'assets/audio/swordattack.webm';
+        this.seSwordCritical.src = 'assets/audio/swordcritical.webm';
+        this.seShieldDamage.src = 'assets/audio/shielddamage.webm';
+        this.seEquip.src = 'assets/audio/equip.webm';
+        this.seCrush.src = 'assets/audio/crush.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -176,6 +176,33 @@ class SoundManager {
             se.currentTime = 0;
             se.play().catch(() => { });
         }
+    }
+
+    unlockAll() {
+        // SoundManagerが管理する全audioオブジェクトの配列
+        const allAudio = [
+            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal,
+            this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
+            this.seClear, this.seLastboss, this.seHeal, this.seMeat,
+            this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
+            this.seShieldDamage, this.seEquip, this.seCrush
+        ];
+
+        allAudio.forEach(audio => {
+            if (!audio) return;
+            const originalVolume = audio.volume;
+            audio.volume = 0;
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    audio.volume = originalVolume > 0 ? originalVolume : 1;
+                }).catch(() => {
+                    // srcが未設定など、再生できない場合は無視
+                });
+            }
+        });
     }
 }
 
@@ -630,6 +657,7 @@ class Game {
 
     /* Game Flow */
     startGame() {
+        this.sound.unlockAll(); // ← この1行を追加
         const nameInput = document.getElementById('player-name').value.trim();
         this.playerName = nameInput || 'ゆうしゃ';
         localStorage.setItem('math_battle_player_name', nameInput);
