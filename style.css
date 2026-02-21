@@ -571,7 +571,7 @@ input[type="text"]:focus {
 }
 
 #app.portrait-mode #player-name-display {
-    font-size: 36px;
+    font-size: calc(36px * var(--name-scale, 1));
     font-family: var(--font-pixel);
 }
 
@@ -1020,7 +1020,7 @@ input[type="text"]:focus {
 }
 
 #app.landscape-mode #player-name-display {
-    font-size: 24px;
+    font-size: calc(24px * var(--name-scale, 1));
     font-family: var(--font-pixel);
     white-space: nowrap;
 }
