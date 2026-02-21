@@ -118,7 +118,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 10px 20px;
-    height: 50px;
+    /* height: 50px は削除。各ボタンが個別に高さを管理する */
     vertical-align: middle;
     line-height: 1;
 }
@@ -1315,8 +1315,11 @@ input[type="text"]:focus {
 }
 
 #battle-start-btn {
+    /* 【共通】登場画面「たたかう」ボタンのサイズ・中央配置 */
     font-size: 48px;
     padding: 20px 60px;
+    width: fit-content;
+    margin: 0 auto;
 }
 
 /* リクエストフォーム */
