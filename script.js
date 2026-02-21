@@ -27,6 +27,26 @@ const GameState = {
     NOTE: 'note' // Monster Note Screen
 };
 
+/* Item Data Tables */
+const SWORD_DATA = [
+    { name: 'ぼう', img: 'sword01.webp', bonus: 0 },
+    { name: 'どうのつるぎ', img: 'sword02.webp', bonus: 1 },
+    { name: 'てつのつるぎ', img: 'sword03.webp', bonus: 2 },
+    { name: 'はがねのつるぎ', img: 'sword04.webp', bonus: 3 },
+];
+
+const SHIELD_DATA = [
+    null, // level 0 = なし
+    { name: 'きのたて', img: 'shield01.webp', reduction: 1, maxDurability: 1 },
+    { name: 'どうのたて', img: 'shield02.webp', reduction: 2, maxDurability: 2 },
+    { name: 'てつのたて', img: 'shield03.webp', reduction: 3, maxDurability: 3 },
+    { name: 'はがねのたて', img: 'shield04.webp', reduction: 4, maxDurability: 4 },
+];
+
+// インデックス = 現在の所持レベル → 次レベルのドロップ率
+const SWORD_DROP_RATE = [0.5, 0.25, 0.12, 0]; // swordLevel 0=ぼう→50%, 1→25%, 2→12%, 3=最強で抽選なし
+const SHIELD_DROP_RATE = [0.3, 0.20, 0.10, 0.05, 0]; // shieldLevel 0=なし→30%, 1→20%, 2→10%, 3→5%, 4=最強で抽選なし
+
 /* Assets Map (populated dynamically if needed, but here hardcoded matching existing files) */
 /* Ideally we'd scan the dir, but in browser we explicitly map or guess. 
    We will rely on simple ID mapping logic since we kept original names.
@@ -47,6 +67,9 @@ class SoundManager {
         this.seMeat = document.getElementById('se-meat');
         this.seSap = document.getElementById('se-sap');
         this.seItem = document.getElementById('se-item');
+        this.seSwordAttack = document.getElementById('se-swordattack');
+        this.seSwordCritical = document.getElementById('se-swordcritical');
+        this.seShieldDamage = document.getElementById('se-shielddamage');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/battle.mp3';
@@ -62,6 +85,9 @@ class SoundManager {
         this.seMeat.src = 'assets/audio/meat.mp3';
         this.seSap.src = 'assets/audio/sap.mp3';
         this.seItem.src = 'assets/audio/item.mp3';
+        this.seSwordAttack.src = 'assets/audio/swordattack.mp3';
+        this.seSwordCritical.src = 'assets/audio/swordcritical.mp3';
+        this.seShieldDamage.src = 'assets/audio/shielddamage.mp3';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -124,6 +150,9 @@ class SoundManager {
             case 'meat': se = this.seMeat; break;
             case 'sap': se = this.seSap; break;
             case 'item': se = this.seItem; break;
+            case 'swordattack': se = this.seSwordAttack; break;
+            case 'swordcritical': se = this.seSwordCritical; break;
+            case 'shielddamage': se = this.seShieldDamage; break;
         }
         if (se) {
             se.currentTime = 0;
@@ -446,8 +475,8 @@ class Game {
         this.inputBuffer = "";
 
         this.rareBuff = false;
-        this.hasSword = false;
-        this.hasShield = false;
+        this.swordLevel = 0;
+        this.shieldLevel = 0;
         this.shieldDurability = 0;
 
         // Auto Scaling
@@ -609,10 +638,12 @@ class Game {
 
         this.currentMonsterIdx = 0;
         this.rareBuff = false;
-        this.hasSword = false;
-        this.hasShield = false;
+        this.swordLevel = 0; // ぼうを最初から持つ
+        this.shieldLevel = 0;
         this.shieldDurability = 0;
-        document.getElementById('sword-label').style.display = 'none';
+        const swordLabelEl = document.getElementById('sword-label');
+        swordLabelEl.src = 'assets/otherimg/' + SWORD_DATA[0].img;
+        swordLabelEl.style.display = 'inline-block';
         document.getElementById('shield-label').style.display = 'none';
         this.defeatTimes = [];
 
@@ -871,7 +902,7 @@ class Game {
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
         let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
         if (this.rareBuff) damage *= 2;
-        if (this.hasSword) damage += 1;
+        damage += SWORD_DATA[this.swordLevel].bonus; // lv0(ぼう)は+0
 
         const m = this.monsters[this.currentMonsterIdx];
         m.takeDamage(damage);
@@ -880,7 +911,13 @@ class Game {
         // VFX
         this._flashScreen();
         this._showMessage(isCrit ? `クリティカル！\n${damage}ダメージ！` : `${this.playerName}のこうげき！\n${damage}ダメージ！`, isCrit);
-        this.sound.playSe(isCrit ? 'critical' : 'attack');
+
+        // Sound Selection based on sword level
+        if (this.swordLevel > 0) {
+            this.sound.playSe(isCrit ? 'swordcritical' : 'swordattack');
+        } else {
+            this.sound.playSe(isCrit ? 'critical' : 'attack');
+        }
 
         if (m.hp <= 0) {
             // Defeated: Stop timer immediately
@@ -906,17 +943,20 @@ class Game {
         let damage = m.attackPower;
 
         // Shield damage reduction
-        if (this.hasShield) {
-            damage = Math.max(0, damage - 1);
+        if (this.shieldLevel > 0) {
+            const shield = SHIELD_DATA[this.shieldLevel];
+            damage = Math.max(0, damage - shield.reduction);
             this.shieldDurability--;
             if (this.shieldDurability <= 0) {
-                this.hasShield = false;
+                const shieldName = shield.name;
+                this.shieldLevel = 0;
+                this.shieldDurability = 0;
                 document.getElementById('shield-label').style.display = 'none';
                 this.playerHp = Math.max(0, this.playerHp - damage);
                 this._updatePlayerHpUI();
                 this._shakeScreen();
-                this._showMessage(`ミス！\n${damage}ダメージうけた！\nはがねのたては\nこわれてしまった！`, false, 2500, 'damage');
-                this.sound.playSe('damage');
+                this._showMessage(`ミス！\n${damage}ダメージうけた！\n${shieldName}は\nこわれてしまった！`, false, 2500, 'damage');
+                this.sound.playSe('shielddamage');
                 if (this.playerHp <= 0) {
                     this._onGameOver();
                 }
@@ -930,7 +970,12 @@ class Game {
         this._shakeScreen();
         this._showMessage(`ミス！
 ${damage}ダメージうけた！`, false, 1500, 'damage');
-        this.sound.playSe('damage');
+
+        if (this.shieldLevel > 0) {
+            this.sound.playSe('shielddamage');
+        } else {
+            this.sound.playSe('damage');
+        }
 
         if (this.playerHp <= 0) {
             this._onGameOver();
@@ -1029,83 +1074,94 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             setTimeout(() => this._showMessage("HPが ぜんかいふくした！", false, 2500), 1000);
         }
 
-        // Item Drop Priority: Sword first (15%), then Shield (5%). They cannot drop together.
+        // アイテムドロップ抽選（剣・盾を独立して同時抽選）
         const canDropItem = !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
-        let droppedItem = false;
+        let swordDropped = false;
+        let shieldDropped = false;
 
-        // Sword Drop Event (15% chance, once per battle)
-        const canDropSword = canDropItem && !this.hasSword;
-        if (canDropSword && Math.random() < 0.15) {
-            droppedItem = true;
-            // Sword drop sequence
-            setTimeout(() => {
-                // Show sword image in monster container
-                const monsterContainer = document.querySelector('.monster-container');
-                const swordImg = document.createElement('img');
-                swordImg.src = 'assets/otherimg/sword01.webp';
-                swordImg.className = 'sword-drop-img';
-                monsterContainer.appendChild(swordImg);
-
-                // Play item SE
-                this.sound.playSe('item');
-
-                // Show "obtained" message
-                this._showMessage("はがねのけんを\nてにいれた！", false, 4500);
-
-                // After 2 seconds, show "equipped" message
-                setTimeout(() => {
-                    this.hasSword = true;
-                    this._showMessage("はがねのけんを\nそうびした！", false, 2000);
-
-                    // Show sword label under player name
-                    document.getElementById('sword-label').style.display = 'inline-block';
-
-                    // Remove sword image and proceed after 2 more seconds
-                    setTimeout(() => {
-                        swordImg.remove();
-                        this._nextMonster();
-                    }, 2000);
-                }, 2000);
-            }, 1500); // Start after defeat message
+        // 剣のアップグレード抽選
+        const nextSwordLevel = this.swordLevel + 1;
+        if (canDropItem && nextSwordLevel <= 3) {
+            if (Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
+                swordDropped = true;
+            }
         }
 
-        // Shield Drop Event (5% chance, once per battle, mutually exclusive with sword drop)
-        const canDropShield = canDropItem && !this.hasShield && !droppedItem;
-        if (canDropShield && Math.random() < 0.08) {
-            droppedItem = true;
-            // Shield drop sequence
-            setTimeout(() => {
-                const monsterContainer = document.querySelector('.monster-container');
-                const shieldImg = document.createElement('img');
-                shieldImg.src = 'assets/otherimg/shield01.webp';
-                shieldImg.className = 'sword-drop-img';
-                monsterContainer.appendChild(shieldImg);
-
-                this.sound.playSe('item');
-                this._showMessage("はがねのたてを\nてにいれた！", false, 4500);
-
-                setTimeout(() => {
-                    this.hasShield = true;
-                    this.shieldDurability = 5;
-                    this._showMessage("はがねのたてを\nそうびした！", false, 2000);
-
-                    document.getElementById('shield-label').style.display = 'inline-block';
-
-                    setTimeout(() => {
-                        shieldImg.remove();
-                        this._nextMonster();
-                    }, 2000);
-                }, 2000);
-            }, 1500);
+        // 盾のアップグレード抽選（剣と独立）
+        const nextShieldLevel = this.shieldLevel + 1;
+        if (canDropItem && nextShieldLevel <= 4) {
+            if (Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
+                shieldDropped = true;
+            }
         }
 
-        if (droppedItem) {
-            return; // Don't proceed to normal _nextMonster timeout
+        if (swordDropped && shieldDropped) {
+            // 剣→盾の順でシーケンス実行
+            this._doSwordDrop(nextSwordLevel, () => {
+                this._doShieldDrop(nextShieldLevel, () => this._nextMonster(), 0);
+            });
+        } else if (swordDropped) {
+            this._doSwordDrop(nextSwordLevel, () => this._nextMonster());
+        } else if (shieldDropped) {
+            this._doShieldDrop(nextShieldLevel, () => this._nextMonster());
+        } else {
+            setTimeout(() => this._nextMonster(), 3000);
         }
+    }
 
+    _doSwordDrop(level, onComplete) {
+        const sword = SWORD_DATA[level];
         setTimeout(() => {
-            this._nextMonster();
-        }, 3000);
+            const monsterContainer = document.querySelector('.monster-container');
+            const swordImg = document.createElement('img');
+            swordImg.src = 'assets/otherimg/' + sword.img;
+            swordImg.className = 'sword-drop-img';
+            monsterContainer.appendChild(swordImg);
+
+            this.sound.playSe('item');
+            this._showMessage(`${sword.name}を\nてにいれた！`, false, 4500);
+
+            setTimeout(() => {
+                this.swordLevel = level;
+                const swordLabelEl = document.getElementById('sword-label');
+                swordLabelEl.src = 'assets/otherimg/' + sword.img;
+                swordLabelEl.style.display = 'inline-block';
+                this._showMessage(`${sword.name}を\nそうびした！`, false, 2000);
+
+                setTimeout(() => {
+                    swordImg.remove();
+                    onComplete();
+                }, 2000);
+            }, 2000);
+        }, 1500);
+    }
+
+    _doShieldDrop(level, onComplete, initialDelay = 1500) {
+        const shield = SHIELD_DATA[level];
+        setTimeout(() => {
+            const monsterContainer = document.querySelector('.monster-container');
+            const shieldImg = document.createElement('img');
+            shieldImg.src = 'assets/otherimg/' + shield.img;
+            shieldImg.className = 'sword-drop-img';
+            monsterContainer.appendChild(shieldImg);
+
+            this.sound.playSe('item');
+            this._showMessage(`${shield.name}を\nてにいれた！`, false, 4500);
+
+            setTimeout(() => {
+                this.shieldLevel = level;
+                this.shieldDurability = shield.maxDurability;
+                const shieldLabelEl = document.getElementById('shield-label');
+                shieldLabelEl.src = 'assets/otherimg/' + shield.img;
+                shieldLabelEl.style.display = 'inline-block';
+                this._showMessage(`${shield.name}を\nそうびした！`, false, 2000);
+
+                setTimeout(() => {
+                    shieldImg.remove();
+                    onComplete();
+                }, 2000);
+            }, 2000);
+        }, initialDelay);
     }
 
     _nextMonster() {

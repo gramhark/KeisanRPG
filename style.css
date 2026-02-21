@@ -261,7 +261,6 @@ input[type="text"]:focus {
 /* モンスター画像共通設定（グロウ処理・トランジション復元） */
 #monster-img {
     filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
-    ;
     transition: opacity 0.2s, filter 0.2s;
 }
 
@@ -792,15 +791,23 @@ input[type="text"]:focus {
     width: fit-content;
     margin: 50px auto 30px auto;
     padding: 24px 64px;
-    font-size: 40px;
+    font-size: 56px !important;
 }
 
+/* --- Note Warning Overrides --- */
 #app.portrait-mode #note-warning-modal .overlay-content {
     max-width: 700px !important;
+    padding: 40px !important;
 }
 
-#app.portrait-mode #note-warning-modal .overlay-content>div {
-    font-size: 31.2px !important;
+#app.landscape-mode #note-warning-modal .overlay-content {
+    max-width: 700px !important;
+    /* 500px * 1.2 */
+}
+
+#app.portrait-mode #note-warning-modal h2 {
+    font-size: 40px !important;
+    margin-bottom: 30px !important;
 }
 
 

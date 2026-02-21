@@ -100,10 +100,10 @@
     "Boss15_ぼうくんティラノザ.webp",
     "Boss16_こうてつカブトサムライ.webp",
     "Lastboss_しんのかみダイオウグソクナイト.webp",
+    "Heal_おやみみ～.webp",
     "Heal_かいふくぐさ.webp",
+    "Heal_ぺったん.webp",
     "Heal_ポーションびん.webp",
-    "Rare_おやみみ～.webp",
     "Rare_ダイアゴーレム.webp",
-    "Rare_ぺったん.webp",
     "Rare_やまもりたからばこ.webp"
 ];
