@@ -1476,8 +1476,31 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
         const assets = getMonsterAssets();
         const sortedAssets = [...assets]; // Keep original order from monster_list.js
+        let currentCategory = '';
 
         sortedAssets.forEach(filename => {
+            let category = 'その他';
+            if (filename.toLowerCase().startsWith('boss') || filename.toLowerCase().startsWith('lastboss')) {
+                category = 'ボス';
+            } else if (filename.toLowerCase().startsWith('heal')) {
+                category = 'かいふく';
+            } else if (filename.toLowerCase().startsWith('rare')) {
+                category = 'レア';
+            } else {
+                const match = filename.match(/^(\d+)_/);
+                if (match) {
+                    category = `${parseInt(match[1], 10)}番目`;
+                }
+            }
+
+            if (category !== currentCategory) {
+                currentCategory = category;
+                const header = document.createElement('div');
+                header.className = 'note-category-header';
+                header.textContent = category;
+                grid.appendChild(header);
+            }
+
             const record = collection[filename];
             const isDefeated = !!(record && record.defeated);
 

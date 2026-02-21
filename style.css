@@ -1500,6 +1500,29 @@ input[type="text"]:focus {
     padding: 30px;
 }
 
+.note-category-header {
+    grid-column: 1 / -1;
+    font-size: 24px;
+    color: var(--accent-color);
+    font-family: var(--font-pixel);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+}
+
+.note-category-header:first-child {
+    margin-top: 0;
+}
+
+#app.portrait-mode .note-category-header {
+    font-size: 32px;
+    padding-bottom: 10px;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
 .note-card {
     background: linear-gradient(145deg, #1a2138, #111526);
     border: 3px solid var(--border-color);
