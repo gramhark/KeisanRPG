@@ -711,9 +711,12 @@ class Game {
         });
 
         // Phase 2: Backup Feature (Spell)
-        document.getElementById('spell-open-btn').addEventListener('click', () => {
-            this._showSpellModal('generate');
-        });
+        const spellOpenBtn = document.getElementById('spell-open-btn');
+        if (spellOpenBtn) {
+            spellOpenBtn.addEventListener('click', () => {
+                this._showSpellModal('generate');
+            });
+        }
         document.getElementById('close-spell-modal').addEventListener('click', () => {
             document.getElementById('spell-overlay').classList.remove('active');
         });
@@ -1466,6 +1469,11 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
     _renderNoteGrid() {
         const grid = document.getElementById('note-grid');
         grid.innerHTML = '';
+
+        const warning = document.createElement('div');
+        warning.className = 'note-warning';
+        warning.textContent = 'サイトの りれきを けすと、ノートが きえてしまうよ。 きをつけてね！';
+        grid.appendChild(warning);
 
         const STORAGE_KEY = 'math_battle_collection_v1';
         let collection = {};

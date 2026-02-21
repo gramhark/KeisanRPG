@@ -89,6 +89,8 @@
     "Boss10_ばけものむかで.webp",
     "Boss11_しんかいのあくむ.webp",
     "Boss12_インセクトキング.webp",
+    "Boss13_かみちぎりプルスダイル.webp",
+    "Boss14_ギャリドラタンク.webp",
     "Boss15_ぼうくんティラノザ.webp",
     "Boss16_こうてつカブトサムライ.webp",
     "Lastboss_しんのかみダイオウグソクナイト.webp",
