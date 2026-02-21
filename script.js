@@ -57,6 +57,7 @@ class SoundManager {
         this.bgmBattle = document.getElementById('bgm-battle');
         this.bgmBoss = document.getElementById('bgm-boss');
         this.bgmRare = document.getElementById('bgm-rare');
+        this.bgmHeal = document.getElementById('bgm-heal');
         this.seAttack = document.getElementById('se-attack');
         this.seCritical = document.getElementById('se-critical');
         this.seDamage = document.getElementById('se-damage');
@@ -77,6 +78,7 @@ class SoundManager {
         this.bgmBattle.src = 'assets/audio/battle.mp3';
         this.bgmBoss.src = 'assets/audio/Bossbattle.mp3';
         this.bgmRare.src = 'assets/audio/Rarebattle.mp3';
+        this.bgmHeal.src = 'assets/audio/Healbattle.mp3';
         this.seAttack.src = 'assets/audio/attack.mp3';
         this.seCritical.src = 'assets/audio/critical.mp3';
         this.seDamage.src = 'assets/audio/damage.mp3';
@@ -116,14 +118,18 @@ class SoundManager {
         });
     }
 
-    playBgm(isBoss, isRare = false) {
+    playBgm(isBoss, isRare = false, isHeal = false) {
         // Stop current if different
         let target = this.bgmBattle;
         if (isBoss) target = this.bgmBoss;
         else if (isRare) target = this.bgmRare;
+        else if (isHeal) target = this.bgmHeal;
         if (this.currentBgm && this.currentBgm !== target) {
             this.currentBgm.pause();
-            this.currentBgm.currentTime = 0;
+            // 通常戦闘BGM以外から切り替えるときは頭出し（通常BGMは途中から再開させるためリセットしない）
+            if (this.currentBgm !== this.bgmBattle) {
+                this.currentBgm.currentTime = 0;
+            }
         }
         if (this.currentBgm !== target || target.paused) {
             this.currentBgm = target;
@@ -135,9 +141,15 @@ class SoundManager {
     stopBgm() {
         if (this.currentBgm) {
             this.currentBgm.pause();
-            this.currentBgm.currentTime = 0;
             this.currentBgm = null;
         }
+
+        // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal].forEach(bgm => {
+            bgm.pause();
+            bgm.currentTime = 0;
+        });
+
         this.isPausedByVisibility = false;
     }
 
@@ -758,8 +770,8 @@ class Game {
         this.state = GameState.INTERVAL;
         const m = this.monsters[this.currentMonsterIdx];
 
-        // BGM Check (Boss or Normal or Rare)
-        this.sound.playBgm(m.number === 10, m.isRare);
+        // BGM Check (Boss or Normal or Rare or Heal)
+        this.sound.playBgm(m.number === 10, m.isRare, m.isHeal);
 
         // Fixed 3-line centered message format
         const msgEl = document.getElementById('interval-msg');
@@ -1219,7 +1231,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         // If HP <= half, not rare, not boss(10), 10% chance -> Heal Monster
         const nextM = this.monsters[this.currentMonsterIdx];
         if (this.playerHp / CONSTANTS.PLAYER_MAX_HP <= 0.5 && !nextM.isRare && nextM.number !== 10) {
-            if (Math.random() < 1.0) {
+            if (Math.random() < 0.2) {
                 // convert to heal
                 const newM = new Monster(nextM.number, false, true, nextM.opCount, nextM.leftDigits, nextM.rightDigits);
                 this.monsters[this.currentMonsterIdx] = newM;
