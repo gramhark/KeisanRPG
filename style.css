@@ -795,6 +795,14 @@ input[type="text"]:focus {
     font-size: 40px;
 }
 
+#app.portrait-mode #note-warning-modal .overlay-content {
+    max-width: 700px !important;
+}
+
+#app.portrait-mode #note-warning-modal .overlay-content>div {
+    font-size: 31.2px !important;
+}
+
 
 /* ============================================================
    横画面モード (1200x800)
@@ -1445,9 +1453,26 @@ input[type="text"]:focus {
 #caption {
     color: #ccc;
     font-family: var(--font-pixel);
-    font-size: 40px;
     margin-top: 30px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-name {
+    font-size: 40px;
+    color: #fff;
+}
+
+.modal-stats {
+    font-size: 24px;
+    color: var(--accent-color);
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    padding: 8px 24px;
 }
 
 /* ============================================================
@@ -1468,25 +1493,6 @@ input[type="text"]:focus {
     padding: 30px;
 }
 
-.note-warning {
-    grid-column: 1 / -1;
-    font-size: 18px;
-    color: var(--accent-color);
-    font-family: var(--font-pixel);
-    background: rgba(255, 215, 0, 0.08);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-bottom: 10px;
-    text-align: center;
-    line-height: 1.5;
-}
-
-#app.portrait-mode .note-warning {
-    font-size: 26px;
-    padding: 14px 20px;
-    text-align: left;
-}
 
 .note-category-header {
     grid-column: 1 / -1;
@@ -1511,17 +1517,8 @@ input[type="text"]:focus {
     margin-bottom: 10px;
 }
 
-#app.portrait-mode #close-note-btn {
-    font-size: 28px !important;
-    padding: 15px 50px !important;
-    height: auto !important;
-}
 
-#app.landscape-mode #close-note-btn {
-    font-size: 24px !important;
-    padding: 14px 40px !important;
-    height: auto !important;
-}
+
 
 .note-card {
     background: linear-gradient(145deg, #1a2138, #111526);
@@ -1650,87 +1647,72 @@ input[type="text"]:focus {
 }
 
 /* ============================================================
-   Spell (ふっかつのじゅもん)
+   Note Footer (バックアップ)
    ============================================================ */
-.spell-content {
-    background: linear-gradient(135deg, #161b2e 0%, #0b0f19 100%);
-    border: 4px solid var(--accent-color);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
-    height: 450px;
+.note-footer {
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
-#spell-view-generate,
-#spell-view-restore {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-#spell-view-generate::-webkit-scrollbar,
-#spell-view-restore::-webkit-scrollbar {
-    width: 8px;
-}
-
-#spell-view-generate::-webkit-scrollbar-thumb,
-#spell-view-restore::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-.spell-box {
-    background: #000;
-    border: 3px solid var(--border-color);
-    border-radius: 8px;
-    color: #fff;
-    font-family: var(--font-pixel);
-    font-size: 28px;
-    padding: 20px;
+.note-footer-iphone-notice {
+    font-size: 11px;
+    color: #aaa;
     text-align: center;
-    letter-spacing: 4px;
-    line-height: 1.5;
-    word-break: break-all;
-    min-height: 120px;
+    margin: 0;
+}
+
+.note-footer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
     width: 100%;
 }
 
-input.spell-box {
-    box-sizing: border-box;
-    margin-bottom: 10px;
+#app.portrait-mode .note-footer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "save load"
+        "info close";
+    gap: 15px;
 }
 
-input.spell-box:focus {
-    border-color: var(--success-color);
-    box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
-    outline: none;
+#app.portrait-mode #note-warning-btn {
+    grid-area: info;
 }
 
-#app.portrait-mode .spell-content {
-    width: 650px !important;
-    height: 600px;
-    padding: 40px;
+#app.portrait-mode #save-backup-btn {
+    grid-area: save;
 }
 
-#app.portrait-mode .spell-box {
-    font-size: 36px;
-    padding: 30px;
-    letter-spacing: 6px;
+#app.portrait-mode #load-backup-btn {
+    grid-area: load;
 }
 
-#app.portrait-mode #spell-open-btn {
+#app.portrait-mode #close-note-btn {
+    grid-area: close;
+}
+
+#app.portrait-mode .note-footer-buttons button {
     font-size: 24px !important;
-    padding: 15px 20px !important;
+    padding: 14px 10px !important;
+    height: auto !important;
+    width: 100%;
 }
 
-#app.portrait-mode .spell-tabs button {
-    font-size: 20px !important;
-    padding: 0 5px !important;
-    height: 60px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+#app.landscape-mode .note-footer-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+#app.landscape-mode .note-footer-buttons button {
+    font-size: 18px !important;
+    padding: 10px 20px !important;
+    height: auto !important;
 }

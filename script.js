@@ -14,7 +14,7 @@ const FORM_CONFIG = {
     ENTRY_ID: 'entry.2141365113'
 };
 
-const HIRAGANA = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわん";
+
 
 /* State Management */
 const GameState = {
@@ -343,154 +343,7 @@ class Monster {
     }
 }
 
-/* 
-   Backup Feature Algorithms
-*/
-class BackupSystem {
-    static getMonsterId(filename) {
-        filename = filename.toLowerCase();
-        if (filename.startsWith('boss')) {
-            const numMatch = filename.match(/^boss(\d+)/);
-            if (numMatch) return 100 + parseInt(numMatch[1]);
-            return 255;
-        }
-        if (filename.startsWith('lastboss')) return 200;
-        if (filename.startsWith('rare')) return 210;
-        if (filename.startsWith('heal')) return 220;
 
-        const normalMatch = filename.match(/^(\d+)_/);
-        if (normalMatch) return parseInt(normalMatch[1]);
-
-        return 255;
-    }
-
-    static encodePassword(collection) {
-        const assets = getMonsterAssets();
-        const ids = [];
-
-        assets.forEach(filename => {
-            if (collection[filename] && collection[filename].defeated) {
-                const id = BackupSystem.getMonsterId(filename);
-                if (id !== 255 && !ids.includes(id)) {
-                    ids.push(id);
-                }
-            }
-        });
-
-        if (ids.length === 0) return "あ"; // Empty fallback
-
-        const maxId = Math.max(...ids);
-        const byteCount = Math.floor(maxId / 8) + 1;
-        const bytes = new Uint8Array(byteCount);
-
-        ids.forEach(id => {
-            const byteIdx = Math.floor(id / 8);
-            const bitIdx = id % 8;
-            bytes[byteIdx] |= (1 << bitIdx);
-        });
-
-        // Trim trailing zeros
-        let trimLen = bytes.length;
-        while (trimLen > 0 && bytes[trimLen - 1] === 0) {
-            trimLen--;
-        }
-        const trimmedBytes = bytes.slice(0, trimLen);
-
-        // Checksum
-        let checksum = 0;
-        for (let i = 0; i < trimmedBytes.length; i++) {
-            checksum ^= trimmedBytes[i];
-        }
-
-        const finalBytes = new Uint8Array(trimmedBytes.length + 1);
-        finalBytes.set(trimmedBytes);
-        finalBytes[trimmedBytes.length] = checksum;
-
-        // Convert to 5-bit chunks for Hiragana mapping
-        let spell = "";
-        let bitBuffer = 0;
-        let bitsInBuffer = 0;
-
-        for (let i = 0; i < finalBytes.length; i++) {
-            bitBuffer |= (finalBytes[i] << bitsInBuffer);
-            bitsInBuffer += 8;
-
-            while (bitsInBuffer >= 5) {
-                const chunk = bitBuffer & 0x1F; // 5 bits
-                spell += HIRAGANA[chunk];
-                bitBuffer >>= 5;
-                bitsInBuffer -= 5;
-            }
-        }
-
-        if (bitsInBuffer > 0) {
-            spell += HIRAGANA[bitBuffer];
-        }
-
-        return spell;
-    }
-
-    static decodePassword(password) {
-        if (!password) return null;
-
-        const bits = [];
-        for (let i = 0; i < password.length; i++) {
-            const char = password[i];
-            const idx = HIRAGANA.indexOf(char);
-            if (idx === -1) return null; // Invalid character
-            bits.push(idx);
-        }
-
-        // Reconstruct bytes
-        const finalBytes = [];
-        let bitBuffer = 0;
-        let bitsInBuffer = 0;
-
-        for (let i = 0; i < bits.length; i++) {
-            bitBuffer |= (bits[i] << bitsInBuffer);
-            bitsInBuffer += 5;
-
-            while (bitsInBuffer >= 8) {
-                finalBytes.push(bitBuffer & 0xFF);
-                bitBuffer >>= 8;
-                bitsInBuffer -= 8;
-            }
-        }
-
-        if (finalBytes.length < 1) return null; // Not enough data for checksum
-
-        const checksumIndex = finalBytes.length - 1;
-        const expectedChecksum = finalBytes[checksumIndex];
-        const dataBytes = finalBytes.slice(0, checksumIndex);
-
-        let calcChecksum = 0;
-        for (let i = 0; i < dataBytes.length; i++) {
-            calcChecksum ^= dataBytes[i];
-        }
-
-        if (calcChecksum !== expectedChecksum) return null; // Checksum mismatch
-
-        // Map bits back to filenames
-        const collection = {};
-        const assets = getMonsterAssets();
-
-        for (let byteIdx = 0; byteIdx < dataBytes.length; byteIdx++) {
-            for (let bitIdx = 0; bitIdx < 8; bitIdx++) {
-                if ((dataBytes[byteIdx] & (1 << bitIdx)) !== 0) {
-                    const id = byteIdx * 8 + bitIdx;
-                    // Find all filenames that match this ID
-                    assets.forEach(filename => {
-                        if (BackupSystem.getMonsterId(filename) === id) {
-                            collection[filename] = { defeated: true, fastestTime: 99.9, count: 1 };
-                        }
-                    });
-                }
-            }
-        }
-
-        return collection;
-    }
-}
 
 
 /* Monster File List */
@@ -710,24 +563,16 @@ class Game {
             this.hideNote();
         });
 
-        // Phase 2: Backup Feature (Spell)
-        const spellOpenBtn = document.getElementById('spell-open-btn');
-        if (spellOpenBtn) {
-            spellOpenBtn.addEventListener('click', () => {
-                this._showSpellModal('generate');
-            });
-        }
-        document.getElementById('close-spell-modal').addEventListener('click', () => {
-            document.getElementById('spell-overlay').classList.remove('active');
+        // Phase 2: Backup Feature (JSON)
+        document.getElementById('save-backup-btn').addEventListener('click', () => this.saveBackup());
+        document.getElementById('load-backup-btn').addEventListener('click', () => this.loadBackup());
+
+        // Note Warning
+        document.getElementById('note-warning-btn').addEventListener('click', () => {
+            document.getElementById('note-warning-modal').classList.add('active');
         });
-        document.getElementById('tab-generate').addEventListener('click', () => {
-            this._showSpellModal('generate');
-        });
-        document.getElementById('tab-restore').addEventListener('click', () => {
-            this._showSpellModal('restore');
-        });
-        document.getElementById('spell-restore-btn').addEventListener('click', () => {
-            this.restoreSpell();
+        document.getElementById('close-note-warning-modal').addEventListener('click', () => {
+            document.getElementById('note-warning-modal').classList.remove('active');
         });
     }
 
@@ -1359,13 +1204,22 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         });
     }
 
-    _openImageModal(src, name) {
+    _openImageModal(src, name, record = null) {
         const modal = document.getElementById('image-modal');
         const modalImg = document.getElementById('image-modal-img');
         const captionText = document.getElementById('caption');
         modal.classList.add('active');
         modalImg.src = src;
-        captionText.innerHTML = name;
+
+        let captionHTML = `<span class="modal-name">${name}</span>`;
+        if (record) {
+            const time = typeof record.fastestTime === 'number'
+                ? record.fastestTime.toFixed(1)
+                : '?';
+            const count = record.count || 0;
+            captionHTML += `<span class="modal-stats">★さいそくタイム: ${time}秒&nbsp;&nbsp;&nbsp;${count}回たおした</span>`;
+        }
+        captionText.innerHTML = captionHTML;
     }
 
     /* UI Helpers */
@@ -1434,6 +1288,12 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
     /* ============================================================
        Phase 1: Monster Note (図鑑)
        ============================================================ */
+    _getMonsterName(filename) {
+        let name = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+        name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
+        return name;
+    }
+
     _saveMonsterRecord(m, time) {
         const STORAGE_KEY = 'math_battle_collection_v1';
         let collection = {};
@@ -1444,21 +1304,25 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             console.warn("Storage read failed", e);
         }
 
+        // ファイル名の番号配変に対応するため、モンスター名をキーに使用
         const parts = m.imageSrc.split('/');
         const filename = parts[parts.length - 1];
+        const monsterName = this._getMonsterName(filename);
 
-        if (!collection[filename]) {
-            collection[filename] = {
+        if (!collection[monsterName]) {
+            collection[monsterName] = {
                 defeated: true,
                 fastestTime: time,
-                count: 1
+                count: 1,
+                imageSrc: m.imageSrc  // 画像パスも保存
             };
         } else {
-            const rec = collection[filename];
+            const rec = collection[monsterName];
             rec.count = (rec.count || 0) + 1;
             if (time < rec.fastestTime) {
                 rec.fastestTime = time;
             }
+            rec.imageSrc = m.imageSrc;  // 画像パスを更新
         }
 
         try {
@@ -1486,11 +1350,6 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
     _renderNoteGrid() {
         const grid = document.getElementById('note-grid');
         grid.innerHTML = '';
-
-        const warning = document.createElement('div');
-        warning.className = 'note-warning';
-        warning.textContent = 'サイトの りれきを けすと、ノートが きえてしまうよ。 きをつけてね！';
-        grid.appendChild(warning);
 
         const STORAGE_KEY = 'math_battle_collection_v1';
         let collection = {};
@@ -1526,11 +1385,9 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
                 grid.appendChild(header);
             }
 
-            const record = collection[filename];
+            const displayName = this._getMonsterName(filename);
+            const record = collection[displayName];
             const isDefeated = !!(record && record.defeated);
-
-            let displayName = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-            displayName = displayName.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
 
             const card = document.createElement('div');
             card.className = 'note-card';
@@ -1552,7 +1409,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             } else {
                 nameEl.textContent = displayName;
                 card.addEventListener('click', () => {
-                    this._openImageModal(`assets/img/${filename}`, displayName);
+                    this._openImageModal(`assets/img/${filename}`, displayName, record);
                 });
             }
 
@@ -1564,31 +1421,24 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
     }
 
     /* ============================================================
-       Phase 2: Backup Feature (ふっかつのじゅもん)
+       Phase 2: Backup Feature (JSONダウンロード/アップロード)
        ============================================================ */
-    _showSpellModal(mode) {
-        document.getElementById('spell-overlay').classList.add('active');
-        const tabGen = document.getElementById('tab-generate');
-        const tabRes = document.getElementById('tab-restore');
-        const viewGen = document.getElementById('spell-view-generate');
-        const viewRes = document.getElementById('spell-view-restore');
-
-        if (mode === 'generate') {
-            tabGen.classList.replace('secondary-btn', 'primary-btn');
-            tabRes.classList.replace('primary-btn', 'secondary-btn');
-            viewGen.style.display = 'block';
-            viewRes.style.display = 'none';
-            this.generateSpell();
-        } else {
-            tabRes.classList.replace('secondary-btn', 'primary-btn');
-            tabGen.classList.replace('primary-btn', 'secondary-btn');
-            viewGen.style.display = 'none';
-            viewRes.style.display = 'block';
-            document.getElementById('spell-input').value = '';
-        }
+    _generateChecksum(collection) {
+        // _checksumキーを除いたデータをキーソートしてJSON文字列化
+        const keys = Object.keys(collection).filter(k => k !== '_checksum').sort();
+        let str = '{';
+        keys.forEach((k, i) => {
+            str += JSON.stringify(k) + ':' + JSON.stringify(collection[k]);
+            if (i < keys.length - 1) str += ',';
+        });
+        str += '}';
+        // charCodeAt()の合計、6進敗8桁文字列に変換
+        let sum = 0;
+        for (let i = 0; i < str.length; i++) sum += str.charCodeAt(i);
+        return (sum >>> 0).toString(16).padStart(8, '0');
     }
 
-    generateSpell() {
+    saveBackup() {
         const STORAGE_KEY = 'math_battle_collection_v1';
         let collection = {};
         try {
@@ -1596,47 +1446,84 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             if (stored) collection = JSON.parse(stored);
         } catch (e) { }
 
-        const password = BackupSystem.encodePassword(collection);
-
-        // Format password for display (insert space every 5 chars for readability)
-        let displayStr = '';
-        for (let i = 0; i < password.length; i++) {
-            if (i > 0 && i % 5 === 0) displayStr += ' ';
-            displayStr += password[i];
-        }
-
-        document.getElementById('spell-display').textContent = displayStr;
-    }
-
-    restoreSpell() {
-        const input = document.getElementById('spell-input').value.replace(/\s+/g, '').trim();
-        if (!input) {
-            alert('じゅもんを にゅうりょくしてね。');
+        // データがない場合は中断
+        const keys = Object.keys(collection).filter(k => k !== '_checksum');
+        if (keys.length === 0) {
+            alert('まだ データが ないよ！ モンスターを たおしてから ほぞんしてね！');
             return;
         }
 
-        const newCollection = BackupSystem.decodePassword(input);
-        if (!newCollection) {
-            alert('じゅもんが ちがうようだ･･･');
-            return;
-        }
+        // チェックサム追加
+        const dataToSave = {};
+        keys.forEach(k => { dataToSave[k] = collection[k]; });
+        dataToSave['_checksum'] = this._generateChecksum(dataToSave);
 
-        const STORAGE_KEY = 'math_battle_collection_v1';
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newCollection));
-            alert('じゅもんが となえられた！ モンスターノートが よみがえった！');
-            document.getElementById('spell-overlay').classList.remove('active');
+        const json = JSON.stringify(dataToSave, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
 
-            // Re-render if note is open
-            if (this.state === GameState.NOTE) {
-                this._renderNoteGrid();
-            }
-        } catch (e) {
-            console.warn("Storage write failed", e);
-            alert('エラーが おきました。');
-        }
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'massbattler_save.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
-}
+
+    loadBackup() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        document.body.appendChild(input);
+
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) { document.body.removeChild(input); return; }
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.body.removeChild(input);
+                let parsed;
+                try {
+                    parsed = JSON.parse(ev.target.result);
+                } catch (err) {
+                    alert('この ファイルは よみとれなかったよ。 ただしい ファイルを つかってね。');
+                    return;
+                }
+
+                // チェックサム検証
+                const savedChecksum = parsed['_checksum'];
+                const dataWithoutChecksum = {};
+                Object.keys(parsed).filter(k => k !== '_checksum').forEach(k => {
+                    dataWithoutChecksum[k] = parsed[k];
+                });
+                const expectedChecksum = this._generateChecksum(dataWithoutChecksum);
+
+                if (!savedChecksum || savedChecksum !== expectedChecksum) {
+                    alert('このファイルは かいざんされているかも！ よみこめないよ！');
+                    return;
+                }
+
+                // localStorageに上書き保存（_checksumは除外）
+                const STORAGE_KEY = 'math_battle_collection_v1';
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataWithoutChecksum));
+                    alert('セーブデータを よみこんだよ！');
+                    if (this.state === GameState.NOTE) {
+                        this._renderNoteGrid();
+                    }
+                } catch (err) {
+                    alert('エラーが おきました。');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        input.click();
+    }
+
+} // end class Game
 
 // Init
 window.addEventListener('DOMContentLoaded', () => {
