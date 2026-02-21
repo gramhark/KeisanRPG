@@ -54,7 +54,10 @@
 
                 <button id="start-btn" class="primary-btn">バトルスタート</button>
             </div>
-            <button id="open-request-btn" class="secondary-btn">アイデアを おくる</button>
+            <div class="top-action-group">
+                <button id="note-btn" class="orange-btn">モンスターノート</button>
+                <button id="open-request-btn" class="secondary-btn">アイデアを おくる</button>
+            </div>
             <footer class="setup-footer">
                 <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
             </footer>
@@ -158,6 +161,49 @@
                 </ul>
             </div>
             <button id="restart-btn" class="primary-btn">タイトルにもどる</button>
+        </div>
+
+        <!-- Note Screen (図鑑画面) -->
+        <div id="note-screen" class="screen">
+            <h1 class="title">モンスターノート</h1>
+            <div id="note-grid" class="note-grid" style="flex: 1; overflow-y: auto;">
+                <!-- Javascript will populate this -->
+            </div>
+            <div class="note-footer"
+                style="text-align: center; margin-top: 20px; margin-bottom: 20px; display: flex; gap: 15px; justify-content: center; align-items: center; padding: 0 20px;">
+                <button id="spell-open-btn" class="primary-btn" style="padding: 10px 30px;">パスワード</button>
+                <button id="close-note-btn" class="secondary-btn" style="padding: 10px 30px;">もどる</button>
+            </div>
+        </div>
+
+        <!-- Spell Modal -->
+        <div id="spell-overlay" class="overlay">
+            <div class="overlay-content spell-content" style="width: 500px; max-width: 95%;">
+                <span id="close-spell-modal" class="close-modal">&times;</span>
+
+                <div class="spell-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="tab-generate" class="primary-btn" style="flex: 1; padding: 10px 0;">パスワードを だす</button>
+                    <button id="tab-restore" class="secondary-btn" style="flex: 1; padding: 10px 0;">パスワードを いれる</button>
+                </div>
+
+                <!-- Generate View -->
+                <div id="spell-view-generate">
+                    <h3 style="text-align: center; color: var(--accent-color); margin-bottom: 15px;">パスワード</h3>
+                    <p style="text-align: center; margin-bottom: 10px; color: #ccc;">このパスワードを メモしておこう！</p>
+                    <div id="spell-display" class="spell-box" style="user-select: all;">
+                        <!-- JS injects here -->
+                    </div>
+                </div>
+
+                <!-- Restore View -->
+                <div id="spell-view-restore" style="display: none;">
+                    <h3 style="text-align: center; color: var(--success-color); margin-bottom: 15px;">パスワードを いれる</h3>
+                    <p style="text-align: center; margin-bottom: 10px; color: #ccc;">メモした パスワードを いれてね。</p>
+                    <input type="text" id="spell-input" class="spell-box input" placeholder="ひらがなで にゅうりょく" />
+                    <button id="spell-restore-btn" class="primary-btn"
+                        style="width: 100%; padding: 15px; margin-top: 20px; font-size: 24px;">ノートを もとに もどす</button>
+                </div>
+            </div>
         </div>
 
         <!-- Request Form Modal -->

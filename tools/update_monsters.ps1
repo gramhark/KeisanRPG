@@ -11,6 +11,14 @@ Write-Host "Scanning directory: $ImgDir"
 # Get all image files (webp, png, jpg, jpeg)
 $Files = Get-ChildItem -Path $ImgDir -Include *.webp, *.png, *.jpg, *.jpeg -Recurse -File
 
+# Custom Sort: Lastboss before Heal
+$Files = $Files | Sort-Object {
+    if ($_.Name -like "Lastboss_*") { 80 }
+    elseif ($_.Name -like "Heal_*") { 90 }
+    elseif ($_.Name -like "Rare_*") { 100 }
+    else { 0 }
+}, Name
+
 # Create JavaScript array content
 $JsContent = "window.MONSTER_ASSETS = [`n"
 $FileNames = @()
