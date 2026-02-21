@@ -941,6 +941,7 @@ class Game {
     }
 
     nextProblem() {
+        this.state = GameState.BATTLE;
         this.problem.generate();
         this.inputBuffer = "";
         this._updateInputUI();
@@ -984,14 +985,15 @@ class Game {
         const isEmpty = answerVal === '';
         problemEl.innerHTML = `<span class="problem-part">${displayText}</span><span class="answer-part${isEmpty ? ' empty' : ''}">${answerVal}</span>`;
 
-        // Auto-shrink font if content overflows (prevent 2-line wrapping)
-        problemEl.style.fontSize = '';  // reset to CSS default
+        // Auto-shrink letter-spacing if content overflows
+        problemEl.style.letterSpacing = '';  // reset to CSS default
+        problemEl.style.whiteSpace = 'nowrap';
         const maxWidth = problemEl.parentElement.clientWidth;
-        let currentSize = parseFloat(getComputedStyle(problemEl).fontSize);
-        const minSize = 14;  // minimum font size in px
-        while (problemEl.scrollWidth > maxWidth && currentSize > minSize) {
-            currentSize -= 2;
-            problemEl.style.fontSize = currentSize + 'px';
+        let currentSpacing = 4;  // starting letter-spacing in px
+        const minSpacing = -10;  // minimum letter spacing
+        while (problemEl.scrollWidth > maxWidth && currentSpacing > minSpacing) {
+            currentSpacing -= 0.5;
+            problemEl.style.letterSpacing = currentSpacing + 'px';
         }
     }
     _submitAnswer() {
@@ -1019,7 +1021,8 @@ class Game {
         }
     }
 
-    _onCorrect(elapsed) {
+    async _onCorrect(elapsed) {
+        this.state = GameState.TRANSITION; // Block input while processing
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
         let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
         if (this.rareBuff) damage *= 2;
@@ -1031,14 +1034,11 @@ class Game {
 
         // VFX
         this._flashScreen();
-        this._showMessage(isCrit ? `クリティカル！
-${damage}ダメージ！` : `${this.playerName}のこうげき！
-${damage}ダメージ！`, isCrit);
+        this._showMessage(isCrit ? `クリティカル！\n${damage}ダメージ！` : `${this.playerName}のこうげき！\n${damage}ダメージ！`, isCrit);
         this.sound.playSe(isCrit ? 'critical' : 'attack');
 
         if (m.hp <= 0) {
-            // Defeated: Block input and stop timer immediately
-            this.state = GameState.TRANSITION;
+            // Defeated: Stop timer immediately
             clearInterval(this.timerIntervalId);
 
             // Show damage message first, then defeat sequence
@@ -1047,11 +1047,11 @@ ${damage}ダメージ！`, isCrit);
             }, 1500);
         } else {
             // Boss Logic Check
-            if (this._checkBossEvents(m)) {
-                // Event triggered, delay next problem (increased to 3s for user to see boss msg)
-                setTimeout(() => this.nextProblem(), 3000);
-            } else {
+            const hasEvent = await this._checkBossEvents(m);
+            if (!hasEvent) {
                 setTimeout(() => this.nextProblem(), 1000); // delay increased to 1s for better pacing
+            } else {
+                this.nextProblem();
             }
         }
     }
@@ -1092,10 +1092,12 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         }
     }
 
-    _checkBossEvents(m) {
+    async _checkBossEvents(m) {
         // Boss 16 Transform (was Boss 06)
         if (m.bossId === 16 && m.hp <= 4 && !m.hasTransformed) {
             m.hasTransformed = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
+
             m.maxHp = 20; // Update maxHp for gauge scaling
             m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
@@ -1106,24 +1108,39 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             this._updateMonsterHpUI(m);
             this._showMessage("モンスターが しんの すがたを かいほうした！", true, 3000);
             this.sound.playSe('lastboss'); // New SE
+            await new Promise(resolve => setTimeout(resolve, 3000));
             return true;
         }
         // Boss 16 Sap (was Boss 06)
         if (m.bossId === 16 && m.hp <= 6 && !m.hasLickedSap) {
             m.hasLickedSap = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
+
+            this._showMessage("モンスターが じゅえきを なめた！", false, 3000);
+            this.sound.playSe('sap'); // New SE
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while sap sound plays
+
             m.hp = 16;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが じゅえきを なめた！(HP全回復)", false, 3000);
-            this.sound.playSe('sap'); // New SE
+            this._showMessage("HPが ぜんかいふくした！", false, 1500);
+            this.sound.playSe('heal'); // Added heal SE
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
             return true;
         }
         // Boss 15 Meat (was Boss 05)
         if (m.bossId === 15 && m.hp < 5 && !m.hasEatenMeat) {
             m.hasEatenMeat = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
+
+            this._showMessage("モンスターが にくを たべた！", false, 3000);
+            this.sound.playSe('meat'); // New SE
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while meat sound plays
+
             m.hp = 16;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが にくを たべた！(HP全回復)", false, 3000);
-            this.sound.playSe('meat'); // New SE
+            this._showMessage("HPが ぜんかいふくした！", false, 1500);
+            this.sound.playSe('heal'); // Added heal SE
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
             return true;
         }
         return false;
@@ -1180,7 +1197,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
                 // Show sword image in monster container
                 const monsterContainer = document.querySelector('.monster-container');
                 const swordImg = document.createElement('img');
-                swordImg.src = 'assets/otherimg/sword.webp';
+                swordImg.src = 'assets/otherimg/sword01.webp';
                 swordImg.className = 'sword-drop-img';
                 monsterContainer.appendChild(swordImg);
 
@@ -1215,7 +1232,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             setTimeout(() => {
                 const monsterContainer = document.querySelector('.monster-container');
                 const shieldImg = document.createElement('img');
-                shieldImg.src = 'assets/otherimg/shield.webp';
+                shieldImg.src = 'assets/otherimg/shield01.webp';
                 shieldImg.className = 'sword-drop-img';
                 monsterContainer.appendChild(shieldImg);
 
