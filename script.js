@@ -441,6 +441,8 @@ class Game {
 
         this.rareBuff = false;
         this.hasSword = false;
+        this.hasShield = false;
+        this.shieldDurability = 0;
 
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
@@ -582,7 +584,10 @@ class Game {
         this.currentMonsterIdx = 0;
         this.rareBuff = false;
         this.hasSword = false;
+        this.hasShield = false;
+        this.shieldDurability = 0;
         document.getElementById('sword-label').style.display = 'none';
+        document.getElementById('shield-label').style.display = 'none';
         this.defeatTimes = [];
 
         // Switch Screen
@@ -872,7 +877,26 @@ ${damage}ダメージ！`, isCrit);
 
     _onWrong() {
         const m = this.monsters[this.currentMonsterIdx];
-        const damage = m.attackPower;
+        let damage = m.attackPower;
+
+        // Shield damage reduction
+        if (this.hasShield) {
+            damage = Math.max(0, damage - 1);
+            this.shieldDurability--;
+            if (this.shieldDurability <= 0) {
+                this.hasShield = false;
+                document.getElementById('shield-label').style.display = 'none';
+                this.playerHp = Math.max(0, this.playerHp - damage);
+                this._updatePlayerHpUI();
+                this._shakeScreen();
+                this._showMessage(`ミス！\n${damage}ダメージうけた！\nはがねのたては\nこわれてしまった！`, false, 2500, 'damage');
+                this.sound.playSe('damage');
+                if (this.playerHp <= 0) {
+                    this._onGameOver();
+                }
+                return;
+            }
+        }
 
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
@@ -959,9 +983,14 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             setTimeout(() => this._showMessage("HPが ぜんかいふくした！", false, 2500), 1000);
         }
 
-        // Sword Drop Event (1/10 chance, monsters 1-9, not Rare/Heal, once per battle)
-        const canDropSword = !this.hasSword && !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
+        // Item Drop Priority: Sword first (15%), then Shield (5%). They cannot drop together.
+        const canDropItem = !m.isRare && !m.isHeal && m.number >= 1 && m.number <= 9;
+        let droppedItem = false;
+
+        // Sword Drop Event (15% chance, once per battle)
+        const canDropSword = canDropItem && !this.hasSword;
         if (canDropSword && Math.random() < 0.15) {
+            droppedItem = true;
             // Sword drop sequence
             setTimeout(() => {
                 // Show sword image in monster container
@@ -992,6 +1021,39 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
                     }, 2000);
                 }, 2000);
             }, 1500); // Start after defeat message
+        }
+
+        // Shield Drop Event (5% chance, once per battle, mutually exclusive with sword drop)
+        const canDropShield = canDropItem && !this.hasShield && !droppedItem;
+        if (canDropShield && Math.random() < 0.08 {
+            droppedItem = true;
+            // Shield drop sequence
+            setTimeout(() => {
+                const monsterContainer = document.querySelector('.monster-container');
+                const shieldImg = document.createElement('img');
+                shieldImg.src = 'assets/otherimg/shield.webp';
+                shieldImg.className = 'sword-drop-img';
+                monsterContainer.appendChild(shieldImg);
+
+                this.sound.playSe('item');
+                this._showMessage("はがねのたてを\nてにいれた！", false, 4500);
+
+                setTimeout(() => {
+                    this.hasShield = true;
+                    this.shieldDurability = 5;
+                    this._showMessage("はがねのたてを\nそうびした！", false, 2000);
+
+                    document.getElementById('shield-label').style.display = 'inline-block';
+
+                    setTimeout(() => {
+                        shieldImg.remove();
+                        this._nextMonster();
+                    }, 2000);
+                }, 2000);
+            }, 1500);
+        }
+
+        if (droppedItem) {
             return; // Don't proceed to normal _nextMonster timeout
         }
 
