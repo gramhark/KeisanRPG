@@ -1489,7 +1489,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             } else {
                 const match = filename.match(/^(\d+)_/);
                 if (match) {
-                    category = `${parseInt(match[1], 10)}番目`;
+                    category = `${parseInt(match[1], 10)}ばん`;
                 }
             }
 
