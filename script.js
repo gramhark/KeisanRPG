@@ -1025,7 +1025,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
         // Shield Drop Event (5% chance, once per battle, mutually exclusive with sword drop)
         const canDropShield = canDropItem && !this.hasShield && !droppedItem;
-        if (canDropShield && Math.random() < 0.08 {
+        if (canDropShield && Math.random() < 0.08) {
             droppedItem = true;
             // Shield drop sequence
             setTimeout(() => {
