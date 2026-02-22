@@ -18,7 +18,7 @@
         <script>/* ★追加★ #app直後で即実行。adjustScale()より前に向きを判定して初期クラスを付与しtopページのレイアウト再構築アニメを防ぐ */(function () { var a = document.getElementById('app'); if (window.innerHeight > window.innerWidth) { a.classList.add('portrait-mode'); } else { a.classList.add('landscape-mode'); } })();</script>
         <!-- Setup Screen -->
         <div id="setup-screen" class="screen active">
-            <img src="assets/otherimg/title.webp" alt="マスバトール" class="title-img">
+            <img src="assets/image/other/title.webp" alt="マスバトール" class="title-img">
             <p class="subtitle">〜 けいさんバトルRPG 〜</p>
 
             <div class="setup-container">
@@ -90,10 +90,10 @@
                     <div class="status-row">
                         <div class="player-info">
                             <span id="player-name-display">ゆうしゃ</span>
-                            <img id="sword-label" class="sword-label" src="assets/otherimg/sword01.webp" alt="はがねのけん"
-                                style="display:none;">
-                            <img id="shield-label" class="sword-label" src="assets/otherimg/shield01.webp" alt="はがねのたて"
-                                style="display:none;">
+                            <img id="sword-label" class="sword-label" src="assets/image/equipment/sword01.webp"
+                                alt="はがねのけん" style="display:none;">
+                            <img id="shield-label" class="sword-label" src="assets/image/equipment/shield01.webp"
+                                alt="はがねのたて" style="display:none;">
                         </div>
                         <div class="hp-status">
                             <div class="hp-bar-container">
@@ -106,7 +106,8 @@
 
                 <div class="panel-section panel-section--problem">
                     <div class="problem-area">
-                        <div id="problem-text" class="problem-text">5 + 3 = ?</div>
+                        <div id="problem-text" class="problem-text"><span class="problem-part">5 ＋ 3 ＝ </span><span
+                                class="answer-part empty"></span></div>
                         <div class="input-wrapper">
                             <input type="tel" id="answer-input" class="answer-input" readonly>
                         </div>
@@ -258,6 +259,8 @@
             <audio id="se-shielddamage" preload="auto"></audio>
             <audio id="se-equip" preload="auto"></audio>
             <audio id="se-crush" preload="auto"></audio>
+            <audio id="se-miss" preload="auto"></audio>
+            <audio id="se-dodge" preload="auto"></audio>
         </div>
     </div>
     <script src="assets/monster_list.js"></script>

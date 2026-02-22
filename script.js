@@ -74,6 +74,8 @@ class SoundManager {
         this.seShieldDamage = document.getElementById('se-shielddamage');
         this.seEquip = document.getElementById('se-equip');
         this.seCrush = document.getElementById('se-crush');
+        this.seMiss = document.getElementById('se-miss');
+        this.seDodge = document.getElementById('se-dodge');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -96,6 +98,8 @@ class SoundManager {
         this.seShieldDamage.src = 'assets/audio/SE/shielddamage.webm';
         this.seEquip.src = 'assets/audio/SE/equip.webm';
         this.seCrush.src = 'assets/audio/SE/crush.webm';
+        this.seMiss.src = 'assets/audio/SE/miss.webm';
+        this.seDodge.src = 'assets/audio/SE/dodge.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -168,11 +172,12 @@ class SoundManager {
             case 'meat': se = this.seMeat; break;
             case 'sap': se = this.seSap; break;
             case 'item': se = this.seItem; break;
-            case 'swordattack': se = this.seSwordAttack; break;
             case 'swordcritical': se = this.seSwordCritical; break;
             case 'shielddamage': se = this.seShieldDamage; break;
             case 'equip': se = this.seEquip; break;
             case 'crush': se = this.seCrush; break;
+            case 'miss': se = this.seMiss; break;
+            case 'dodge': se = this.seDodge; break;
         }
         if (se) {
             se.currentTime = 0;
@@ -187,7 +192,7 @@ class SoundManager {
             this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
             this.seClear, this.seLastboss, this.seHeal, this.seMeat,
             this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
-            this.seShieldDamage, this.seEquip, this.seCrush
+            this.seShieldDamage, this.seEquip, this.seCrush, this.seMiss, this.seDodge
         ];
 
         allAudio.forEach(audio => {
@@ -514,7 +519,7 @@ function findMonsterImage(monster) {
     name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
     monster.name = name; // Update name in place
 
-    return `assets/img/${choice}`;
+    return `assets/image/monster/${choice}`;
 }
 
 function calculateTotalMonsters() {
@@ -568,6 +573,7 @@ class Game {
         this.defeatTimes = [];
         this.monsterBattleStart = 0;
         this.inputBuffer = "";
+        this.isPlayerTurn = true; // Turn-based state
 
         this.rareBuff = false;
         this.swordLevel = 0;
@@ -748,7 +754,7 @@ class Game {
         this.shieldLevel = 0;
         this.shieldDurability = 0;
         const swordLabelEl = document.getElementById('sword-label');
-        swordLabelEl.src = 'assets/otherimg/' + SWORD_DATA[0].img;
+        swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
         swordLabelEl.style.display = 'inline-block';
         document.getElementById('shield-label').style.display = 'none';
         this.defeatTimes = [];
@@ -837,7 +843,7 @@ class Game {
     _preloadRemainingImages() {
         const srcs = this.monsters.slice(1).map(m => m.imageSrc);
         // ボスの変身後画像も先読みしておく
-        srcs.push('assets/img/Lastboss_しんのかみダイオウグソクナイト.webp');
+        srcs.push('assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp');
 
         // 少し遅延させて1体目の表示を妨げない
         setTimeout(() => {
@@ -919,15 +925,48 @@ class Game {
     }
     startBattle() {
         document.getElementById('interval-overlay').classList.remove('active');
-        this.state = GameState.BATTLE;
+        this.state = GameState.TRANSITION; // Block during announcement
 
         const isBoss = this.monsters[this.currentMonsterIdx].number === 10;
         this.problem = new MathProblem(this.leftDigits, this.rightDigits, this.operators, isBoss);
-        this.monsterBattleStart = Date.now(); // reset on defeat, accumulate? No, standard is per monster total time.
-        // Wait, requirements said "defeat time per monster".
-        // If we fail a question, time continues? spec says 'no penalty on time, problem continues'.
+        this.monsterBattleStart = Date.now();
 
-        this.nextProblem();
+        this.startPlayerTurn();
+    }
+
+    startPlayerTurn() {
+        this.isPlayerTurn = true;
+        this.state = GameState.TRANSITION;
+        this._clearProblemDisplay(); // ★ 新しく追加：画面上の問題を消去
+        this._showMessage(`${this.playerName}の こうげき！`, false, 1500, 'text-player-action');
+        setTimeout(() => {
+            if (this.state !== GameState.RESULT && this.state !== GameState.GAMEOVER) {
+                this.nextProblem();
+            }
+        }, 1500);
+    }
+
+    startMonsterTurn() {
+        this.isPlayerTurn = false;
+        this.state = GameState.TRANSITION;
+        const m = this.monsters[this.currentMonsterIdx];
+        this._clearProblemDisplay(); // ★ 新しく追加：画面上の問題を消去
+        this._attackScreen(); // ★ モンスターの攻撃アニメーション
+        // ★ モンスターの攻撃はダメージ色（赤）に変更
+        this._showMessage(`${m.name}の こうげき！`, false, 1500, 'text-monster-action');
+        setTimeout(() => {
+            if (this.state !== GameState.RESULT && this.state !== GameState.GAMEOVER) {
+                this.nextProblem();
+            }
+        }, 1500);
+    }
+
+    _clearProblemDisplay() {
+        this.inputBuffer = "";
+        document.getElementById('answer-input').value = "";
+        const problemEl = document.getElementById('problem-text');
+        // 中身は消さず、レイアウト空間を保ったまま透明にする
+        problemEl.style.visibility = 'hidden';
     }
 
     nextProblem() {
@@ -936,15 +975,22 @@ class Game {
         this.inputBuffer = "";
         this._updateInputUI();
 
-        // Timer Reset
-        this.timerStart = Date.now();
-        if (this.timerIntervalId) clearInterval(this.timerIntervalId);
-        this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
-        this._timerLoop(); // immediate update
+        if (this.isPlayerTurn) {
+            // Timer Reset
+            document.getElementById('timer-bar').style.visibility = 'visible';
+            this.timerStart = Date.now();
+            if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+            this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+            this._timerLoop(); // immediate update
+        } else {
+            // Monster turn: no timer
+            document.getElementById('timer-bar').style.visibility = 'hidden';
+            if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+        }
     }
 
     _timerLoop() {
-        if (this.state !== GameState.BATTLE) return;
+        if (this.state !== GameState.BATTLE || !this.isPlayerTurn) return;
         const elapsed = (Date.now() - this.timerStart) / 1000;
         const remaining = Math.max(0, CONSTANTS.TIMER_SECONDS - elapsed);
         const ratio = remaining / CONSTANTS.TIMER_SECONDS;
@@ -971,10 +1017,20 @@ class Game {
         document.getElementById('answer-input').value = this.inputBuffer;
         // Render single-line problem: 12＋5＝[answer]
         const problemEl = document.getElementById('problem-text');
+
+        // 非表示状態から復帰させる
+        problemEl.style.visibility = 'visible';
+
         const displayText = this.problem.displayText || '';
         const answerVal = this.inputBuffer || '';
         const isEmpty = answerVal === '';
         problemEl.innerHTML = `<span class="problem-part">${displayText}</span><span class="answer-part${isEmpty ? ' empty' : ''}">${answerVal}</span>`;
+
+        if (!this.isPlayerTurn) {
+            problemEl.classList.add('monster-turn-text');
+        } else {
+            problemEl.classList.remove('monster-turn-text');
+        }
 
         // Auto-shrink letter-spacing if content overflows
         problemEl.style.letterSpacing = '';  // reset to CSS default
@@ -1022,6 +1078,15 @@ class Game {
 
     async _onCorrect(elapsed) {
         this.state = GameState.TRANSITION; // Block input while processing
+
+        if (!this.isPlayerTurn) {
+            // Monster turn: Player dodges
+            this._showMessage(`こうげきを よけた！`, false, 1500, 'text-player-action');
+            this.sound.playSe('dodge'); // ユーザーよけ音
+            setTimeout(() => this.startPlayerTurn(), 1500);
+            return;
+        }
+
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
         let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
         if (this.rareBuff) damage *= 2;
@@ -1033,7 +1098,12 @@ class Game {
 
         // VFX
         this._flashScreen();
-        this._showMessage(isCrit ? `クリティカル！\n${damage}ダメージ！` : `${this.playerName}のこうげき！\n${damage}ダメージ！`, isCrit);
+        // ★ クリティカル時はクリティカル装飾（赤字白フチ等）、通常時は水色（text-player-action）を指定
+        if (isCrit) {
+            this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
+        } else {
+            this._showMessage(`${this.playerName}のこうげき！\n${damage}ダメージ！`, false, 1500, 'text-player-action');
+        }
 
         // Sound Selection based on sword level
         if (this.swordLevel > 0) {
@@ -1044,7 +1114,7 @@ class Game {
 
         if (m.hp <= 0) {
             // Defeated: Stop timer immediately
-            clearInterval(this.timerIntervalId);
+            if (this.timerIntervalId) clearInterval(this.timerIntervalId);
 
             // Show damage message first, then defeat sequence
             setTimeout(() => {
@@ -1054,15 +1124,23 @@ class Game {
             // Boss Logic Check
             const hasEvent = await this._checkBossEvents(m);
             if (!hasEvent) {
-                setTimeout(() => this.nextProblem(), 1500);
+                setTimeout(() => this.startMonsterTurn(), 1500);
             } else {
-                this.nextProblem();
+                this.startMonsterTurn();
             }
         }
     }
 
     _onWrong() {
         this.state = GameState.TRANSITION; // Block input while processing messages
+
+        if (this.isPlayerTurn) {
+            this._dodgeScreen(); // ★ モンスターがよけるアニメーション
+            this._showMessage(`こうげきは あたらなかった！`, false, 1500, 'text-monster-action');
+            this.sound.playSe('miss'); // モンスターよけ音
+            setTimeout(() => this.startMonsterTurn(), 1500);
+            return;
+        }
 
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
@@ -1079,23 +1157,23 @@ class Game {
 
                 this.playerHp = Math.max(0, this.playerHp - damage);
                 this._updatePlayerHpUI();
+                this._damageScreen(); // ★ モンスターからの攻撃（被弾）アニメーション
                 this._shakeScreen();
-                this._showMessage(`ミス！\n${damage}ダメージうけた！`, false, 800, 'damage');
+                this._showMessage(`ミス！\n${damage}ダメージうけた！`, false, 800, 'text-monster-action');
                 this.sound.playSe('shielddamage');
 
                 setTimeout(() => {
                     document.getElementById('shield-label').style.display = 'none';
                     this._shakeScreen();
-                    this._showMessage(`${shieldName}は\nこわれてしまった！`, false, 2000, 'damage');
+                    this._showMessage(`${shieldName}は\nこわれてしまった！`, false, 2000, 'text-monster-action');
                     this.sound.playSe('crush');
 
                     if (this.playerHp <= 0) {
                         setTimeout(() => this._onGameOver(), 2000);
                     } else {
                         setTimeout(() => {
-                            this.state = GameState.BATTLE;
-                            this.timerStart += 3000; // offset timer (1000ms delay + 2000ms message)
                             this._updateInputUI(); // Clear the answer display for retry
+                            this.startPlayerTurn();
                         }, 2000);
                     }
                 }, 1000);
@@ -1107,9 +1185,9 @@ class Game {
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
 
+        this._damageScreen(); // ★ モンスターからの攻撃（被弾）アニメーション
         this._shakeScreen();
-        this._showMessage(`ミス！
-${damage}ダメージうけた！`, false, 1500, 'damage');
+        this._showMessage(`\n${damage}ダメージを うけた！`, false, 1500, 'text-monster-action');
 
         if (this.shieldLevel > 0) {
             this.sound.playSe('shielddamage');
@@ -1121,9 +1199,8 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             this._onGameOver();
         } else {
             setTimeout(() => {
-                this.state = GameState.BATTLE;
-                this.timerStart += 1500; // offset timer
                 this._updateInputUI(); // Clear the answer display for retry
+                this.startPlayerTurn();
             }, 1500);
         }
     }
@@ -1137,12 +1214,12 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             m.maxHp = 20; // Update maxHp for gauge scaling
             m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
-            m.imageSrc = 'assets/img/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
+            m.imageSrc = 'assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
             document.getElementById('monster-img').src = m.imageSrc;
             m.name = "しんのかみ";
             document.getElementById('monster-name').textContent = m.name;
             this._updateMonsterHpUI(m);
-            this._showMessage("モンスターが しんの すがたを かいほうした！", true, 3000);
+            this._showMessage("モンスターが しんのすがたを かいほうした！", false, 3000, 'text-monster-action');
             this.sound.playSe('lastboss'); // New SE
             await new Promise(resolve => setTimeout(resolve, 3000));
             return true;
@@ -1152,13 +1229,13 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             m.hasLickedSap = true;
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
 
-            this._showMessage("モンスターが じゅえきを なめた！", false, 3000);
+            this._showMessage("モンスターが じゅえきを なめた！", false, 3000, 'text-monster-action');
             this.sound.playSe('sap'); // New SE
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while sap sound plays
 
             m.hp = 16;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500);
+            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal'); // Added heal SE
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
             return true;
@@ -1168,13 +1245,13 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             m.hasEatenMeat = true;
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
 
-            this._showMessage("モンスターが にくを たべた！", false, 3000);
+            this._showMessage("モンスターが にくを たべた！", false, 3000, 'text-monster-action');
             this.sound.playSe('meat'); // New SE
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while meat sound plays
 
             m.hp = 16;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500);
+            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal'); // Added heal SE
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
             return true;
@@ -1202,7 +1279,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         this._saveMonsterRecord(m, totalTime);
 
         this.sound.playSe('defeat');
-        this._showMessage(`${m.name}\nをたおした！`);
+        this._showMessage(`${m.name}\nをたおした！`, false, 1500, 'text-neutral');
 
         // Fade out
         document.getElementById('monster-img').style.opacity = '0';
@@ -1217,13 +1294,13 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             if (m.isRare) {
                 this.rareBuff = true;
                 hasBonus = true;
-                this._showMessage("こうげきりょくが あがった！", false, 2000);
+                this._showMessage("こうげきりょくが あがった！", false, 2000, 'text-player-action');
             } else if (m.isHeal) {
                 this.playerHp = CONSTANTS.PLAYER_MAX_HP;
                 this._updatePlayerHpUI();
                 this.sound.playSe('heal');
                 hasBonus = true;
-                this._showMessage("HPが ぜんかいふくした！", false, 2000);
+                this._showMessage("HPが ぜんかいふくした！", false, 2000, 'text-player-action');
             }
 
             const delayAfterBonus = hasBonus ? 2000 : 0;
@@ -1275,20 +1352,20 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         setTimeout(() => {
             const monsterContainer = document.querySelector('.monster-container');
             const swordImg = document.createElement('img');
-            swordImg.src = 'assets/otherimg/' + sword.img;
+            swordImg.src = 'assets/image/equipment/' + sword.img;
             swordImg.className = 'sword-drop-img';
             monsterContainer.appendChild(swordImg);
 
             this.sound.playSe('item');
-            this._showMessage(`${sword.name}を\nてにいれた！`, false, 4500);
+            this._showMessage(`${sword.name}を\nてにいれた！`, false, 4500, 'text-neutral');
 
             setTimeout(() => {
                 this.swordLevel = level;
                 const swordLabelEl = document.getElementById('sword-label');
-                swordLabelEl.src = 'assets/otherimg/' + sword.img;
+                swordLabelEl.src = 'assets/image/equipment/' + sword.img;
                 swordLabelEl.style.display = 'inline-block';
                 this.sound.playSe('equip');
-                this._showMessage(`${sword.name}を\nそうびした！`, false, 2000);
+                this._showMessage(`${sword.name}を\nそうびした！`, false, 2000, 'text-neutral');
 
                 setTimeout(() => {
                     swordImg.remove();
@@ -1303,21 +1380,21 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         setTimeout(() => {
             const monsterContainer = document.querySelector('.monster-container');
             const shieldImg = document.createElement('img');
-            shieldImg.src = 'assets/otherimg/' + shield.img;
+            shieldImg.src = 'assets/image/equipment/' + shield.img;
             shieldImg.className = 'sword-drop-img';
             monsterContainer.appendChild(shieldImg);
 
             this.sound.playSe('item');
-            this._showMessage(`${shield.name}を\nてにいれた！`, false, 4500);
+            this._showMessage(`${shield.name}を\nてにいれた！`, false, 4500, 'text-neutral');
 
             setTimeout(() => {
                 this.shieldLevel = level;
                 this.shieldDurability = shield.maxDurability;
                 const shieldLabelEl = document.getElementById('shield-label');
-                shieldLabelEl.src = 'assets/otherimg/' + shield.img;
+                shieldLabelEl.src = 'assets/image/equipment/' + shield.img;
                 shieldLabelEl.style.display = 'inline-block';
                 this.sound.playSe('equip');
-                this._showMessage(`${shield.name}を\nそうびした！`, false, 2000);
+                this._showMessage(`${shield.name}を\nそうびした！`, false, 2000, 'text-neutral');
 
                 setTimeout(() => {
                     shieldImg.remove();
@@ -1482,7 +1559,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
     _flashScreen() {
         const monsterImg = document.getElementById('monster-img');
-        monsterImg.classList.remove('flash-effect');
+        monsterImg.classList.remove('flash-effect', 'dodge-effect', 'attack-effect');
         void monsterImg.offsetWidth; // trigger reflow
         monsterImg.classList.add('flash-effect');
     }
@@ -1496,10 +1573,31 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         target.classList.add('shake-effect');
     }
 
+    _dodgeScreen() {
+        const monsterImg = document.getElementById('monster-img');
+        monsterImg.classList.remove('flash-effect', 'dodge-effect', 'attack-effect', 'damage-effect');
+        void monsterImg.offsetWidth; // trigger reflow
+        monsterImg.classList.add('dodge-effect');
+    }
+
+    _attackScreen() {
+        const monsterImg = document.getElementById('monster-img');
+        monsterImg.classList.remove('flash-effect', 'dodge-effect', 'attack-effect', 'damage-effect');
+        void monsterImg.offsetWidth; // trigger reflow
+        monsterImg.classList.add('attack-effect');
+    }
+
+    _damageScreen() {
+        const monsterImg = document.getElementById('monster-img');
+        monsterImg.classList.remove('flash-effect', 'dodge-effect', 'attack-effect', 'damage-effect');
+        void monsterImg.offsetWidth; // trigger reflow
+        monsterImg.classList.add('damage-effect');
+    }
+
     _showMessage(text, isCrit = false, duration = 1500, extraClass = null) {
         const ov = document.getElementById('message-overlay');
         ov.textContent = text;
-        ov.classList.remove('show', 'critical', 'damage');
+        ov.classList.remove('show', 'critical', 'text-player-action', 'text-monster-action', 'text-neutral');
         if (isCrit) ov.classList.add('critical');
         if (extraClass) ov.classList.add(extraClass);
 
@@ -1624,7 +1722,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             imgContainer.className = 'note-img-container';
 
             const imgEl = document.createElement('img');
-            imgEl.src = `assets/img/${filename}`;
+            imgEl.src = `assets/image/monster/${filename}`;
             imgEl.className = 'note-img';
 
             const nameEl = document.createElement('div');
@@ -1637,7 +1735,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             } else {
                 nameEl.textContent = displayName;
                 card.addEventListener('click', () => {
-                    this._openImageModal(`assets/img/${filename}`, displayName, record);
+                    this._openImageModal(`assets/image/monster/${filename}`, displayName, record);
                 });
             }
 

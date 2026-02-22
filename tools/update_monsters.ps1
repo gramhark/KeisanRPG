@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 # Define paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
-$ImgDir = Join-Path $ProjectRoot "assets\img"
+$ImgDir = Join-Path $ProjectRoot "assets\image\monster"
 $OutputFile = Join-Path $ProjectRoot "assets\monster_list.js"
 
 Write-Host "Scanning directory: $ImgDir"
