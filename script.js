@@ -63,6 +63,7 @@ class SoundManager {
         this.seDamage = document.getElementById('se-damage');
         this.seDefeat = document.getElementById('se-defeat');
         this.seClear = document.getElementById('se-clear');
+        this.seClearsong = document.getElementById('se-clearsong');
         this.seLastboss = document.getElementById('se-lastboss');
         this.seHeal = document.getElementById('se-heal');
         this.seMeat = document.getElementById('se-meat');
@@ -84,6 +85,7 @@ class SoundManager {
         this.seDamage.src = 'assets/audio/damage.webm';
         this.seDefeat.src = 'assets/audio/defeat.webm';
         this.seClear.src = 'assets/audio/clear.webm';
+        this.seClearsong.src = 'assets/audio/clearsong.webm';
         this.seLastboss.src = 'assets/audio/lastboss.webm';
         this.seHeal.src = 'assets/audio/heal.webm';
         this.seMeat.src = 'assets/audio/meat.webm';
@@ -161,6 +163,7 @@ class SoundManager {
             case 'damage': se = this.seDamage; break;
             case 'defeat': se = this.seDefeat; break;
             case 'clear': se = this.seClear; break;
+            case 'clearsong': se = this.seClearsong; break;
             case 'lastboss': se = this.seLastboss; break;
             case 'heal': se = this.seHeal; break;
             case 'meat': se = this.seMeat; break;
@@ -183,7 +186,7 @@ class SoundManager {
         const allAudio = [
             this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal,
             this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
-            this.seClear, this.seLastboss, this.seHeal, this.seMeat,
+            this.seClear, this.seClearsong, this.seLastboss, this.seHeal, this.seMeat,
             this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
             this.seShieldDamage, this.seEquip, this.seCrush
         ];
@@ -565,6 +568,7 @@ class Game {
         app.style.top = '50%';
         app.style.transform = `translate(-50%, -50%) scale(${scale})`;
         app.style.transformOrigin = 'center center';
+        app.style.opacity = '1';
     }
 
     /* Event Binding */
@@ -989,7 +993,7 @@ class Game {
             // Boss Logic Check
             const hasEvent = await this._checkBossEvents(m);
             if (!hasEvent) {
-                setTimeout(() => this.nextProblem(), 1000); // delay increased to 1s for better pacing
+                setTimeout(() => this.nextProblem(), 1500);
             } else {
                 this.nextProblem();
             }
@@ -997,6 +1001,8 @@ class Game {
     }
 
     _onWrong() {
+        this.state = GameState.TRANSITION; // Block input while processing messages
+
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
 
@@ -1024,6 +1030,11 @@ class Game {
 
                     if (this.playerHp <= 0) {
                         setTimeout(() => this._onGameOver(), 2000);
+                    } else {
+                        setTimeout(() => {
+                            this.state = GameState.BATTLE;
+                            this.timerStart += 3000; // offset timer (1000ms delay + 2000ms message)
+                        }, 2000);
                     }
                 }, 1000);
 
@@ -1046,6 +1057,11 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
 
         if (this.playerHp <= 0) {
             this._onGameOver();
+        } else {
+            setTimeout(() => {
+                this.state = GameState.BATTLE;
+                this.timerStart += 1500; // offset timer
+            }, 1500);
         }
     }
 
@@ -1285,6 +1301,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         this.state = GameState.RESULT;
         this.sound.stopBgm();
         this.sound.playSe('clear');
+        this.sound.playSe('clearsong');
 
         // Show result screen
         document.getElementById('battle-screen').classList.remove('active');

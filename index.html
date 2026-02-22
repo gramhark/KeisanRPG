@@ -15,6 +15,7 @@
 
 <body>
     <div id="app">
+        <script>/* ★追加★ #app直後で即実行。adjustScale()より前に向きを判定して初期クラスを付与しtopページのレイアウト再構築アニメを防ぐ */(function () { var a = document.getElementById('app'); if (window.innerHeight > window.innerWidth) { a.classList.add('portrait-mode'); } else { a.classList.add('landscape-mode'); } })();</script>
         <!-- Setup Screen -->
         <div id="setup-screen" class="screen active">
             <img src="assets/otherimg/title.webp" alt="マスバトール" class="title-img">
@@ -246,6 +247,7 @@
             <audio id="se-damage"></audio>
             <audio id="se-defeat"></audio>
             <audio id="se-clear" preload="auto"></audio>
+            <audio id="se-clearsong" preload="auto"></audio>
             <audio id="se-lastboss" preload="auto"></audio>
             <audio id="se-heal" preload="auto"></audio>
             <audio id="se-meat" preload="auto"></audio>

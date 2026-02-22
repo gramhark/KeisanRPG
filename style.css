@@ -46,6 +46,8 @@ body {
     overflow: hidden;
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
     border: 4px solid var(--border-color);
+    opacity: 0;
+    transition: opacity 0.15s ease-in;
 }
 
 /* 各種画面 */
