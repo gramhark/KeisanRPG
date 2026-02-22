@@ -63,7 +63,6 @@ class SoundManager {
         this.seDamage = document.getElementById('se-damage');
         this.seDefeat = document.getElementById('se-defeat');
         this.seClear = document.getElementById('se-clear');
-        this.seClearsong = document.getElementById('se-clearsong');
         this.seLastboss = document.getElementById('se-lastboss');
         this.seHeal = document.getElementById('se-heal');
         this.seMeat = document.getElementById('se-meat');
@@ -85,7 +84,6 @@ class SoundManager {
         this.seDamage.src = 'assets/audio/damage.webm';
         this.seDefeat.src = 'assets/audio/defeat.webm';
         this.seClear.src = 'assets/audio/clear.webm';
-        this.seClearsong.src = 'assets/audio/clearsong.webm';
         this.seLastboss.src = 'assets/audio/lastboss.webm';
         this.seHeal.src = 'assets/audio/heal.webm';
         this.seMeat.src = 'assets/audio/meat.webm';
@@ -163,7 +161,6 @@ class SoundManager {
             case 'damage': se = this.seDamage; break;
             case 'defeat': se = this.seDefeat; break;
             case 'clear': se = this.seClear; break;
-            case 'clearsong': se = this.seClearsong; break;
             case 'lastboss': se = this.seLastboss; break;
             case 'heal': se = this.seHeal; break;
             case 'meat': se = this.seMeat; break;
@@ -186,7 +183,7 @@ class SoundManager {
         const allAudio = [
             this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal,
             this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
-            this.seClear, this.seClearsong, this.seLastboss, this.seHeal, this.seMeat,
+            this.seClear, this.seLastboss, this.seHeal, this.seMeat,
             this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
             this.seShieldDamage, this.seEquip, this.seCrush
         ];
@@ -542,6 +539,10 @@ class Game {
         const viewport = window.visualViewport;
         const winW = viewport ? viewport.width : window.innerWidth;
         const winH = viewport ? viewport.height : window.innerHeight;
+
+        if (viewport && window.innerHeight - winH > 150) {
+            return;
+        }
 
         const isPortrait = winH > winW;
 
@@ -1301,7 +1302,6 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         this.state = GameState.RESULT;
         this.sound.stopBgm();
         this.sound.playSe('clear');
-        this.sound.playSe('clearsong');
 
         // Show result screen
         document.getElementById('battle-screen').classList.remove('active');
