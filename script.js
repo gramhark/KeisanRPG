@@ -124,6 +124,26 @@ class SoundManager {
         });
     }
 
+    fadeInBgm(bgm, targetVolume = 0.5, durationMs = 500) {
+        if (bgm._fadeInterval) clearInterval(bgm._fadeInterval);
+        bgm.volume = 0;
+        bgm.play().catch(e => console.log('Audio play failed', e));
+        let currentVol = 0;
+        const stepTime = 50;
+        const steps = durationMs / stepTime;
+        const volumeStep = targetVolume / steps;
+        bgm._fadeInterval = setInterval(() => {
+            currentVol += volumeStep;
+            if (currentVol < targetVolume) {
+                bgm.volume = currentVol;
+            } else {
+                bgm.volume = targetVolume;
+                clearInterval(bgm._fadeInterval);
+                bgm._fadeInterval = null;
+            }
+        }, stepTime);
+    }
+
     playBgm(isBoss, isRare = false, isHeal = false) {
         // Stop current if different
         let target = this.bgmBattle;
@@ -131,6 +151,7 @@ class SoundManager {
         else if (isRare) target = this.bgmRare;
         else if (isHeal) target = this.bgmHeal;
         if (this.currentBgm && this.currentBgm !== target) {
+            if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
             this.currentBgm.pause();
             // 通常戦闘BGM以外から切り替えるときは頭出し（通常BGMは途中から再開させるためリセットしない）
             if (this.currentBgm !== this.bgmBattle) {
@@ -139,19 +160,25 @@ class SoundManager {
         }
         if (this.currentBgm !== target || target.paused) {
             this.currentBgm = target;
-            this.currentBgm.volume = 0.5;
-            this.currentBgm.play().catch(e => console.log('Audio play failed (user interact needed)', e));
+            if (target === this.bgmRare || target === this.bgmHeal) {
+                this.fadeInBgm(target, 0.5, 500);
+            } else {
+                this.currentBgm.volume = 0.5;
+                this.currentBgm.play().catch(e => console.log('Audio play failed (user interact needed)', e));
+            }
         }
     }
 
     stopBgm() {
         if (this.currentBgm) {
+            if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
             this.currentBgm.pause();
             this.currentBgm = null;
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
         [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear].forEach(bgm => {
+            if (bgm._fadeInterval) clearInterval(bgm._fadeInterval);
             bgm.pause();
             bgm.currentTime = 0;
         });
@@ -1446,8 +1473,7 @@ class Game {
         setTimeout(() => {
             if (this.state === GameState.RESULT && this.sound.bgmClear) {
                 this.sound.currentBgm = this.sound.bgmClear;
-                this.sound.currentBgm.volume = 0.5;
-                this.sound.currentBgm.play().catch(e => console.log('Audio play failed', e));
+                this.sound.fadeInBgm(this.sound.bgmClear, 0.5, 500);
             }
         }, 2000);
 
