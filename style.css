@@ -694,6 +694,17 @@ input[type="text"]:focus {
 
 #app.portrait-mode .panel-section--problem {
     gap: 20px;
+    transition: border-color 0.2s;
+}
+
+#app.portrait-mode .panel-section--problem.player-turn {
+    border-color: #4facfe;
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
+}
+
+#app.portrait-mode .panel-section--problem.monster-turn {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.4);
 }
 
 #app.portrait-mode .panel-section--numpad {
@@ -1153,6 +1164,17 @@ input[type="text"]:focus {
 
 #app.landscape-mode .panel-section--problem {
     gap: 15px;
+    transition: border-color 0.2s;
+}
+
+#app.landscape-mode .panel-section--problem.player-turn {
+    border-color: #4facfe;
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
+}
+
+#app.landscape-mode .panel-section--problem.monster-turn {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.4);
 }
 
 #app.landscape-mode .panel-section--numpad {

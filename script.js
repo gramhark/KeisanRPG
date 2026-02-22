@@ -981,9 +981,8 @@ class Game {
         this.state = GameState.TRANSITION;
         const m = this.monsters[this.currentMonsterIdx];
         this._clearProblemDisplay(); // ★ 新しく追加：画面上の問題を消去
-        this._attackScreen(); // ★ モンスターの攻撃アニメーション
         // ★ モンスターの攻撃はダメージ色（赤）に変更
-        this._showMessage(`${m.name}の こうげき！`, false, 1500, 'text-monster-action');
+        this._showMessage(`${m.name}の こうげきだ！\nよけろ！`, false, 1500, 'text-monster-action');
         setTimeout(() => {
             if (this.state !== GameState.RESULT && this.state !== GameState.GAMEOVER) {
                 this.nextProblem();
@@ -997,6 +996,13 @@ class Game {
         const problemEl = document.getElementById('problem-text');
         // 中身は消さず、レイアウト空間を保ったまま透明にする
         problemEl.style.visibility = 'hidden';
+
+        // ★ 枠の色を元に戻し、タイマーをリセットする
+        const problemSection = document.querySelector('.panel-section--problem');
+        if (problemSection) {
+            problemSection.classList.remove('player-turn', 'monster-turn');
+        }
+        this._updateTimerBar(1); // タイムゲージを100%に戻す
     }
 
     nextProblem() {
@@ -1051,6 +1057,17 @@ class Game {
         // 非表示状態から復帰させる
         problemEl.style.visibility = 'visible';
 
+        // ★ 問題枠の色変更処理 (問題が表示された瞬間に反映されるようにここで行う)
+        const problemSection = document.querySelector('.panel-section--problem');
+        if (problemSection) {
+            problemSection.classList.remove('player-turn', 'monster-turn');
+            if (this.isPlayerTurn) {
+                problemSection.classList.add('player-turn');
+            } else {
+                problemSection.classList.add('monster-turn');
+            }
+        }
+
         const displayText = this.problem.displayText || '';
         const answerVal = this.inputBuffer || '';
         const isEmpty = answerVal === '';
@@ -1075,6 +1092,12 @@ class Game {
     }
     _submitAnswer() {
         if (!this.inputBuffer) return;
+
+        // ★ 解答送信時に即座に枠の色を戻す
+        const problemSection = document.querySelector('.panel-section--problem');
+        if (problemSection) {
+            problemSection.classList.remove('player-turn', 'monster-turn');
+        }
 
         const ans = parseInt(this.inputBuffer);
         if (isNaN(ans)) {
@@ -1111,6 +1134,7 @@ class Game {
 
         if (!this.isPlayerTurn) {
             // Monster turn: Player dodges
+            this._attackScreen(); // ★ モンスターが拡大するアニメーション
             this._showMessage(`こうげきを よけた！`, false, 1500, 'text-player-action');
             this.sound.playSe('dodge'); // ユーザーよけ音
             setTimeout(() => this.startPlayerTurn(), 1500);
@@ -1197,7 +1221,7 @@ class Game {
                 this._updatePlayerHpUI();
                 this._damageScreen(); // ★ モンスターからの攻撃（被弾）アニメーション
                 this._shakeScreen();
-                this._showMessage(`ミス！\n${damage}ダメージうけた！`, false, 800, 'text-monster-action');
+                this._showMessage(`ミス！\n${damage}ダメージをうけた！`, false, 800, 'text-monster-action');
                 this.sound.playSe('shielddamage');
 
                 setTimeout(() => {
@@ -1225,7 +1249,7 @@ class Game {
 
         this._damageScreen(); // ★ モンスターからの攻撃（被弾）アニメーション
         this._shakeScreen();
-        this._showMessage(`\n${damage}ダメージを うけた！`, false, 1500, 'text-monster-action');
+        this._showMessage(`ミス！\n${damage}ダメージをうけた！`, false, 1500, 'text-monster-action');
 
         if (this.shieldLevel > 0) {
             this.sound.playSe('shielddamage');
