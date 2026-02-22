@@ -76,26 +76,26 @@ class SoundManager {
         this.seCrush = document.getElementById('se-crush');
 
         // Load sources
-        this.bgmBattle.src = 'assets/audio/battle.webm';
-        this.bgmBoss.src = 'assets/audio/Bossbattle.webm';
-        this.bgmRare.src = 'assets/audio/Rarebattle.webm';
-        this.bgmHeal.src = 'assets/audio/Healbattle.webm';
-        this.bgmClear.src = 'assets/audio/clearBGM.webm';
-        this.seAttack.src = 'assets/audio/attack.webm';
-        this.seCritical.src = 'assets/audio/critical.webm';
-        this.seDamage.src = 'assets/audio/damage.webm';
-        this.seDefeat.src = 'assets/audio/defeat.webm';
-        this.seClear.src = 'assets/audio/clear.webm';
-        this.seLastboss.src = 'assets/audio/lastboss.webm';
-        this.seHeal.src = 'assets/audio/heal.webm';
-        this.seMeat.src = 'assets/audio/meat.webm';
-        this.seSap.src = 'assets/audio/sap.webm';
-        this.seItem.src = 'assets/audio/item.webm';
-        this.seSwordAttack.src = 'assets/audio/swordattack.webm';
-        this.seSwordCritical.src = 'assets/audio/swordcritical.webm';
-        this.seShieldDamage.src = 'assets/audio/shielddamage.webm';
-        this.seEquip.src = 'assets/audio/equip.webm';
-        this.seCrush.src = 'assets/audio/crush.webm';
+        this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
+        this.bgmBoss.src = 'assets/audio/BGM/Bossbattle.webm';
+        this.bgmRare.src = 'assets/audio/BGM/Rarebattle.webm';
+        this.bgmHeal.src = 'assets/audio/BGM/Healbattle.webm';
+        this.bgmClear.src = 'assets/audio/BGM/clearBGM.webm';
+        this.seAttack.src = 'assets/audio/SE/attack.webm';
+        this.seCritical.src = 'assets/audio/SE/critical.webm';
+        this.seDamage.src = 'assets/audio/SE/damage.webm';
+        this.seDefeat.src = 'assets/audio/SE/defeat.webm';
+        this.seClear.src = 'assets/audio/SE/clear.webm';
+        this.seLastboss.src = 'assets/audio/BGM/lastboss.webm'; // Using as BGM originally
+        this.seHeal.src = 'assets/audio/SE/heal.webm';
+        this.seMeat.src = 'assets/audio/SE/meat.webm';
+        this.seSap.src = 'assets/audio/SE/sap.webm';
+        this.seItem.src = 'assets/audio/SE/item.webm';
+        this.seSwordAttack.src = 'assets/audio/SE/swordattack.webm';
+        this.seSwordCritical.src = 'assets/audio/SE/swordcritical.webm';
+        this.seShieldDamage.src = 'assets/audio/SE/shielddamage.webm';
+        this.seEquip.src = 'assets/audio/SE/equip.webm';
+        this.seCrush.src = 'assets/audio/SE/crush.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -209,10 +209,11 @@ class SoundManager {
 }
 
 class MathProblem {
-    constructor(leftDigits, rightDigits, operators) {
+    constructor(leftDigits, rightDigits, operators, isBoss = false) {
         this.leftDigits = parseInt(leftDigits);
         this.rightDigits = parseInt(rightDigits);
         this.operators = operators; // array of strings
+        this.isBoss = isBoss;
         this.left = 0;
         this.right = 0;
         this.operator = '+';
@@ -220,8 +221,32 @@ class MathProblem {
     }
 
     _rand(digits) {
+        if (this.isBoss) {
+            // ボス時：掛け算用に数値下限を引き上げる
+            if (digits === 1) return Math.floor(Math.random() * 4) + 6;  // 6-9
+            return Math.floor(Math.random() * 50) + 50;                  // 50-99
+        }
         if (digits === 1) return Math.floor(Math.random() * 9) + 1; // 1-9
         return Math.floor(Math.random() * 90) + 10; // 10-99
+    }
+
+    // 通常範囲の乱数（ボスの＋－抽選用）
+    _randNormal(digits) {
+        if (digits === 1) return Math.floor(Math.random() * 9) + 1;  // 1-9
+        return Math.floor(Math.random() * 90) + 10;  // 10-99
+    }
+
+    // 繰り上がり・繰り下がり判定
+    _hasBorrow(left, right, op) {
+        if (op === '+') {
+            // 一の位の合計が10以上 → 繰り上がりあり
+            return (left % 10) + (right % 10) >= 10;
+        }
+        if (op === '-') {
+            // 一の位が引けない → 繰り下がりあり
+            return (left % 10) < (right % 10);
+        }
+        return false;
     }
 
     _generateDivision() {
@@ -254,7 +279,9 @@ class MathProblem {
             // Pick Answer
             // We want answer to be 2..maxAnswer, but cap at 99 (2 digits max)
             const effectiveMaxAnswer = Math.min(99, maxAnswer);
-            const answer = Math.floor(Math.random() * (effectiveMaxAnswer - 1)) + 2;
+            const minAnswer = (this.isBoss) ? 5 : 2;
+            if (effectiveMaxAnswer < minAnswer) continue;
+            const answer = Math.floor(Math.random() * (effectiveMaxAnswer - minAnswer + 1)) + minAnswer;
 
             // Pick Divisor (Right)
             // Divisor must be in [rightMin, rightMax]
@@ -302,18 +329,39 @@ class MathProblem {
             this.right = div.right;
             this.answer = div.answer;
         } else {
-            this.left = this._rand(this.leftDigits);
-            this.right = this._rand(this.rightDigits);
+            if (this.isBoss && (this.operator === '+' || this.operator === '-')) {
+                // ★ボス専用：繰り上がり・繰り下がり保証ロジック
+                let attempts = 0;
+                do {
+                    this.left = this._randNormal(this.leftDigits);
+                    this.right = this._randNormal(this.rightDigits);
+                    if (this.operator === '-' && this.left < this.right) {
+                        [this.left, this.right] = [this.right, this.left];
+                    }
+                    attempts++;
+                } while (!this._hasBorrow(this.left, this.right, this.operator) && attempts < 100);
 
-            if (this.operator === '+') {
-                this.answer = this.left + this.right;
-            } else if (this.operator === '-') {
-                if (this.left < this.right) {
-                    [this.left, this.right] = [this.right, this.left];
+                // 100回試みても見つからない場合はそのまま使用（フォールバック）
+                if (this.operator === '+') {
+                    this.answer = this.left + this.right;
+                } else {
+                    this.answer = this.left - this.right;
                 }
-                this.answer = this.left - this.right;
-            } else if (this.operator === '*') {
-                this.answer = this.left * this.right;
+            } else {
+                // 通常（または×）
+                this.left = this._rand(this.leftDigits);
+                this.right = this._rand(this.rightDigits);
+
+                if (this.operator === '+') {
+                    this.answer = this.left + this.right;
+                } else if (this.operator === '-') {
+                    if (this.left < this.right) {
+                        [this.left, this.right] = [this.right, this.left];
+                    }
+                    this.answer = this.left - this.right;
+                } else if (this.operator === '*') {
+                    this.answer = this.left * this.right;
+                }
             }
         }
 
@@ -873,7 +921,8 @@ class Game {
         document.getElementById('interval-overlay').classList.remove('active');
         this.state = GameState.BATTLE;
 
-        this.problem = new MathProblem(this.leftDigits, this.rightDigits, this.operators);
+        const isBoss = this.monsters[this.currentMonsterIdx].number === 10;
+        this.problem = new MathProblem(this.leftDigits, this.rightDigits, this.operators, isBoss);
         this.monsterBattleStart = Date.now(); // reset on defeat, accumulate? No, standard is per monster total time.
         // Wait, requirements said "defeat time per monster".
         // If we fail a question, time continues? spec says 'no penalty on time, problem continues'.
@@ -1316,14 +1365,14 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         this.sound.stopBgm();
         this.sound.playSe('clear');
 
-        // Play clearBGM after 1.5 seconds
+        // Play clearBGM after 2.0 seconds
         setTimeout(() => {
             if (this.state === GameState.RESULT && this.sound.bgmClear) {
                 this.sound.currentBgm = this.sound.bgmClear;
                 this.sound.currentBgm.volume = 0.5;
                 this.sound.currentBgm.play().catch(e => console.log('Audio play failed', e));
             }
-        }, 1500);
+        }, 2000);
 
         // Show result screen
         document.getElementById('battle-screen').classList.remove('active');
