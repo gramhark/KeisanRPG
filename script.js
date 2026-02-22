@@ -58,6 +58,7 @@ class SoundManager {
         this.bgmBoss = document.getElementById('bgm-boss');
         this.bgmRare = document.getElementById('bgm-rare');
         this.bgmHeal = document.getElementById('bgm-heal');
+        this.bgmClear = document.getElementById('bgm-clear');
         this.seAttack = document.getElementById('se-attack');
         this.seCritical = document.getElementById('se-critical');
         this.seDamage = document.getElementById('se-damage');
@@ -79,6 +80,7 @@ class SoundManager {
         this.bgmBoss.src = 'assets/audio/Bossbattle.webm';
         this.bgmRare.src = 'assets/audio/Rarebattle.webm';
         this.bgmHeal.src = 'assets/audio/Healbattle.webm';
+        this.bgmClear.src = 'assets/audio/clearBGM.webm';
         this.seAttack.src = 'assets/audio/attack.webm';
         this.seCritical.src = 'assets/audio/critical.webm';
         this.seDamage.src = 'assets/audio/damage.webm';
@@ -145,7 +147,7 @@ class SoundManager {
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
-        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal].forEach(bgm => {
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear].forEach(bgm => {
             bgm.pause();
             bgm.currentTime = 0;
         });
@@ -181,7 +183,7 @@ class SoundManager {
     unlockAll() {
         // SoundManagerが管理する全audioオブジェクトの配列
         const allAudio = [
-            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal,
+            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear,
             this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
             this.seClear, this.seLastboss, this.seHeal, this.seMeat,
             this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
@@ -907,6 +909,7 @@ class Game {
             this.inputBuffer = this.inputBuffer.slice(0, -1);
         } else if (key === 'ENTER') {
             this._submitAnswer();
+            return; // Avoid calling _updateInputUI which clears the visually retained answer
         } else {
             if (this.inputBuffer.length < 6) {
                 this.inputBuffer += key;
@@ -947,8 +950,16 @@ class Game {
 
         const isCorrect = this.problem.check(this.inputBuffer);
         const elapsed = (Date.now() - this.timerStart) / 1000;
+
+        // Save the current input buffer for display before clearing it internally
+        const displayedAnswer = this.inputBuffer;
         this.inputBuffer = "";
-        this._updateInputUI();
+
+        // Temporarily display the submitted answer until the next state resets it
+        document.getElementById('answer-input').value = displayedAnswer;
+        const problemEl = document.getElementById('problem-text');
+        const displayText = this.problem.displayText || '';
+        problemEl.innerHTML = `<span class="problem-part">${displayText}</span><span class="answer-part">${displayedAnswer}</span>`;
 
         // Stop timer visually for a moment? No, keep it running or reset immediately?
         // Spec: "Remaining time < 0, Problem continues".
@@ -1035,6 +1046,7 @@ class Game {
                         setTimeout(() => {
                             this.state = GameState.BATTLE;
                             this.timerStart += 3000; // offset timer (1000ms delay + 2000ms message)
+                            this._updateInputUI(); // Clear the answer display for retry
                         }, 2000);
                     }
                 }, 1000);
@@ -1062,6 +1074,7 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
             setTimeout(() => {
                 this.state = GameState.BATTLE;
                 this.timerStart += 1500; // offset timer
+                this._updateInputUI(); // Clear the answer display for retry
             }, 1500);
         }
     }
@@ -1302,6 +1315,15 @@ ${damage}ダメージうけた！`, false, 1500, 'damage');
         this.state = GameState.RESULT;
         this.sound.stopBgm();
         this.sound.playSe('clear');
+
+        // Play clearBGM after 1.5 seconds
+        setTimeout(() => {
+            if (this.state === GameState.RESULT && this.sound.bgmClear) {
+                this.sound.currentBgm = this.sound.bgmClear;
+                this.sound.currentBgm.volume = 0.5;
+                this.sound.currentBgm.play().catch(e => console.log('Audio play failed', e));
+            }
+        }, 1500);
 
         // Show result screen
         document.getElementById('battle-screen').classList.remove('active');
