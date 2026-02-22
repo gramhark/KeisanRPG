@@ -216,30 +216,24 @@ class SoundManager {
     }
 
     unlockAll() {
-        // SoundManagerが管理する全audioオブジェクトの配列
-        const allAudio = [
-            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover,
-            this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
-            this.seClear, this.seLastboss, this.seHeal, this.seMeat,
-            this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
-            this.seShieldDamage, this.seEquip, this.seCrush, this.seMiss, this.seDodge
-        ];
-
-        allAudio.forEach(audio => {
-            if (!audio) return;
-            const originalVolume = audio.volume;
-            audio.volume = 0;
-            const promise = audio.play();
-            if (promise !== undefined) {
-                promise.then(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                    audio.volume = originalVolume > 0 ? originalVolume : 1;
-                }).catch(() => {
-                    // srcが未設定など、再生できない場合は無視
-                });
-            }
-        });
+        // iOSのオートプレイ制限をAudioContextの無音再生で解除する
+        // （個別のaudio要素をplay/pauseする方式はiOSでpauseが間に合わず全音源が鳴るため使用しない）
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const buffer = ctx.createBuffer(1, 1, 22050); // 無音バッファ
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(ctx.destination);
+            source.start(0);
+            source.onended = () => {
+                ctx.close().catch(() => { });
+            };
+        } catch (e) {
+            // AudioContextが使えない環境は無視
+            console.warn('unlockAll: AudioContext not available', e);
+        }
     }
 }
 
