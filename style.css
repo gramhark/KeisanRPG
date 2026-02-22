@@ -263,6 +263,129 @@ input[type="text"]:focus {
     overflow: visible;
 }
 
+/* ===== 攻撃エフェクト画像 ===== */
+.attack-effect-img {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 10;
+    top: 40%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+}
+
+/* 素手攻撃・爆発系（中央でドン） */
+.attack-effect-img.anim-hit {
+    animation: effectHit 0.55s ease-out forwards;
+}
+
+/* 素手クリティカル・爆発系（1.5倍） */
+.attack-effect-img.anim-critical-hit {
+    animation: effectCriticalHit 0.55s ease-out forwards;
+}
+
+/* 剣の通常攻撃・斬撃（左上から右下へ通過） */
+.attack-effect-img.anim-slash {
+    animation: effectSlash 0.5s ease-out forwards;
+}
+
+/* 剣のクリティカル・三日月（大きく回転しながら出現） */
+.attack-effect-img.anim-crescent {
+    animation: effectCrescent 0.6s ease-out forwards;
+}
+
+@keyframes effectHit {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1.25);
+    }
+
+    55% {
+        opacity: 1;
+        transform: scale(1.0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes effectCriticalHit {
+    0% {
+        opacity: 0;
+        transform: scale(0.45);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1.875);
+    }
+
+    55% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.575);
+    }
+}
+
+@keyframes effectSlash {
+    0% {
+        opacity: 0;
+        transform: scale(0.4) rotate(-30deg);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1.3) rotate(-10deg);
+    }
+
+    60% {
+        opacity: 1;
+        transform: scale(1.1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.0) rotate(5deg);
+    }
+}
+
+@keyframes effectCrescent {
+    0% {
+        opacity: 0;
+        transform: translate(30%, -30%) scale(1.3) rotate(0deg);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translate(15%, -15%) scale(1.8) rotate(0deg);
+    }
+
+    65% {
+        opacity: 1;
+        transform: translate(-15%, 15%) scale(1.3) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-30%, 30%) scale(0.95) rotate(0deg);
+    }
+}
+
 /* モンスター画像共通設定（グロウ処理・トランジション復元） */
 #monster-img {
     filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));

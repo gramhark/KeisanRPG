@@ -59,6 +59,7 @@ class SoundManager {
         this.bgmRare = document.getElementById('bgm-rare');
         this.bgmHeal = document.getElementById('bgm-heal');
         this.bgmClear = document.getElementById('bgm-clear');
+        this.bgmGameover = document.getElementById('bgm-gameover');
         this.seAttack = document.getElementById('se-attack');
         this.seCritical = document.getElementById('se-critical');
         this.seDamage = document.getElementById('se-damage');
@@ -83,6 +84,7 @@ class SoundManager {
         this.bgmRare.src = 'assets/audio/BGM/Rarebattle.webm';
         this.bgmHeal.src = 'assets/audio/BGM/Healbattle.webm';
         this.bgmClear.src = 'assets/audio/BGM/clearBGM.webm';
+        this.bgmGameover.src = 'assets/audio/BGM/gameover.webm';
         this.seAttack.src = 'assets/audio/SE/attack.webm';
         this.seCritical.src = 'assets/audio/SE/critical.webm';
         this.seDamage.src = 'assets/audio/SE/damage.webm';
@@ -177,10 +179,10 @@ class SoundManager {
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
-        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear].forEach(bgm => {
-            if (bgm._fadeInterval) clearInterval(bgm._fadeInterval);
-            bgm.pause();
-            bgm.currentTime = 0;
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover].forEach(bgm => {
+            if (bgm && bgm._fadeInterval) clearInterval(bgm._fadeInterval);
+            if (bgm) bgm.pause();
+            if (bgm) bgm.currentTime = 0;
         });
 
         this.isPausedByVisibility = false;
@@ -199,6 +201,7 @@ class SoundManager {
             case 'meat': se = this.seMeat; break;
             case 'sap': se = this.seSap; break;
             case 'item': se = this.seItem; break;
+            case 'swordattack': se = this.seSwordAttack; break;
             case 'swordcritical': se = this.seSwordCritical; break;
             case 'shielddamage': se = this.seShieldDamage; break;
             case 'equip': se = this.seEquip; break;
@@ -215,7 +218,7 @@ class SoundManager {
     unlockAll() {
         // SoundManagerが管理する全audioオブジェクトの配列
         const allAudio = [
-            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear,
+            this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover,
             this.seAttack, this.seCritical, this.seDamage, this.seDefeat,
             this.seClear, this.seLastboss, this.seHeal, this.seMeat,
             this.seSap, this.seItem, this.seSwordAttack, this.seSwordCritical,
@@ -1123,8 +1126,16 @@ class Game {
         m.takeDamage(damage);
         this._updateMonsterHpUI(m);
 
-        // VFX
+        // ★ 攻撃エフェクト画像を表示（SEと同じtype文字列を渡すだけ）
+        if (this.swordLevel > 0) {
+            this._showAttackEffect(isCrit ? 'swordcritical' : 'swordattack');
+        } else {
+            this._showAttackEffect(isCrit ? 'critical' : 'attack');
+        }
+
+        // VFX (エフェクト生成後に点滅を開始させることで確実に再生させる)
         this._flashScreen();
+
         // ★ クリティカル時はクリティカル装飾（赤字白フチ等）、通常時は水色（text-player-action）を指定
         if (isCrit) {
             this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
@@ -1457,6 +1468,12 @@ class Game {
         clearInterval(this.timerIntervalId);
         this.state = GameState.GAME_OVER;
         this.sound.stopBgm();
+
+        if (this.sound.bgmGameover) {
+            this.sound.currentBgm = this.sound.bgmGameover;
+            this.sound.fadeInBgm(this.sound.bgmGameover, 0.5, 500);
+        }
+
         this._showMessage("ゲームオーバー...", true);
         setTimeout(() => {
             alert("ゲームオーバー！ つぎはまけないぞ！");
@@ -1581,6 +1598,44 @@ class Game {
         if (ratio > 0.7) bar.style.backgroundColor = 'var(--success-color)';
         else if (ratio > 0.3) bar.style.backgroundColor = 'var(--accent-color)';
         else bar.style.backgroundColor = 'var(--danger-color)';
+    }
+
+    /**
+     * 攻撃エフェクト画像をモンスターの上にアニメーション表示する
+     * @param {'attack'|'critical'|'swordattack'|'swordcritical'} type
+     */
+    _showAttackEffect(type) {
+        const el = document.getElementById('attack-effect-img');
+        if (!el) return;
+
+        // クラスとsrcをリセット（reflow強制で前回のアニメを確実に終了）
+        el.className = 'attack-effect-img';
+        el.src = '';
+        void el.offsetWidth;
+
+        // typeに応じてファイル名とアニメクラスを決定
+        // ファイル名はSEと同じ命名規則 (attack / critical / swordattack / swordcritical)
+        const src = `assets/image/other/${type}.webp`;
+        let animClass = '';
+
+        if (type === 'swordcritical') {
+            animClass = 'anim-crescent';  // 変更: 右上から左下への斬撃
+        } else if (type === 'swordattack') {
+            animClass = 'anim-slash';     // 変更: 旧クリティカルの三日月
+        } else if (type === 'critical') {
+            animClass = 'anim-critical-hit'; // 変更: 爆発（クリティカル用1.5倍）
+        } else {
+            animClass = 'anim-hit';       // 爆発（白黒・カラー共通）：中央でドン
+        }
+
+        el.src = src;
+        el.classList.add(animClass);
+
+        // アニメーション終了後にクリーンアップ
+        el.addEventListener('animationend', () => {
+            el.className = 'attack-effect-img';
+            el.src = '';
+        }, { once: true });
     }
 
     _flashScreen() {
