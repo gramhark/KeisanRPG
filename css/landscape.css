@@ -1,0 +1,443 @@
+﻿/* ============================================================
+   横画面モード (1200x800)
+   ============================================================ */
+#app.landscape-mode .screen {
+    padding: 0;
+}
+
+/* セットアップ画面（はみ出し防止のため余白を最適化） */
+#app.landscape-mode #setup-screen {
+    padding: 20px 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+#app.landscape-mode .title-img {
+    max-height: 200px;
+    margin-bottom: 0px;
+}
+
+#app.landscape-mode .subtitle {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+#app.landscape-mode .setup-container {
+    background: var(--panel-color);
+    padding: 10px 25px;
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px 35px;
+    width: 900px;
+}
+
+#app.landscape-mode .setup-container .input-group:nth-of-type(1),
+#app.landscape-mode .setup-container .input-group:nth-of-type(4) {
+    grid-column: span 2;
+}
+
+#app.landscape-mode .input-group label {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#app.landscape-mode input[type="text"] {
+    font-size: 30px;
+    padding: 10px;
+}
+
+#app.landscape-mode .toggle-btn,
+#app.landscape-mode .checkbox-btn {
+    font-size: 26px;
+    padding: 10px;
+}
+
+#app.landscape-mode #start-btn {
+    grid-column: span 2;
+    font-size: 28px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+#app.landscape-mode #open-request-btn {
+    width: 300px;
+    font-size: 18px;
+    padding: 8px;
+}
+
+#app.landscape-mode .setup-footer {
+    margin-top: auto;
+    font-size: 12px;
+    color: #5a6275;
+    padding-top: 12px;
+}
+
+/* バトル画面レイアウト (絶対分割) */
+#app.landscape-mode #battle-screen {
+    flex-direction: row;
+}
+
+/* インターバル画面 (横画面専用) */
+#app.landscape-mode .interval-img {
+    max-height: 480px;
+    margin-bottom: 0px;
+}
+
+/* 横画面専用の設定を追加する場合 */
+#app.landscape-mode #interval-msg {
+    font-size: 30px;
+    /* 横画面用サイズ */
+    margin-bottom: 20px;
+}
+
+#app.landscape-mode #battle-start-btn {
+    font-size: 36px;
+    padding: 15px 40px;
+}
+
+#app.landscape-mode .battle-view {
+    width: 650px;
+    /* 左側 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: radial-gradient(circle at center, #1a2138 0%, #0b0f19 70%);
+}
+
+#app.landscape-mode .panel {
+    width: 550px;
+    /* 右側 */
+    height: 100%;
+    background: radial-gradient(circle at center, #1a2138 0%, #0b0f19 70%);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#app.landscape-mode .panel-section {
+    border: 4px solid var(--accent-border);
+    border-radius: 12px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#app.landscape-mode .panel-section--problem {
+    gap: 15px;
+    transition: border-color 0.2s;
+}
+
+#app.landscape-mode .panel-section--problem.player-turn {
+    border-color: #4facfe;
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
+}
+
+#app.landscape-mode .panel-section--problem.monster-turn {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.4);
+}
+
+#app.landscape-mode .panel-section--numpad {
+    padding: 10px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* モンスター領域 */
+#app.landscape-mode #monster-img {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+#app.landscape-mode .monster-stat {
+    width: 350px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+#app.landscape-mode #monster-name {
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+#app.landscape-mode .monster-stat .hp-bar-container {
+    height: 16px;
+    margin-top: 10px;
+}
+
+#app.landscape-mode .stage-progress {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+}
+
+#app.landscape-mode .stage-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+}
+
+#app.landscape-mode .stage-dot.current {
+    background: var(--danger-color);
+    border-color: #fff;
+    transform: scale(1.3);
+}
+
+#app.landscape-mode .stage-dot.cleared {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+/* パネル内部（ステータス・問題・テンキー） */
+#app.landscape-mode .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#app.landscape-mode .player-info {
+    display: flex;
+    align-items: center;
+}
+
+#app.landscape-mode #player-name-display {
+    font-size: calc(24px * var(--name-scale, 1));
+    font-family: var(--font-pixel);
+    white-space: nowrap;
+}
+
+#app.landscape-mode #sword-label {
+    height: 35px;
+    width: auto;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+#app.landscape-mode #shield-label {
+    height: 35px;
+    width: auto;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+#app.landscape-mode .hp-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#app.landscape-mode .hp-status .hp-bar-container {
+    width: 100px;
+    height: 16px;
+}
+
+#app.landscape-mode #player-hp-text {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#app.landscape-mode .problem-area {
+    text-align: center;
+}
+
+#app.landscape-mode .problem-text {
+    font-size: 50px;
+    font-weight: bold;
+    font-family: var(--font-pixel);
+    color: var(--accent-color);
+    letter-spacing: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+#app.landscape-mode .answer-input {
+    display: none;
+}
+
+#app.landscape-mode .timer-container {
+    height: 12px;
+}
+
+#app.landscape-mode .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 16px;
+    height: 530px;
+}
+
+#app.landscape-mode .num-btn {
+    background: #252b42;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 48px;
+    font-family: var(--font-pixel);
+    box-shadow: 0 6px 0 #0f1320;
+}
+
+#app.landscape-mode .num-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #0f1320;
+}
+
+#app.landscape-mode .action-btn.red {
+    background: var(--danger-color);
+    box-shadow: 0 6px 0 #b30000;
+    font-size: 36px;
+}
+
+#app.landscape-mode .action-btn.green {
+    background: var(--success-color);
+    color: #000;
+    box-shadow: 0 6px 0 #00b359;
+    font-size: 36px;
+}
+
+#app.landscape-mode .message-overlay {
+    font-size: 40px;
+    top: 50px;
+}
+
+#app.landscape-mode .message-overlay.critical {
+    font-size: 48px;
+}
+
+/* リザルト画面 */
+#app.landscape-mode #result-screen {
+    padding: 40px;
+    overflow-y: auto;
+    background: radial-gradient(circle at top center, rgba(79, 172, 254, 0.1) 0%, transparent 60%);
+}
+
+#app.landscape-mode .title {
+    font-size: 56px;
+    margin: 16px 0;
+    white-space: nowrap;
+    text-align: center;
+}
+
+#app.landscape-mode .result-total-container {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#app.landscape-mode .total-label {
+    font-size: 22px;
+    color: #94a3b8;
+    display: block;
+    text-align: center;
+}
+
+#app.landscape-mode .total-time-display {
+    font-size: 72px;
+    margin: 0;
+    text-align: center;
+    display: block;
+}
+
+#app.landscape-mode .result-settings-container {
+    font-size: 22px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    background: #252b42;
+    border-radius: 12px;
+    text-align: center;
+    width: auto;
+}
+
+#app.landscape-mode .result-stats {
+    background: rgba(22, 27, 46, 0.8);
+    backdrop-filter: blur(4px);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    border-radius: 16px;
+    width: 80%;
+    margin: 0 auto;
+}
+
+#app.landscape-mode #time-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+#app.landscape-mode .result-card {
+    background: linear-gradient(145deg, #1a2138, #111526);
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 170px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+#app.landscape-mode .result-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+    border-color: var(--primary-color);
+    z-index: 10;
+}
+
+#app.landscape-mode .result-img-container {
+    width: 80px;
+    height: 80px;
+}
+
+#app.landscape-mode .result-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#app.landscape-mode .result-name {
+    font-size: 18px;
+    color: #cbd5e1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+#app.landscape-mode .result-time {
+    font-size: 26px;
+    font-weight: bold;
+    font-family: var(--font-pixel);
+}
+
+#app.landscape-mode #restart-btn {
+    display: block;
+    width: auto;
+    max-width: 400px;
+    margin: 40px auto 0 auto;
+    padding: 16px 48px;
+    font-size: 28px;
+}
+
+

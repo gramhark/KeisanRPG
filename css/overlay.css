@@ -1,0 +1,243 @@
+﻿/* ============================================================
+   各種オーバーレイ・モーダル (共通)
+   ============================================================ */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    text-align: center;
+}
+
+/* インターバル画面 */
+.interval-img {
+    max-width: 500px;
+    max-height: 500px;
+    margin-bottom: 0px;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+#interval-msg {
+    font-family: var(--font-pixel);
+    font-size: 48px;
+    margin-bottom: 40px;
+    line-height: 1.4;
+}
+
+#battle-start-btn {
+    /* 【共通】登場画面「たたかう」ボタンのサイズ・中央配置 */
+    font-size: 48px;
+    padding: 20px 60px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* リクエストフォーム */
+#request-overlay .overlay-content {
+    background: var(--panel-color);
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    width: 800px;
+}
+
+#request-overlay h2 {
+    font-size: 50px;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+#request-overlay p {
+    font-size: 28px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: left;
+    font-weight: bold;
+}
+
+#request-overlay p:last-of-type {
+    color: var(--danger-color);
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+#request-text {
+    width: 100%;
+    height: 250px;
+    background: #000;
+    color: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: var(--font-pixel);
+    font-size: 30px;
+    resize: none;
+    margin-bottom: 30px;
+}
+
+#request-text:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    /* 隙間も少し狭める */
+    justify-content: center;
+    width: 70%;
+    /* 全体の幅を70%に */
+    margin: 0 auto;
+    /* 中央寄せ */
+}
+
+#request-overlay #submit-request-btn,
+#request-overlay #cancel-request-btn {
+    flex: 1;
+    font-size: 24px;
+    /* 32px の約70% */
+    padding: 14px 0;
+    /* 20px の約70% */
+    margin: 0;
+}
+
+/* 剣のドロップアニメーション */
+.sword-drop-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 70%;
+    height: 70%;
+    max-width: 70%;
+    max-height: 70%;
+    object-fit: contain;
+    transform-origin: center center;
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 1))drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+    animation: sword-appear 0.5s ease-out;
+    z-index: 5;
+}
+
+@keyframes sword-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 画像拡大モーダル */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.image-modal.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-frame-wrapper {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 6px solid #ffd700;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 0 6px #b8860b, 0 0 0 12px #1a1a2e, 0 0 30px rgba(255, 215, 0, 0.6);
+    position: relative;
+    animation: zoom 0.3s;
+}
+
+.modal-content {
+    max-width: 800px;
+    max-height: 800px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1))drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+@keyframes zoom {
+    from {
+        transform: scale(0)
+    }
+
+    to {
+        transform: scale(1)
+    }
+}
+
+.close-modal {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    color: #f1f1f1;
+    font-size: 80px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 201;
+}
+
+#caption {
+    color: #ccc;
+    font-family: var(--font-pixel);
+    margin-top: 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-name {
+    font-size: 40px;
+    color: #fff;
+}
+
+.modal-stats {
+    font-size: 24px;
+    color: var(--accent-color);
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    padding: 8px 24px;
+}

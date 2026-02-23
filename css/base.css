@@ -1,0 +1,64 @@
+﻿:root {
+    --bg-color: #0b0f19;
+    --panel-color: #161b2e;
+    --text-color: #ffffff;
+    --primary-color: #4facfe;
+    --accent-color: #ffd700;
+    --danger-color: #ff4b4b;
+    --success-color: #00e676;
+    --border-color: #3b4259;
+    --accent-border: #4a5568;
+    --font-pixel: 'M PLUS Rounded 1c', sans-serif;
+    --font-main: 'M PLUS Rounded 1c', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image: url('../assets/image/other/BG.webp');
+    background-repeat: repeat;
+    color: var(--text-color);
+    font-family: var(--font-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+/* 仮想キャンバスのベース */
+#app {
+    background-color: var(--bg-color);
+    position: absolute;
+    /* script.js が中央配置・スケーリングを行います */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    border: 4px solid var(--border-color);
+    opacity: 0;
+    transition: opacity 0.15s ease-in;
+}
+
+/* 各種画面 */
+.screen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.screen.active {
+    display: flex;
+}
+
