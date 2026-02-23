@@ -3,6 +3,7 @@ const CONSTANTS = {
     PLAYER_MAX_HP: 10,
     TOTAL_MONSTERS: 10, // Will be updated by calculateTotalMonsters() on load
     TIMER_SECONDS: 10,
+    MONSTER_TIMER_SECONDS: 20,  // ★追加：モンスターターンのタイマー（20秒）
     CRITICAL_THRESHOLD: 3.0,
     NORMAL_DAMAGE: 1,
     CRITICAL_DAMAGE: 2,
@@ -1013,19 +1014,109 @@ class Game {
             this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
             this._timerLoop(); // immediate update
         } else {
-            // Monster turn: no timer
-            document.getElementById('timer-bar').style.visibility = 'hidden';
+            // Monster turn: タイマーを20秒で起動する
+            document.getElementById('timer-bar').style.visibility = 'visible';
+            this.timerStart = Date.now();
             if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+            this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+            this._timerLoop(); // immediate update
         }
     }
 
     _timerLoop() {
-        if (this.state !== GameState.BATTLE || !this.isPlayerTurn) return;
+        if (this.state !== GameState.BATTLE) return;
+
+        const timerSeconds = this.isPlayerTurn
+            ? CONSTANTS.TIMER_SECONDS
+            : CONSTANTS.MONSTER_TIMER_SECONDS;
+
         const elapsed = (Date.now() - this.timerStart) / 1000;
-        const remaining = Math.max(0, CONSTANTS.TIMER_SECONDS - elapsed);
-        const ratio = remaining / CONSTANTS.TIMER_SECONDS;
+        const remaining = Math.max(0, timerSeconds - elapsed);
+        const ratio = remaining / timerSeconds;
         this._updateTimerBar(ratio);
+
+        // ★ モンスターターンでゲージが0になったら被ダメージ
+        if (!this.isPlayerTurn && remaining <= 0) {
+            // タイマーを止めてから処理（二重発火防止）
+            if (this.timerIntervalId) {
+                clearInterval(this.timerIntervalId);
+                this.timerIntervalId = null;
+            }
+            this._onTimerExpiredMonsterTurn();
+        }
     }
+
+    _onTimerExpiredMonsterTurn() {
+        // state が BATTLE のときだけ実行（二重呼び出し対策）
+        if (this.state !== GameState.BATTLE) return;
+
+        this.state = GameState.TRANSITION; // 入力をブロック
+
+        const m = this.monsters[this.currentMonsterIdx];
+        let damage = m.attackPower;
+
+        // シールドによるダメージ軽減処理
+        if (this.shieldLevel > 0) {
+            const shield = SHIELD_DATA[this.shieldLevel];
+            damage = Math.max(0, damage - shield.reduction);
+            this.shieldDurability--;
+
+            if (this.shieldDurability <= 0) {
+                const shieldName = shield.name;
+                this.shieldLevel = 0;
+                this.shieldDurability = 0;
+
+                this.playerHp = Math.max(0, this.playerHp - damage);
+                this._updatePlayerHpUI();
+                this._damageScreen();
+                this._shakeScreen();
+                this._showMessage(`じかんぎれ！\n${damage}ダメージをうけた！`, false, 800, 'text-monster-action');
+                this.sound.playSe('shielddamage');
+
+                setTimeout(() => {
+                    document.getElementById('shield-label').style.display = 'none';
+                    this._shakeScreen();
+                    this._showMessage(`${shieldName}は\nこわれてしまった！`, false, 2000, 'text-monster-action');
+                    this.sound.playSe('crush');
+
+                    if (this.playerHp <= 0) {
+                        setTimeout(() => this._onGameOver(), 2000);
+                    } else {
+                        setTimeout(() => {
+                            this._updateInputUI();
+                            this.startPlayerTurn();
+                        }, 2000);
+                    }
+                }, 1000);
+
+                return;
+            }
+        }
+
+        // 通常被ダメージ
+        this.playerHp = Math.max(0, this.playerHp - damage);
+        this._updatePlayerHpUI();
+
+        this._damageScreen();
+        this._shakeScreen();
+        this._showMessage(`じかんぎれ！\n${damage}ダメージをうけた！`, false, 1500, 'text-monster-action');
+
+        if (this.shieldLevel > 0) {
+            this.sound.playSe('shielddamage');
+        } else {
+            this.sound.playSe('damage');
+        }
+
+        if (this.playerHp <= 0) {
+            this._onGameOver();
+        } else {
+            setTimeout(() => {
+                this._updateInputUI();
+                this.startPlayerTurn();
+            }, 1500);
+        }
+    }
+
 
     _handleInput(key) {
         if (this.state !== GameState.BATTLE) return;
