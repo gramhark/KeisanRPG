@@ -1,3 +1,14 @@
+/* ============================================================
+   モンスター HP・攻撃力テーブル
+   ============================================================ */
+// インデックス = ステージ番号（1〜9）
+const NORMAL_HP  = [0,  1,  3,  4,  5,  7,  8,  9, 11, 12];
+const NORMAL_ATK = [0,  1,  1,  1,  2,  2,  2,  3,  3,  4];
+
+// インデックス = bossId（1〜16）
+const BOSS_HP  = [0, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20];
+const BOSS_ATK = [0,  4,  4,  4,  4,  4,  5,  5,  5,  5,  5,  6,  6,  6,  6,  6,  7];
+
 class Monster {
     constructor(number, isRare, isHeal, opCount, leftDigits, rightDigits) {
         this.number = number;
@@ -11,21 +22,23 @@ class Monster {
         this.hasLickedSap = false;
         this.hasTransformed = false;
 
-        // Stats
-        if (number <= 4) this.attackPower = 1;
-        else if (number <= 7) this.attackPower = 2;
-        else if (number <= 9) this.attackPower = 3;
-        else if (number == 10) this.attackPower = 4;
-
-        if (isRare || isHeal) this.maxHp = 1;
-        else if (number === 10) {
+        // HP
+        if (isRare || isHeal) {
+            this.maxHp = 1;
+        } else if (number === 10) {
             const bId = this.bossId;
-            if (bId >= 13) this.maxHp = 16;
-            else if (bId >= 9) this.maxHp = 14;
-            else if (bId >= 5) this.maxHp = 12;
-            else this.maxHp = 10;
+            this.maxHp = BOSS_HP[bId] || 10;
+        } else {
+            this.maxHp = NORMAL_HP[number] || 1;
         }
-        else this.maxHp = number;
+
+        // 攻撃力（Rare/Heal はステージ番号に対応する値を使用）
+        if (number === 10) {
+            const bId = this.bossId;
+            this.attackPower = BOSS_ATK[bId] || 4;
+        } else {
+            this.attackPower = NORMAL_ATK[number] || 1;
+        }
 
         this.hp = this.maxHp;
         this.name = this._getName();

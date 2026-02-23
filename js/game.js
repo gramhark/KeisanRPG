@@ -507,10 +507,12 @@ class Game {
 
         this.state = GameState.TRANSITION; // 入力をブロック
 
-        // 時間切れ被ダメージで連続回避カウントをリセット
-        this.dodgeStreak = 0;
-        this.specialMoveReady = false;
-        this._updateAuraUI();
+        // 盾なし時のみ連続回避カウントをリセット（盾あり時はオーラ段階を維持）
+        if (this.shieldLevel === 0) {
+            this.dodgeStreak = 0;
+            this.specialMoveReady = false;
+            this._updateAuraUI();
+        }
 
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
@@ -770,10 +772,12 @@ class Game {
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
 
-        // 被ダメージで連続回避カウントをリセット
-        this.dodgeStreak = 0;
-        this.specialMoveReady = false;
-        this._updateAuraUI();
+        // 盾なし時のみ連続回避カウントをリセット（盾あり時はオーラ段階を維持）
+        if (this.shieldLevel === 0) {
+            this.dodgeStreak = 0;
+            this.specialMoveReady = false;
+            this._updateAuraUI();
+        }
 
         // Shield damage reduction
         if (this.shieldLevel > 0) {
@@ -812,10 +816,12 @@ class Game {
             }
         }
 
-        // 被ダメージで連続回避カウントをリセット
-        this.dodgeStreak = 0;
-        this.specialMoveReady = false;
-        this._updateAuraUI();
+        // 盾なし時のみ連続回避カウントをリセット（盾あり時はオーラ段階を維持）
+        if (this.shieldLevel === 0) {
+            this.dodgeStreak = 0;
+            this.specialMoveReady = false;
+            this._updateAuraUI();
+        }
 
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
@@ -851,7 +857,7 @@ class Game {
             this.sound.playSe('sap');
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while sap sound plays
 
-            m.hp = 16;
+            m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
@@ -864,8 +870,8 @@ class Game {
             m.hasTransformed = true;
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
 
-            m.maxHp = 20; // Update maxHp for gauge scaling
-            m.hp = 20; // HP buffed to 20
+            m.maxHp = 25; // 真の姿: HP25
+            m.hp = 25;
             m.attackPower = 10; // Hard!
             m.imageSrc = 'assets/image/monster/Boss16next_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
             document.getElementById('monster-img').src = m.imageSrc;
@@ -886,7 +892,7 @@ class Game {
             this.sound.playSe('heal');
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            m.hp = 16;
+            m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
@@ -916,8 +922,7 @@ class Game {
             document.getElementById('monster-img').src = m.imageSrc;
             document.getElementById('monster-name').textContent = m.name;
 
-            m.maxHp = 16;
-            m.hp = 16;
+            m.hp = m.maxHp;
             m.attackPower = 1;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
@@ -934,7 +939,7 @@ class Game {
             this.sound.playSe('meat');
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            m.hp = 16;
+            m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
