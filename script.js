@@ -31,9 +31,10 @@ const GameState = {
 /* Item Data Tables */
 const SWORD_DATA = [
     { name: 'ぼう', img: 'sword01.webp', bonus: 0 },
-    { name: 'どうのつるぎ', img: 'sword02.webp', bonus: 1 },
-    { name: 'てつのつるぎ', img: 'sword03.webp', bonus: 2 },
-    { name: 'はがねのつるぎ', img: 'sword04.webp', bonus: 3 },
+    { name: 'どうのけん', img: 'sword02.webp', bonus: 1 },
+    { name: 'てつのけん', img: 'sword03.webp', bonus: 2 },
+    { name: 'はがねのけん', img: 'sword04.webp', bonus: 3 },
+    { name: 'きんのけん', img: 'sword05.webp', bonus: 4 },
 ];
 
 const SHIELD_DATA = [
@@ -42,11 +43,12 @@ const SHIELD_DATA = [
     { name: 'どうのたて', img: 'shield02.webp', reduction: 2, maxDurability: 2 },
     { name: 'てつのたて', img: 'shield03.webp', reduction: 3, maxDurability: 3 },
     { name: 'はがねのたて', img: 'shield04.webp', reduction: 4, maxDurability: 4 },
+    { name: 'きんのたて', img: 'shield05.webp', reduction: 5, maxDurability: 5 },
 ];
 
 // インデックス = 現在の所持レベル → 次レベルのドロップ率
-const SWORD_DROP_RATE = [0.5, 0.25, 0.12, 0]; // swordLevel 0=ぼう→50%, 1→25%, 2→12%, 3=最強で抽選なし
-const SHIELD_DROP_RATE = [0.3, 0.20, 0.10, 0.05, 0]; // shieldLevel 0=なし→30%, 1→20%, 2→10%, 3→5%, 4=最強で抽選なし
+const SWORD_DROP_RATE = [0.60, 0.40, 0.20, 0.10, 0.04, 0];
+const SHIELD_DROP_RATE = [0.40, 0.25, 0.15, 0.07, 0.03, 0];
 
 /* Assets Map (populated dynamically if needed, but here hardcoded matching existing files) */
 /* Ideally we'd scan the dir, but in browser we explicitly map or guess. 
@@ -860,19 +862,46 @@ class Game {
         img.onload = onLoaded;
         img.onerror = onLoaded; // 失敗しても画面は進める
         img.src = firstSrc;
+        // 攻撃エフェクトを初期ロード
+        const attackImg = new Image();
+        attackImg.src = 'assets/image/other/attack.webp';
+
+        const criticalImg = new Image();
+        criticalImg.src = 'assets/image/other/critical.webp';
     }
 
     /**
      * 2体目以降とボス変身後の画像をバックグラウンドでプリロードする。
      */
     _preloadRemainingImages() {
-        const srcs = this.monsters.slice(1).map(m => m.imageSrc);
-        // ボスの変身後画像も先読みしておく
-        srcs.push('assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp');
+        // ① 2体目以降のモンスター画像
+        const monsterSrcs = this.monsters.slice(1).map(m => m.imageSrc);
+        monsterSrcs.push('assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp');
 
-        // 少し遅延させて1体目の表示を妨げない
+        // ② アイテム画像（剣＋盾）
+        const itemSrcs = [
+            'assets/image/item/sword01.webp',
+            'assets/image/item/sword02.webp',
+            'assets/image/item/sword03.webp',
+            'assets/image/item/sword04.webp',
+            'assets/image/item/sword05.webp',
+            'assets/image/item/shield01.webp',
+            'assets/image/item/shield02.webp',
+            'assets/image/item/shield03.webp',
+            'assets/image/item/shield04.webp',
+            'assets/image/item/shield05.webp'
+        ];
+
+        const effectSrcs = [
+            'assets/image/other/swordattack.webp',
+            'assets/image/other/swordcritical.webp'
+        ];
+
+        const allSrcs = [...monsterSrcs, ...itemSrcs, ...effectSrcs];
+
+        // 少し遅らせてバックグラウンドで読み込み
         setTimeout(() => {
-            srcs.forEach(src => {
+            allSrcs.forEach(src => {
                 if (!src) return;
                 const img = new Image();
                 img.src = src;
@@ -1462,17 +1491,17 @@ class Game {
 
                 if (m.isRare) {
                     // レアモンスター: 剣・盾を確定でアップグレード（最大装備時は除く）
-                    if (nextSwordLevel <= 3) swordDropped = true;
-                    if (nextShieldLevel <= 4) shieldDropped = true;
+                    if (nextSwordLevel <= 4) swordDropped = true;
+                    if (nextShieldLevel <= 5) shieldDropped = true;
                 } else if (m.isHeal) {
                     // 回復モンスター: 盾を確定でアップグレード（最大装備時は除く）
-                    if (nextShieldLevel <= 4) shieldDropped = true;
+                    if (nextShieldLevel <= 5) shieldDropped = true;
                 } else if (m.number >= 1 && m.number <= 9) {
                     // 通常モンスター: 確率でドロップ
-                    if (nextSwordLevel <= 3 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
+                    if (nextSwordLevel <= 4 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
                         swordDropped = true;
                     }
-                    if (nextShieldLevel <= 4 && Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
+                    if (nextShieldLevel <= 5 && Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
                         shieldDropped = true;
                     }
                 }
