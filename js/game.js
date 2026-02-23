@@ -1288,18 +1288,24 @@ class Game {
         if (!auraEl) return;
 
         let auraFile = null;
+        let animDuration = '1.5s'; // 基準
         if (this.specialMoveReady) {
             auraFile = 'ora04.webp';
+            animDuration = '0.5s';
         } else if (this.dodgeStreak >= 3) {
             auraFile = 'ora03.webp';
+            animDuration = '1.5s';
         } else if (this.dodgeStreak >= 2) {
             auraFile = 'ora02.webp';
+            animDuration = '2.5s';
         } else if (this.dodgeStreak >= 1) {
             auraFile = 'ora01.webp';
+            animDuration = '3.5s';
         }
 
         if (auraFile) {
             auraEl.src = `assets/image/other/${auraFile}`;
+            auraEl.style.animationDuration = animDuration;
             auraEl.style.display = 'block';
         } else {
             auraEl.style.display = 'none';
