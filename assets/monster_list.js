@@ -109,7 +109,7 @@
     "Boss14_ギャリドラタンク.webp",
     "Boss15_ぼうくんティラノザ.webp",
     "Boss16_こうてつカブトサムライ.webp",
-    "Lastboss_しんのかみダイオウグソクナイト.webp",
+    "Boss16next_しんのかみダイオウグソクナイト.webp",
     "Heal_おやみみ～.webp",
     "Heal_かいふくぐさ.webp",
     "Heal_ぺったん.webp",

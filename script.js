@@ -543,7 +543,7 @@ function findMonsterImage(monster) {
     // E.g. 01_もちもち.webp -> もちもち
     let name = choice.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     // Remove prefixes
-    name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
+    name = name.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
     monster.name = name; // Update name in place
 
     return `assets/image/monster/${choice}`;
@@ -875,7 +875,7 @@ class Game {
     _preloadRemainingImages() {
         // ① 2体目以降のモンスター画像
         const monsterSrcs = this.monsters.slice(1).map(m => m.imageSrc);
-        monsterSrcs.push('assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp');
+        monsterSrcs.push('assets/image/monster/Boss16next_しんのかみダイオウグソクナイト.webp');
 
         // ② アイテム画像（剣＋盾）
         const itemSrcs = [
@@ -1388,7 +1388,7 @@ class Game {
             m.maxHp = 20; // Update maxHp for gauge scaling
             m.hp = 20; // HP buffed to 20
             m.attackPower = 10; // Hard!
-            m.imageSrc = 'assets/image/monster/Lastboss_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
+            m.imageSrc = 'assets/image/monster/Boss16next_しんのかみダイオウグソクナイト.webp'; // Direct hardcode path
             document.getElementById('monster-img').src = m.imageSrc;
             m.name = "しんのかみ";
             document.getElementById('monster-name').textContent = m.name;
@@ -1858,7 +1858,7 @@ class Game {
        ============================================================ */
     _getMonsterName(filename) {
         let name = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-        name = name.replace(/^(rare_|heal_|boss\d+_|\d+_|lastboss_)/i, '');
+        name = name.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
         return name;
     }
 
