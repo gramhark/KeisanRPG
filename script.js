@@ -1192,7 +1192,7 @@ class Game {
 
         if (this.isPlayerTurn) {
             this._dodgeScreen(); // ★ モンスターがよけるアニメーション
-            this._showMessage(`こうげきは あたらなかった！`, false, 1500, 'text-monster-action');
+            this._showMessage(`ミス！\nこうげきは あたらなかった！`, false, 1500, 'text-monster-action');
             this.sound.playSe('miss'); // モンスターよけ音
             setTimeout(() => this.startMonsterTurn(), 1500);
             return;
