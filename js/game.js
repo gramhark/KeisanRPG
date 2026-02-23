@@ -980,9 +980,12 @@ class Game {
                         dropShieldLevel = rareShieldLevel;
                     }
                 } else if (m.isHeal) {
-                    // 回復モンスター: 盾を確定でアップグレード（最大装備時は除く）
-                    if (nextShieldLevel <= 5) shieldDropped = true;
-                    // dropShieldLevel はデフォルトの nextShieldLevel のまま
+                    // 回復モンスター: 盾を確定で2段階上をドロップ（なければ1段階上、それもなければなし）
+                    const healShieldLevel = calcRareShieldLevel(this.shieldLevel);
+                    if (healShieldLevel !== -1) {
+                        shieldDropped = true;
+                        dropShieldLevel = healShieldLevel;
+                    }
                 } else if (m.number >= 1 && m.number <= 9) {
                     // 通常モンスター: 確率でドロップ
                     if (nextSwordLevel <= 4 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
