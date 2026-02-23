@@ -220,10 +220,15 @@
     font-family: var(--font-pixel);
 }
 
+#app.portrait-mode .sword-aura-wrapper {
+    margin-left: 10px;
+    height: 45px;
+}
+
 #app.portrait-mode #sword-label {
     height: 45px;
     width: auto;
-    margin-left: 10px;
+    margin-left: 0;
     vertical-align: middle;
 }
 

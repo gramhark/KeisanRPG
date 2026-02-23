@@ -221,17 +221,22 @@ input[type="text"]:focus {
 
 /* 素手クリティカル・爆発系（1.5倍） */
 .attack-effect-img.anim-critical-hit {
-    animation: effectCriticalHit 0.55s ease-out forwards;
+    animation: effectCriticalHit 0.65s ease-out forwards;
 }
 
-/* 剣の通常攻撃・斬撃（左上から右下へ通過） */
+/* 剣の通常攻撃・三日月（大きく回転しながら出現） */
 .attack-effect-img.anim-slash {
-    animation: effectSlash 0.5s ease-out forwards;
+    animation: effectSlash 0.55s ease-out forwards;
 }
 
-/* 剣のクリティカル・三日月（大きく回転しながら出現） */
+/* 剣のクリティカル・斬撃（左上から右下へ通過） */
 .attack-effect-img.anim-crescent {
-    animation: effectCrescent 0.6s ease-out forwards;
+    animation: effectCrescent 0.65s ease-out forwards;
+}
+
+/* 必殺技（critical-hitアニメを流用・個別調整用クラス） */
+.attack-effect-img.anim-sp-attack {
+    animation: effectCriticalHit 0.7s ease-out forwards;
 }
 
 @keyframes effectHit {
@@ -486,6 +491,51 @@ input[type="text"]:focus {
 }
 
 /* ============================================================
+   必殺技オーラ
+   ============================================================ */
+/* けん画像ラッパー（オーラの基準点） */
+.sword-aura-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* オーラ画像（けん画像の背後でゆらゆら） */
+.aura-img {
+    position: absolute;
+    width: auto;
+    height: 165%;
+    /* 旧110%の1.5倍 */
+    object-fit: contain;
+    opacity: 1;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 0;
+    /* 剣(z-index:1)の背後 */
+    animation: auraFloat 2s ease-in-out infinite;
+}
+
+/* 剣画像をオーラより前面に */
+.sword-aura-wrapper #sword-label {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes auraFloat {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1.0);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+/* ============================================================
    リザルト画面 共通装飾
    ============================================================ */
 .result-info {
@@ -506,4 +556,3 @@ input[type="text"]:focus {
     color: #ff4b4b !important;
     text-shadow: 0 0 8px rgba(255, 75, 75, 0.6);
 }
-

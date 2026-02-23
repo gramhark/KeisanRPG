@@ -23,6 +23,7 @@ class SoundManager {
         this.seCrush = document.getElementById('se-crush');
         this.seMiss = document.getElementById('se-miss');
         this.seDodge = document.getElementById('se-dodge');
+        this.seSPAttack = document.getElementById('se-spatattack');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -48,6 +49,7 @@ class SoundManager {
         this.seCrush.src = 'assets/audio/SE/crush.webm';
         this.seMiss.src = 'assets/audio/SE/miss.webm';
         this.seDodge.src = 'assets/audio/SE/dodge.webm';
+        this.seSPAttack.src = 'assets/audio/SE/SPattack.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -154,6 +156,7 @@ class SoundManager {
             case 'crush': se = this.seCrush; break;
             case 'miss': se = this.seMiss; break;
             case 'dodge': se = this.seDodge; break;
+            case 'spatattack': se = this.seSPAttack; break;
         }
         if (se) {
             se.currentTime = 0;

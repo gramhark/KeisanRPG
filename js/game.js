@@ -26,6 +26,9 @@ class Game {
         this.shieldLevel = 0;
         this.shieldDurability = 0;
 
+        this.dodgeStreak = 0;       // 連続回避カウント (0–3)
+        this.specialMoveReady = false; // 必殺技待機フラグ
+
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
         this.adjustScale();
@@ -199,9 +202,12 @@ class Game {
         this.swordLevel = 0; // ぼうを最初から持つ
         this.shieldLevel = 0;
         this.shieldDurability = 0;
+        this.dodgeStreak = 0;
+        this.specialMoveReady = false;
         const swordLabelEl = document.getElementById('sword-label');
         swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
-        swordLabelEl.style.display = 'inline-block';
+        document.getElementById('sword-aura-wrapper').style.display = 'inline-flex';
+        this._updateAuraUI();
         document.getElementById('shield-label').style.display = 'none';
         this.defeatTimes = [];
 
@@ -313,7 +319,8 @@ class Game {
 
         const effectSrcs = [
             'assets/image/other/swordattack.webp',
-            'assets/image/other/swordcritical.webp'
+            'assets/image/other/swordcritical.webp',
+            'assets/image/other/SPattack.webp'
         ];
 
         const allSrcs = [...monsterSrcs, ...itemSrcs, ...effectSrcs];
@@ -425,7 +432,7 @@ class Game {
         const m = this.monsters[this.currentMonsterIdx];
         this._clearProblemDisplay(); // ★ 新しく追加：画面上の問題を消去
         // ★ モンスターの攻撃はダメージ色（赤）に変更
-        this._showMessage(`${m.name}の こうげきだ！\nよけろ！`, false, 1500, 'text-monster-action');
+        this._showMessage(`こうげきがくる！\nよけろ！`, false, 1500, 'text-monster-action');
         setTimeout(() => {
             if (this.state !== GameState.RESULT && this.state !== GameState.GAMEOVER) {
                 this.nextProblem();
@@ -499,6 +506,11 @@ class Game {
         if (this.state !== GameState.BATTLE) return;
 
         this.state = GameState.TRANSITION; // 入力をブロック
+
+        // 時間切れ被ダメージで連続回避カウントをリセット
+        this.dodgeStreak = 0;
+        this.specialMoveReady = false;
+        this._updateAuraUI();
 
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
@@ -670,39 +682,62 @@ class Game {
             this._attackScreen(); // ★ モンスターが拡大するアニメーション
             this._showMessage(`こうげきを よけた！`, false, 1500, 'text-player-action');
             this.sound.playSe('dodge'); // ユーザーよけ音
+
+            // 連続回避カウント（必殺技がまだ待機中でなければカウントアップ）
+            if (!this.specialMoveReady) {
+                this.dodgeStreak++;
+                if (this.dodgeStreak >= 4) {
+                    this.specialMoveReady = true;
+                }
+                this._updateAuraUI();
+            }
+
             setTimeout(() => this.startPlayerTurn(), 1500);
             return;
         }
 
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
-        let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
-        damage += SWORD_DATA[this.swordLevel].bonus; // lv0(ぼう)は+0
+
+        // 【新ダメージ計算式】 ((基本1 × クリ補正) + けん補正) × 必殺技補正
+        const critMult = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
+        let damage = (CONSTANTS.NORMAL_DAMAGE * critMult) + SWORD_DATA[this.swordLevel].bonus;
+
+        // 必殺技発動
+        const isSpecial = this.specialMoveReady;
+        if (isSpecial) {
+            damage *= 2;
+            this.specialMoveReady = false;
+            this.dodgeStreak = 0;
+            this._updateAuraUI();
+        }
 
         const m = this.monsters[this.currentMonsterIdx];
         m.takeDamage(damage);
         this._updateMonsterHpUI(m);
 
-        // ★ 攻撃エフェクト画像を表示（SEと同じtype文字列を渡すだけ）
-        if (this.swordLevel > 0) {
+        // 攻撃エフェクト・SE・メッセージ（必殺技 > クリティカル > 通常 の優先順）
+        if (isSpecial) {
+            this._showAttackEffect('spatattack');
+            this._flashScreen();
+            this._showMessage(`ひっさつ！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
+            this.sound.playSe('spatattack');
+        } else if (this.swordLevel > 0) {
             this._showAttackEffect(isCrit ? 'swordcritical' : 'swordattack');
-        } else {
-            this._showAttackEffect(isCrit ? 'critical' : 'attack');
-        }
-
-        // VFX (エフェクト生成後に点滅を開始させることで確実に再生させる)
-        this._flashScreen();
-
-        // ★ クリティカル時はクリティカル装飾（赤字白フチ等）、通常時は水色（text-player-action）を指定
-        if (isCrit) {
-            this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
-        } else {
-            this._showMessage(`${this.playerName}のこうげき！\n${damage}ダメージ！`, false, 1500, 'text-player-action');
-        }
-
-        // Sound Selection based on sword level
-        if (this.swordLevel > 0) {
+            this._flashScreen();
+            if (isCrit) {
+                this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
+            } else {
+                this._showMessage(`${this.playerName}のこうげき！\n${damage}ダメージ！`, false, 1500, 'text-player-action');
+            }
             this.sound.playSe(isCrit ? 'swordcritical' : 'swordattack');
         } else {
+            this._showAttackEffect(isCrit ? 'critical' : 'attack');
+            this._flashScreen();
+            if (isCrit) {
+                this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
+            } else {
+                this._showMessage(`${this.playerName}のこうげき！\n${damage}ダメージ！`, false, 1500, 'text-player-action');
+            }
             this.sound.playSe(isCrit ? 'critical' : 'attack');
         }
 
@@ -730,7 +765,7 @@ class Game {
 
         if (this.isPlayerTurn) {
             this._dodgeScreen(); // ★ モンスターがよけるアニメーション
-            this._showMessage(`ミス！\nこうげきは あたらなかった！`, false, 1500, 'text-monster-action');
+            this._showMessage(`ミス！\nあたらなかった！`, false, 1500, 'text-monster-action');
             this.sound.playSe('miss'); // モンスターよけ音
             setTimeout(() => this.startMonsterTurn(), 1500);
             return;
@@ -738,6 +773,11 @@ class Game {
 
         const m = this.monsters[this.currentMonsterIdx];
         let damage = m.attackPower;
+
+        // 被ダメージで連続回避カウントをリセット
+        this.dodgeStreak = 0;
+        this.specialMoveReady = false;
+        this._updateAuraUI();
 
         // Shield damage reduction
         if (this.shieldLevel > 0) {
@@ -775,6 +815,11 @@ class Game {
                 return;
             }
         }
+
+        // 被ダメージで連続回避カウントをリセット
+        this.dodgeStreak = 0;
+        this.specialMoveReady = false;
+        this._updateAuraUI();
 
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
@@ -982,7 +1027,7 @@ class Game {
                 this.swordLevel = level;
                 const swordLabelEl = document.getElementById('sword-label');
                 swordLabelEl.src = 'assets/image/equipment/' + sword.img;
-                swordLabelEl.style.display = 'inline-block';
+                document.getElementById('sword-aura-wrapper').style.display = 'inline-flex';
                 this.sound.playSe('equip');
                 this._showMessage(`${sword.name}を\nそうびした！`, false, 2000, 'text-neutral');
 
@@ -1182,8 +1227,34 @@ class Game {
     }
 
     /**
+     * 連続回避カウントに応じてオーラ画像を更新する
+     */
+    _updateAuraUI() {
+        const auraEl = document.getElementById('aura-img');
+        if (!auraEl) return;
+
+        let auraFile = null;
+        if (this.specialMoveReady) {
+            auraFile = 'ora04.webp';
+        } else if (this.dodgeStreak >= 3) {
+            auraFile = 'ora03.webp';
+        } else if (this.dodgeStreak >= 2) {
+            auraFile = 'ora02.webp';
+        } else if (this.dodgeStreak >= 1) {
+            auraFile = 'ora01.webp';
+        }
+
+        if (auraFile) {
+            auraEl.src = `assets/image/other/${auraFile}`;
+            auraEl.style.display = 'block';
+        } else {
+            auraEl.style.display = 'none';
+        }
+    }
+
+    /**
      * 攻撃エフェクト画像をモンスターの上にアニメーション表示する
-     * @param {'attack'|'critical'|'swordattack'|'swordcritical'} type
+     * @param {'attack'|'critical'|'swordattack'|'swordcritical'|'spatattack'} type
      */
     _showAttackEffect(type) {
         const el = document.getElementById('attack-effect-img');
@@ -1195,11 +1266,15 @@ class Game {
         void el.offsetWidth;
 
         // typeに応じてファイル名とアニメクラスを決定
-        // ファイル名はSEと同じ命名規則 (attack / critical / swordattack / swordcritical)
-        const src = `assets/image/other/${type}.webp`;
+        // ファイル名がtypeと異なる場合はマップで変換
+        const fileNameMap = { 'spatattack': 'SPattack' };
+        const fileName = fileNameMap[type] || type;
+        const src = `assets/image/other/${fileName}.webp`;
         let animClass = '';
 
-        if (type === 'swordcritical') {
+        if (type === 'spatattack') {
+            animClass = 'anim-sp-attack';
+        } else if (type === 'swordcritical') {
             animClass = 'anim-crescent';  // 変更: 右上から左下への斬撃
         } else if (type === 'swordattack') {
             animClass = 'anim-slash';     // 変更: 旧クリティカルの三日月

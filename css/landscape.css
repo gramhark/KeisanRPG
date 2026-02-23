@@ -223,10 +223,15 @@
     white-space: nowrap;
 }
 
+#app.landscape-mode .sword-aura-wrapper {
+    margin-left: 10px;
+    height: 35px;
+}
+
 #app.landscape-mode #sword-label {
     height: 35px;
     width: auto;
-    margin-left: 10px;
+    margin-left: 0;
     vertical-align: middle;
 }
 

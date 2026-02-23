@@ -96,8 +96,11 @@
                     <div class="status-row">
                         <div class="player-info">
                             <span id="player-name-display">ゆうしゃ</span>
-                            <img id="sword-label" class="sword-label" src="assets/image/equipment/sword01.webp"
-                                alt="はがねのけん" style="display:none;">
+                            <div id="sword-aura-wrapper" class="sword-aura-wrapper" style="display:none;">
+                                <img id="aura-img" class="aura-img" src="" alt="" style="display:none;">
+                                <img id="sword-label" class="sword-label" src="assets/image/equipment/sword01.webp"
+                                    alt="はがねのけん">
+                            </div>
                             <img id="shield-label" class="sword-label" src="assets/image/equipment/shield01.webp"
                                 alt="はがねのたて" style="display:none;">
                         </div>
@@ -268,6 +271,7 @@
             <audio id="se-crush" preload="auto"></audio>
             <audio id="se-miss" preload="auto"></audio>
             <audio id="se-dodge" preload="auto"></audio>
+            <audio id="se-spatattack" preload="auto"></audio>
         </div>
     </div>
     <script src="assets/monster_list.js"></script>
