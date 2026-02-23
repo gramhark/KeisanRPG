@@ -103,6 +103,40 @@ function getMonsterAssets() {
     return window.MONSTER_ASSETS || [];
 }
 
+/* ============================================================
+   ヤン系モンスター 段階的出現制限
+   ============================================================ */
+// 出現順序リスト（インデックス i のモンスターは 0〜i-1 が図鑑登録済みである必要がある）
+const YAN_SERIES_ORDER = [
+    'ヤンダ',           // index 0: 前提なし
+    'ヤンピ',           // index 1: ヤンダが必要
+    'ヤンチ',           // index 2: ヤンダ・ヤンピが必要
+    'ヤント',           // index 3: ヤンダ〜ヤンチが必要
+    'ヤンダバーン',     // index 4: ヤンダ〜ヤントが必要
+    'ヤンピバーン',     // index 5: ヤンダ〜ヤンダバーンが必要
+    'ヤンチバーン',     // index 6: ヤンダ〜ヤンピバーンが必要
+    'ヤントバーン',     // index 7: ヤンダ〜ヤンチバーンが必要
+    'ヤンチヤントバーン', // index 8: ヤンダ〜ヤントバーンが必要
+];
+
+/**
+ * ヤン系モンスターが出現可能かどうかを判定する。
+ * ヤン系以外のモンスターは常に true を返す。
+ * @param {string} monsterName - プレフィックス・拡張子を除いたモンスター名
+ * @param {Object} collection  - localStorage から読み込んだ図鑑データ
+ * @returns {boolean}
+ */
+function isYanMonsterUnlocked(monsterName, collection) {
+    const idx = YAN_SERIES_ORDER.indexOf(monsterName);
+    if (idx === -1) return true; // ヤン系ではない → 常に出現可
+    // 自分より前の全ヤン系が図鑑に登録済みであることを確認
+    for (let i = 0; i < idx; i++) {
+        const rec = collection[YAN_SERIES_ORDER[i]];
+        if (!rec || !rec.defeated) return false;
+    }
+    return true;
+}
+
 function findMonsterImage(monster) {
     const assets = getMonsterAssets();
     if (assets.length === 0) return '';
@@ -125,6 +159,20 @@ function findMonsterImage(monster) {
             let prefix = String(monster.number).padStart(2, '0') + "_";
             candidates = assets.filter(f => f.startsWith(prefix));
         }
+    }
+
+    // ヤン系モンスターの出現制限チェック（Rare・Heal は対象外）
+    if (!monster.isRare && !monster.isHeal) {
+        let collection = {};
+        try {
+            const stored = localStorage.getItem('math_battle_collection_v1');
+            if (stored) collection = JSON.parse(stored);
+        } catch (e) {}
+        candidates = candidates.filter(f => {
+            let n = f.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+            n = n.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
+            return isYanMonsterUnlocked(n, collection);
+        });
     }
 
     if (candidates.length === 0) return '';

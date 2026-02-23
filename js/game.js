@@ -741,22 +741,18 @@ class Game {
             this.sound.playSe(isCrit ? 'critical' : 'attack');
         }
 
-        if (m.hp <= 0) {
-            // Defeated: Stop timer immediately
+        // hp=0 でもボスイベントが発火する可能性があるため、常に先にチェックする
+        const hasEvent = await this._checkBossEvents(m);
+        if (!hasEvent && m.hp <= 0) {
+            // イベントなし＋HP0 → 撃破
             if (this.timerIntervalId) clearInterval(this.timerIntervalId);
-
-            // Show damage message first, then defeat sequence
-            setTimeout(() => {
-                this._onMonsterDefeated(m);
-            }, 1500);
+            setTimeout(() => this._onMonsterDefeated(m), 1500);
+        } else if (!hasEvent) {
+            // イベントなし＋HP残あり → モンスターターンへ
+            setTimeout(() => this.startMonsterTurn(), 1500);
         } else {
-            // Boss Logic Check
-            const hasEvent = await this._checkBossEvents(m);
-            if (!hasEvent) {
-                setTimeout(() => this.startMonsterTurn(), 1500);
-            } else {
-                this.startMonsterTurn();
-            }
+            // イベント発火（HP回復済み）→ モンスターターンへ
+            this.startMonsterTurn();
         }
     }
 
@@ -845,7 +841,25 @@ class Game {
     }
 
     async _checkBossEvents(m) {
-        // Boss 16 Transform (was Boss 06)
+        // Boss 16 Sap（回復を変身より優先）
+        // hp=0 を含む hp<=6 かつ未回復の場合に発火
+        if (m.bossId === 16 && m.hp <= 6 && !m.hasLickedSap) {
+            m.hasLickedSap = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
+
+            this._showMessage("モンスターが じゅえきを なめた！", false, 3000, 'text-monster-action');
+            this.sound.playSe('sap');
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while sap sound plays
+
+            m.hp = 16;
+            this._updateMonsterHpUI(m);
+            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this.sound.playSe('heal');
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
+            return true;
+        }
+        // Boss 16 Transform（回復済みの場合のみ、または回復フラグ不要時）
+        // hp=0 を含む hp<=4 かつ未変身の場合に発火
         if (m.bossId === 16 && m.hp <= 4 && !m.hasTransformed) {
             m.hasTransformed = true;
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
@@ -859,40 +873,72 @@ class Game {
             document.getElementById('monster-name').textContent = m.name;
             this._updateMonsterHpUI(m);
             this._showMessage("モンスターが しんのすがたを かいほうした！", false, 3000, 'text-monster-action');
-            this.sound.playSe('lastboss'); // New SE
+            this.sound.playSe('lastboss');
             await new Promise(resolve => setTimeout(resolve, 3000));
             return true;
         }
-        // Boss 16 Sap (was Boss 06)
-        if (m.bossId === 16 && m.hp <= 6 && !m.hasLickedSap) {
-            m.hasLickedSap = true;
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
+        // Boss 15 ヤンチヤントバーン 第一段階：気合の全回復（HP≤5で初回）
+        if (m.bossId === 15 && m.name === 'ヤンチヤントバーン' && m.hp <= 5 && !m.hasEatenMeat) {
+            m.hasEatenMeat = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // ダメージ演出を待つ
 
-            this._showMessage("モンスターが じゅえきを なめた！", false, 3000, 'text-monster-action');
-            this.sound.playSe('sap'); // New SE
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while sap sound plays
+            this._showMessage("ヤンチヤントバーン！", false, 3000, 'text-monster-action');
+            this.sound.playSe('heal');
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             m.hp = 16;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
-            this.sound.playSe('heal'); // Added heal SE
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
+            this.sound.playSe('heal');
+            await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
         }
-        // Boss 15 Meat (was Boss 05)
-        if (m.bossId === 15 && m.hp < 5 && !m.hasEatenMeat) {
+        // Boss 15 ヤンチヤントバーン 第二段階：弱体化と姿の変化（全回復後、再びHP≤5）
+        if (m.bossId === 15 && m.name === 'ヤンチヤントバーン' && m.hp <= 5 && m.hasEatenMeat && !m.hasTransformed) {
+            m.hasTransformed = true;
+            await new Promise(resolve => setTimeout(resolve, 1500)); // ダメージ演出を待つ
+
+            this._showMessage("ヤンダ！", false, 3000, 'text-monster-action');
+            this.sound.playSe('lastboss');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            // 姿を Boss15next に変える
+            const boss15nextFile = getMonsterAssets().find(f => f.toLowerCase().startsWith('boss15next_'));
+            if (boss15nextFile) {
+                m.imageSrc = `assets/image/monster/${boss15nextFile}`;
+                let n = boss15nextFile.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+                n = n.replace(/^boss\d+next_/i, '');
+                m.name = n;
+            } else {
+                m.imageSrc = 'assets/image/monster/Boss15next_ぼろぼろのヤンダ.webp';
+                m.name = 'ぼろぼろのヤンダ';
+            }
+            document.getElementById('monster-img').src = m.imageSrc;
+            document.getElementById('monster-name').textContent = m.name;
+
+            m.maxHp = 16;
+            m.hp = 16;
+            m.attackPower = 1;
+            this._updateMonsterHpUI(m);
+            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this.sound.playSe('heal');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            return true;
+        }
+        // Boss 15 ぼうくんティラノザ：にくを食べる（HP<5で発火）
+        if (m.bossId === 15 && m.name === 'ぼうくんティラノザ' && m.hp < 5 && !m.hasEatenMeat) {
             m.hasEatenMeat = true;
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for damage visualization
 
             this._showMessage("モンスターが にくを たべた！", false, 3000, 'text-monster-action');
-            this.sound.playSe('meat'); // New SE
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait while meat sound plays
+            this.sound.playSe('meat');
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             m.hp = 16;
             this._updateMonsterHpUI(m);
             this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
-            this.sound.playSe('heal'); // Added heal SE
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
+            this.sound.playSe('heal');
+            await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
         }
         return false;
