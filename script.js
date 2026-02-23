@@ -602,7 +602,6 @@ class Game {
         this.inputBuffer = "";
         this.isPlayerTurn = true; // Turn-based state
 
-        this.rareBuff = false;
         this.swordLevel = 0;
         this.shieldLevel = 0;
         this.shieldDurability = 0;
@@ -770,13 +769,13 @@ class Game {
             let isRare = false;
             if (i !== CONSTANTS.TOTAL_MONSTERS) {
                 isRare = Math.random() < 0.02;
+
             }
             const m = new Monster(i, isRare, false, opCount, this.leftDigits, this.rightDigits);
             this.monsters.push(m);
         }
 
         this.currentMonsterIdx = 0;
-        this.rareBuff = false;
         this.swordLevel = 0; // ぼうを最初から持つ
         this.shieldLevel = 0;
         this.shieldDurability = 0;
@@ -1257,7 +1256,6 @@ class Game {
 
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
         let damage = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
-        if (this.rareBuff) damage *= 2;
         damage += SWORD_DATA[this.swordLevel].bonus; // lv0(ぼう)は+0
 
         const m = this.monsters[this.currentMonsterIdx];
@@ -1468,9 +1466,8 @@ class Game {
 
             // Bonuses
             if (m.isRare) {
-                this.rareBuff = true;
-                hasBonus = true;
-                this._showMessage("こうげきりょくが あがった！", false, 2000, 'text-player-action');
+                // レアモンスターは攻撃バフなし（装備ドロップのみ）
+                // hasBonus は false のまま → ドロップ演出まで待機なし
             } else if (m.isHeal) {
                 this.playerHp = CONSTANTS.PLAYER_MAX_HP;
                 this._updatePlayerHpUI();
@@ -1486,16 +1483,41 @@ class Game {
                 let swordDropped = false;
                 let shieldDropped = false;
 
+                // ドロップする実際の装備レベル（_doSwordDrop / _doShieldDrop に渡す値）
+                let dropSwordLevel = this.swordLevel + 1;   // 通常モンスター用のデフォルト
+                let dropShieldLevel = this.shieldLevel + 1; // 通常モンスター用のデフォルト
+
+                // レアモンスターは2段階上、なければ1段階上、それもなければドロップなし
+                const calcRareSwordLevel = (current) => {
+                    if (current + 2 <= 4) return current + 2;
+                    if (current + 1 <= 4) return current + 1;
+                    return -1;
+                };
+                const calcRareShieldLevel = (current) => {
+                    if (current + 2 <= 5) return current + 2;
+                    if (current + 1 <= 5) return current + 1;
+                    return -1;
+                };
+
                 const nextSwordLevel = this.swordLevel + 1;
                 const nextShieldLevel = this.shieldLevel + 1;
 
                 if (m.isRare) {
-                    // レアモンスター: 剣・盾を確定でアップグレード（最大装備時は除く）
-                    if (nextSwordLevel <= 4) swordDropped = true;
-                    if (nextShieldLevel <= 5) shieldDropped = true;
+                    // レアモンスター: 2段階上を確定ドロップ（なければ1段階上、それもなければなし）
+                    const rareSwordLevel = calcRareSwordLevel(this.swordLevel);
+                    const rareShieldLevel = calcRareShieldLevel(this.shieldLevel);
+                    if (rareSwordLevel !== -1) {
+                        swordDropped = true;
+                        dropSwordLevel = rareSwordLevel;
+                    }
+                    if (rareShieldLevel !== -1) {
+                        shieldDropped = true;
+                        dropShieldLevel = rareShieldLevel;
+                    }
                 } else if (m.isHeal) {
                     // 回復モンスター: 盾を確定でアップグレード（最大装備時は除く）
                     if (nextShieldLevel <= 5) shieldDropped = true;
+                    // dropShieldLevel はデフォルトの nextShieldLevel のまま
                 } else if (m.number >= 1 && m.number <= 9) {
                     // 通常モンスター: 確率でドロップ
                     if (nextSwordLevel <= 4 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
@@ -1504,17 +1526,18 @@ class Game {
                     if (nextShieldLevel <= 5 && Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
                         shieldDropped = true;
                     }
+                    // dropSwordLevel / dropShieldLevel はデフォルトの nextSwordLevel / nextShieldLevel のまま
                 }
 
                 if (swordDropped && shieldDropped) {
                     // 剣→盾の順でシーケンス実行
-                    this._doSwordDrop(nextSwordLevel, () => {
-                        this._doShieldDrop(nextShieldLevel, () => this._nextMonster(), 0);
+                    this._doSwordDrop(dropSwordLevel, () => {
+                        this._doShieldDrop(dropShieldLevel, () => this._nextMonster(), 0);
                     }, 500);
                 } else if (swordDropped) {
-                    this._doSwordDrop(nextSwordLevel, () => this._nextMonster(), 500);
+                    this._doSwordDrop(dropSwordLevel, () => this._nextMonster(), 500);
                 } else if (shieldDropped) {
-                    this._doShieldDrop(nextShieldLevel, () => this._nextMonster(), 500);
+                    this._doShieldDrop(dropShieldLevel, () => this._nextMonster(), 500);
                 } else {
                     setTimeout(() => this._nextMonster(), 1500);
                 }
