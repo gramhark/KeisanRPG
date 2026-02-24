@@ -369,7 +369,11 @@ class Game {
         iImg.src = m.imageSrc;
 
         this._updateMonsterHpUI(m);
-        document.getElementById('monster-name').textContent = m.name;
+        const monsterNameEl = document.getElementById('monster-name');
+        monsterNameEl.textContent = m.name;
+        // 文字数に応じてフォントスケールを調整（10文字を基準とした縮小）
+        const nameScale = m.name.length > 10 ? 10 / m.name.length : 1;
+        monsterNameEl.style.setProperty('--monster-name-scale', nameScale);
         this._updateStageProgressUI();
     }
 

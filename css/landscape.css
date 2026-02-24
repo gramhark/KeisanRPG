@@ -185,9 +185,11 @@
 }
 
 #app.landscape-mode #monster-name {
-    font-size: 32px;
+    font-size: calc(32px * var(--monster-name-scale, 1));
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    display: block;
 }
 
 #app.landscape-mode .monster-stat .hp-bar-container {

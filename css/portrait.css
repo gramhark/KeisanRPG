@@ -156,9 +156,11 @@
 }
 
 #app.portrait-mode #monster-name {
-    font-size: 36px;
+    font-size: calc(36px * var(--monster-name-scale, 1));
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    display: block;
 }
 
 #app.portrait-mode .monster-stat .hp-bar-container {
