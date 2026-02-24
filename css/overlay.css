@@ -52,12 +52,34 @@
     line-height: 1.4;
 }
 
+/* インターバル ボタングループ */
+.interval-btns {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+#app.portrait-mode .interval-btns {
+    flex-direction: column;
+    gap: 40px;
+}
+
+#app.landscape-mode .interval-btns {
+    flex-direction: row;
+}
+
 #battle-start-btn {
-    /* 【共通】登場画面「たたかう」ボタンのサイズ・中央配置 */
+    /* 【共通】登場画面「たたかう」ボタンのサイズ */
     font-size: 48px;
     padding: 20px 60px;
     width: fit-content;
-    margin: 0 auto;
+}
+
+#info-btn {
+    font-size: 36px;
+    padding: 16px 48px;
+    width: fit-content;
 }
 
 /* リクエストフォーム */
@@ -299,4 +321,106 @@
     padding: 18px 0;
     width: 180px;
     flex-shrink: 0;
+}
+
+/* ============================================================
+   じょうほう ウィンドウ
+   ============================================================ */
+.info-overlay {
+    z-index: 110;
+    /* interval-overlay(100) より前面 */
+}
+
+.info-content {
+    background: var(--panel-color);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    padding: 36px 44px 40px;
+    width: 680px;
+    max-width: 92vw;
+    box-sizing: border-box;
+}
+
+.info-sections {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 32px;
+}
+
+#app.portrait-mode .info-sections {
+    flex-direction: column;
+}
+
+#app.landscape-mode .info-sections {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.info-section {
+    flex: 1;
+}
+
+.info-section-title {
+    font-family: var(--font-pixel);
+    font-size: 26px;
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.enemy-title {
+    color: #ff6b6b;
+}
+
+.player-title {
+    color: var(--primary-color);
+}
+
+.info-divider {
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+#app.portrait-mode .info-divider {
+    height: 1px;
+    width: 100%;
+}
+
+#app.landscape-mode .info-divider {
+    width: 1px;
+    align-self: stretch;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-pixel);
+    font-size: 26px;
+    padding: 6px 0;
+    gap: 16px;
+}
+
+.info-label {
+    color: #a0aabf;
+    white-space: nowrap;
+}
+
+.info-value {
+    color: #fff;
+    font-weight: bold;
+    text-align: right;
+}
+
+.info-value.sp-ready {
+    color: var(--accent-color);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.info-close-btn {
+    font-size: 36px;
+    padding: 14px 60px;
+    width: fit-content;
+    margin: 0 auto;
+    display: block;
 }

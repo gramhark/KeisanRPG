@@ -106,6 +106,8 @@ class Game {
 
         // Interval Button
         document.getElementById('battle-start-btn').addEventListener('click', () => this.startBattle());
+        document.getElementById('info-btn').addEventListener('click', () => this._showInfoOverlay());
+        document.getElementById('info-close-btn').addEventListener('click', () => this._hideInfoOverlay());
 
         // Restart
         document.getElementById('restart-btn').addEventListener('click', () => location.reload()); // Simple reload
@@ -370,6 +372,60 @@ class Game {
         document.getElementById('monster-name').textContent = m.name;
         this._updateStageProgressUI();
     }
+
+    _showInfoOverlay() {
+        const m = this.monsters[this.currentMonsterIdx];
+        const sword = SWORD_DATA[this.swordLevel];
+        const shield = SHIELD_DATA[this.shieldLevel];
+        const playerAtk = CONSTANTS.NORMAL_DAMAGE + sword.bonus;
+        const playerDef = shield ? shield.reduction : 0;
+
+        // オーラ段階テキスト
+        let auraText, auraHighlight;
+        if (this.specialMoveReady) {
+            auraText = 'ひっさつ よういOK！';
+            auraHighlight = true;
+        } else if (this.dodgeStreak >= 3) {
+            auraText = 'レベル 3';
+        } else if (this.dodgeStreak >= 2) {
+            auraText = 'レベル 2';
+        } else if (this.dodgeStreak >= 1) {
+            auraText = 'レベル 1';
+        } else {
+            auraText = 'なし';
+        }
+
+        const enemyRows = [
+            { label: 'なまえ', value: m.name },
+            { label: 'HP', value: `${m.hp} / ${m.maxHp}` },
+            { label: 'こうげきりょく', value: String(m.attackPower) },
+        ];
+
+        const playerRows = [
+            { label: 'こうげきりょく', value: String(playerAtk) },
+            { label: 'ぼうぎょりょく', value: shield ? String(playerDef) : 'なし' },
+            { label: 'たての たいきゅう', value: shield ? `${this.shieldDurability} / ${shield.maxDurability}` : 'なし' },
+            { label: 'オーラ', value: auraText, highlight: auraHighlight },
+        ];
+
+        const renderRows = (el, rows) => {
+            el.innerHTML = rows.map(r =>
+                `<div class="info-row">
+                    <span class="info-label">${r.label}</span>
+                    <span class="info-value${r.highlight ? ' sp-ready' : ''}">${r.value}</span>
+                </div>`
+            ).join('');
+        };
+
+        renderRows(document.getElementById('info-enemy-rows'), enemyRows);
+        renderRows(document.getElementById('info-player-rows'), playerRows);
+        document.getElementById('info-overlay').classList.add('active');
+    }
+
+    _hideInfoOverlay() {
+        document.getElementById('info-overlay').classList.remove('active');
+    }
+
     _updateStageProgressUI() {
         const container = document.getElementById('stage-progress');
         if (!container) return;

@@ -97,6 +97,23 @@
     padding: 15px 40px;
 }
 
+#app.landscape-mode #info-btn {
+    font-size: 30px;
+    padding: 15px 36px;
+}
+
+#app.landscape-mode .info-content {
+    width: 900px;
+}
+
+#app.landscape-mode .info-row {
+    font-size: 24px;
+}
+
+#app.landscape-mode .info-section-title {
+    font-size: 24px;
+}
+
 #app.landscape-mode .battle-view {
     width: 650px;
     /* 左側 */

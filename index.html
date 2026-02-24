@@ -167,7 +167,28 @@
             <div class="overlay-content">
                 <img id="interval-monster-img" class="interval-img" src="" alt="Monster">
                 <h2 id="interval-msg">モンスターが あらわれた！</h2>
-                <button id="battle-start-btn" class="primary-btn">たたかう</button>
+                <div class="interval-btns">
+                    <button id="battle-start-btn" class="orange-btn">たたかう</button>
+                    <button id="info-btn" class="primary-btn">じょうほう</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Overlay -->
+        <div id="info-overlay" class="overlay info-overlay">
+            <div class="overlay-content info-content">
+                <div class="info-sections">
+                    <div class="info-section">
+                        <h3 class="info-section-title enemy-title">てきの じょうほう</h3>
+                        <div class="info-rows" id="info-enemy-rows"></div>
+                    </div>
+                    <div class="info-divider"></div>
+                    <div class="info-section">
+                        <h3 class="info-section-title player-title">じぶんの じょうほう</h3>
+                        <div class="info-rows" id="info-player-rows"></div>
+                    </div>
+                </div>
+                <button id="info-close-btn" class="primary-btn info-close-btn">とじる</button>
             </div>
         </div>
 
