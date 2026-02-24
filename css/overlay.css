@@ -273,7 +273,7 @@
     left: 10px;
     z-index: 15;
     background: rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 215, 0, 0.75);
+    border: 2px solid rgba(255, 215, 0, 0.55);
     border-radius: 10px;
     width: 44px;
     height: 44px;
@@ -284,6 +284,10 @@
     padding: 0;
     transition: background 0.15s, transform 0.1s;
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+}
+
+.quit-battle-btn svg {
+    opacity: 0.55;
 }
 
 .quit-battle-btn:active {

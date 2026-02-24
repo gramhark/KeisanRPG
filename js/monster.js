@@ -2,12 +2,12 @@
    モンスター HP・攻撃力テーブル
    ============================================================ */
 // インデックス = ステージ番号（1〜9）
-const NORMAL_HP  = [0,  1,  3,  4,  5,  7,  8,  9, 11, 12];
-const NORMAL_ATK = [0,  1,  1,  1,  2,  2,  2,  3,  3,  4];
+const NORMAL_HP = [0, 1, 3, 4, 5, 7, 8, 9, 11, 12];
+const NORMAL_ATK = [0, 1, 1, 1, 2, 2, 2, 3, 3, 4];
 
 // インデックス = bossId（1〜16）
-const BOSS_HP  = [0, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20];
-const BOSS_ATK = [0,  4,  4,  4,  4,  4,  5,  5,  5,  5,  5,  6,  6,  6,  6,  6,  7];
+const BOSS_HP = [0, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20];
+const BOSS_ATK = [0, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7];
 
 class Monster {
     constructor(number, isRare, isHeal, opCount, leftDigits, rightDigits) {
@@ -175,12 +175,12 @@ function findMonsterImage(monster) {
     }
 
     // ヤン系モンスターの出現制限チェック（Rare・Heal は対象外）
+    let collection = {};
     if (!monster.isRare && !monster.isHeal) {
-        let collection = {};
         try {
             const stored = localStorage.getItem('math_battle_collection_v1');
             if (stored) collection = JSON.parse(stored);
-        } catch (e) {}
+        } catch (e) { }
         candidates = candidates.filter(f => {
             let n = f.replace(/\.(webp|png|jpg|jpeg)$/i, '');
             n = n.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
@@ -189,7 +189,22 @@ function findMonsterImage(monster) {
     }
 
     if (candidates.length === 0) return '';
-    const choice = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // 重み付き抽選：出現条件OK かつ ノート未登録のヤン系は重み 1.15、それ以外は 1.0
+    const weights = candidates.map(f => {
+        let n = f.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+        n = n.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
+        const isYan = YAN_SERIES_ORDER.indexOf(n) !== -1;
+        const inCollection = collection[n] && collection[n].defeated;
+        return (isYan && !inCollection) ? 1.15 : 1.0;
+    });
+    const totalWeight = weights.reduce((s, w) => s + w, 0);
+    let rand = Math.random() * totalWeight;
+    let choice = candidates[candidates.length - 1];
+    for (let i = 0; i < candidates.length; i++) {
+        rand -= weights[i];
+        if (rand <= 0) { choice = candidates[i]; break; }
+    }
 
     // Update name from filename (Simple parsing: remove prefix, remove extension)
     // E.g. 01_もちもち.webp -> もちもち
