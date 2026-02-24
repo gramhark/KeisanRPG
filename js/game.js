@@ -720,12 +720,13 @@ class Game {
         // 攻撃エフェクト・SE・メッセージ（必殺技 > クリティカル > 通常 の優先順）
         if (isSpecial) {
             this._showAttackEffect('spatattack');
-            this._flashScreen();
+            this._showLightning();
+            this._flashScreen('sp');
             this._showMessage(`ひっさつ！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
             this.sound.playSe('spatattack');
         } else if (this.swordLevel > 0) {
             this._showAttackEffect(isCrit ? 'swordcritical' : 'swordattack');
-            this._flashScreen();
+            this._flashScreen(isCrit ? 'critical' : 'normal');
             if (isCrit) {
                 this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
             } else {
@@ -734,7 +735,7 @@ class Game {
             this.sound.playSe(isCrit ? 'swordcritical' : 'swordattack');
         } else {
             this._showAttackEffect(isCrit ? 'critical' : 'attack');
-            this._flashScreen();
+            this._flashScreen(isCrit ? 'critical' : 'normal');
             if (isCrit) {
                 this._showMessage(`クリティカル！\n${damage}ダメージ！`, true, 1500, 'text-player-action');
             } else {
@@ -1356,11 +1357,125 @@ class Game {
         }, { once: true });
     }
 
-    _flashScreen() {
+    /**
+     * @param {'normal'|'critical'|'sp'} type
+     */
+    _flashScreen(type = 'normal') {
         const monsterImg = document.getElementById('monster-img');
-        monsterImg.classList.remove('flash-effect', 'dodge-effect', 'attack-effect');
-        void monsterImg.offsetWidth; // trigger reflow
-        monsterImg.classList.add('flash-effect');
+        const container = document.querySelector('.monster-container');
+
+        // モンスター画像: 点滅（opacity アニメ）
+        monsterImg.classList.remove('flash-effect', 'flash-critical', 'flash-sp', 'dodge-effect', 'attack-effect');
+        void monsterImg.offsetWidth;
+        if (type === 'sp') {
+            monsterImg.classList.add('flash-sp');
+        } else if (type === 'critical') {
+            monsterImg.classList.add('flash-critical');
+        } else {
+            monsterImg.classList.add('flash-effect');
+        }
+
+        // モンスターコンテナ: 揺れ（transform アニメ）
+        if (container && type !== 'normal') {
+            container.classList.remove('shake-critical-monster', 'shake-sp-monster');
+            void container.offsetWidth;
+            const shakeClass = type === 'sp' ? 'shake-sp-monster' : 'shake-critical-monster';
+            container.classList.add(shakeClass);
+            container.addEventListener('animationend', () => {
+                container.classList.remove(shakeClass);
+            }, { once: true });
+        }
+    }
+
+    /**
+     * 必殺技時にフラクタル雷ボルトをcanvasで描画する
+     */
+    _showLightning() {
+        const container = document.querySelector('.monster-container');
+        if (!container) return;
+
+        const canvas = document.createElement('canvas');
+        const w = container.offsetWidth || 300;
+        const h = container.offsetHeight || 400;
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:12;';
+        container.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        const cx = w / 2;
+        const cy = h * 0.38;
+
+        // フラクタル分岐で雷ボルトを描画
+        function drawBolt(x1, y1, x2, y2, depth) {
+            if (depth <= 0) {
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                return;
+            }
+            const mx = (x1 + x2) / 2;
+            const my = (y1 + y2) / 2;
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const offset = (Math.random() - 0.5) * len * 0.45;
+            const nx = mx + (-dy / len) * offset;
+            const ny = my + (dx / len) * offset;
+            drawBolt(x1, y1, nx, ny, depth - 1);
+            drawBolt(nx, ny, x2, y2, depth - 1);
+        }
+
+        let frame = 0;
+        const totalFrames = 26;
+        const numBolts = 9;
+        const angles = Array.from({ length: numBolts }, (_, i) =>
+            (i / numBolts) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
+        );
+        const lengths = Array.from({ length: numBolts }, () => 75 + Math.random() * 75);
+
+        const animate = () => {
+            ctx.clearRect(0, 0, w, h);
+            if (frame >= totalFrames) {
+                container.removeChild(canvas);
+                return;
+            }
+            const alpha = frame < 5
+                ? frame / 5
+                : Math.max(0, 1 - (frame - 5) / (totalFrames - 5));
+
+            angles.forEach((angle, i) => {
+                const len = lengths[i] * (0.75 + Math.random() * 0.5);
+                const ex = cx + Math.cos(angle) * len;
+                const ey = cy + Math.sin(angle) * len;
+
+                // 外側グロウ（橙）
+                ctx.strokeStyle = `rgba(255, 160, 0, ${alpha * 0.55})`;
+                ctx.lineWidth = 5;
+                ctx.shadowColor = '#ff8c00';
+                ctx.shadowBlur = 22;
+                drawBolt(cx, cy, ex, ey, 3);
+
+                // 本体（黄）
+                ctx.strokeStyle = `rgba(255, 230, 30, ${alpha})`;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#ffe000';
+                ctx.shadowBlur = 10;
+                drawBolt(cx, cy, ex, ey, 3);
+
+                // コア（白）
+                ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
+                ctx.lineWidth = 0.8;
+                ctx.shadowBlur = 4;
+                drawBolt(cx, cy, ex, ey, 2);
+            });
+
+            frame++;
+            requestAnimationFrame(animate);
+        };
+
+        animate();
     }
 
     _shakeScreen() {
