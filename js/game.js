@@ -1129,11 +1129,13 @@ class Game {
             return;
         }
 
-        // Heal Opportunity Logic (from python code)
-        // If HP <= half, not rare, not boss(10), 10% chance -> Heal Monster
+        // Heal Opportunity Logic: rate depends on remaining HP
+        // HP10→0%, HP9→3%, HP8→5%, HP7→10%, HP6→15%, HP5→20%, HP4→25%, HP3→30%, HP2→35%, HP1→40%
+        const HEAL_RATE_BY_HP = [0, 0.40, 0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.03, 0.00];
         const nextM = this.monsters[this.currentMonsterIdx];
-        if (this.playerHp / CONSTANTS.PLAYER_MAX_HP <= 0.5 && !nextM.isRare && nextM.number !== 10) {
-            if (Math.random() < 0.2) {
+        if (!nextM.isRare && nextM.number !== 10) {
+            const healRate = HEAL_RATE_BY_HP[this.playerHp] ?? 0;
+            if (healRate > 0 && Math.random() < healRate) {
                 // convert to heal
                 const newM = new Monster(nextM.number, false, true, nextM.opCount, nextM.leftDigits, nextM.rightDigits);
                 this.monsters[this.currentMonsterIdx] = newM;
