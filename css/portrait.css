@@ -446,6 +446,29 @@
     font-size: 56px !important;
 }
 
+/* --- じょうほうウィンドウ（縦画面） --- */
+#app.portrait-mode .info-content {
+    width: 740px;
+    padding: 44px 52px 52px;
+}
+
+#app.portrait-mode .info-section-title {
+    font-size: 38px;
+    margin: 0 0 18px;
+}
+
+#app.portrait-mode .info-row {
+    font-size: 38px;
+    padding: 10px 0;
+    gap: 20px;
+}
+
+#app.portrait-mode .info-close-btn {
+    font-size: 54px;
+    padding: 20px 80px;
+    margin-top: 8px;
+}
+
 /* --- Note Warning Overrides --- */
 #app.portrait-mode #note-warning-modal .overlay-content {
     max-width: 700px !important;

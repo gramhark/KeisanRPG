@@ -21,6 +21,7 @@ class Monster {
         this.hasEatenMeat = false;
         this.hasLickedSap = false;
         this.hasTransformed = false;
+        this.isAngry = false;
 
         // HP
         if (isRare || isHeal) {

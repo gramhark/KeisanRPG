@@ -24,6 +24,8 @@ class SoundManager {
         this.seMiss = document.getElementById('se-miss');
         this.seDodge = document.getElementById('se-dodge');
         this.seSPAttack = document.getElementById('se-spatattack');
+        this.bgmBossAngry = document.getElementById('bgm-bossangry');
+        this.seNote = document.getElementById('se-note');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -50,6 +52,8 @@ class SoundManager {
         this.seMiss.src = 'assets/audio/SE/miss.webm';
         this.seDodge.src = 'assets/audio/SE/dodge.webm';
         this.seSPAttack.src = 'assets/audio/SE/SPattack.webm';
+        this.bgmBossAngry.src = 'assets/audio/BGM/Bossangry.webm';
+        this.seNote.src = 'assets/audio/SE/note.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -127,7 +131,7 @@ class SoundManager {
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
-        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover].forEach(bgm => {
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover, this.bgmBossAngry].forEach(bgm => {
             if (bgm && bgm._fadeInterval) clearInterval(bgm._fadeInterval);
             if (bgm) bgm.pause();
             if (bgm) bgm.currentTime = 0;
@@ -157,11 +161,23 @@ class SoundManager {
             case 'miss': se = this.seMiss; break;
             case 'dodge': se = this.seDodge; break;
             case 'spatattack': se = this.seSPAttack; break;
+            case 'note': se = this.seNote; break;
         }
         if (se) {
             se.currentTime = 0;
             se.play().catch(() => { });
         }
+    }
+
+    playBossAngryBgm() {
+        // 現在のBGMを一時停止してボスいかりBGMへ差し替え（0.5秒フェードイン）
+        if (this.currentBgm) {
+            if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
+            this.currentBgm.pause();
+        }
+        this.currentBgm = this.bgmBossAngry;
+        this.bgmBossAngry.currentTime = 0;
+        this.fadeInBgm(this.bgmBossAngry, 0.5, 500);
     }
 
     unlockAll() {

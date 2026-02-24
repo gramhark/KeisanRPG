@@ -265,6 +265,94 @@
 }
 
 /* ============================================================
+   ボスカットインオーバーレイ
+   ============================================================ */
+.boss-cutin-overlay {
+    background: radial-gradient(circle at center, #2d0000 0%, #000 70%);
+    z-index: 120;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.boss-cutin-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 40px;
+    text-align: center;
+}
+
+/* 各要素はデフォルト非表示 — active クラス付与時にアニメーション開始 */
+.boss-cutin-label {
+    font-family: var(--font-pixel);
+    font-size: 72px;
+    color: #ff3333;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 1), 0 0 50px rgba(255, 0, 0, 0.8), 0 0 100px rgba(255, 0, 0, 0.4);
+    letter-spacing: 10px;
+    opacity: 0;
+}
+
+.boss-cutin-img {
+    max-width: 60%;
+    max-height: 45vh;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px rgba(255, 50, 0, 0.9)) drop-shadow(0 0 50px rgba(255, 0, 0, 0.6));
+    opacity: 0;
+}
+
+.boss-cutin-name {
+    font-family: var(--font-pixel);
+    font-size: 32px;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 100, 0, 0.8);
+    white-space: nowrap;
+    opacity: 0;
+}
+
+/* active クラスが付いた瞬間にアニメーション発火 */
+#boss-cutin-overlay.active .boss-cutin-label {
+    animation: boss-cutin-label-pop 0.4s cubic-bezier(0.2, 0, 0.2, 1.5) both;
+}
+
+#boss-cutin-overlay.active .boss-cutin-img {
+    animation: boss-cutin-img-zoom 0.6s 0.15s ease-out both;
+}
+
+#boss-cutin-overlay.active .boss-cutin-name {
+    animation: boss-cutin-name-rise 0.4s 0.6s ease-out both;
+}
+
+@keyframes boss-cutin-label-pop {
+    0%   { opacity: 0; transform: scale(2.2); }
+    70%  { opacity: 1; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes boss-cutin-img-zoom {
+    0%   { opacity: 0; transform: scale(0.1) translateY(20px); }
+    50%  { opacity: 1; transform: scale(1.15) translateY(0); }
+    100% { opacity: 1; transform: scale(1.0) translateY(0); }
+}
+
+@keyframes boss-cutin-name-rise {
+    0%   { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* フェードアウト */
+#boss-cutin-overlay.fade-out {
+    animation: boss-cutin-fadeout 0.5s ease-out forwards;
+}
+
+@keyframes boss-cutin-fadeout {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ============================================================
    戦闘離脱ボタン（battle-view 左端・ステージドットと同じ行）
    ============================================================ */
 .quit-battle-btn {
@@ -414,6 +502,7 @@
     color: #fff;
     font-weight: bold;
     text-align: right;
+    white-space: nowrap;
 }
 
 .info-value.sp-ready {

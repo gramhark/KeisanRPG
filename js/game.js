@@ -346,6 +346,9 @@ class Game {
         this.state = GameState.INTERVAL;
         const m = this.monsters[this.currentMonsterIdx];
 
+        // いかりクラスをリセット
+        document.querySelector('.monster-container').classList.remove('angry');
+
         // BGM Check (Boss or Normal or Rare or Heal)
         this.sound.playBgm(m.number === 10, m.isRare, m.isHeal);
 
@@ -356,8 +359,6 @@ class Game {
             msgHtml += `<br>かいふくの チャンスだ！`;
         }
         msgEl.innerHTML = msgHtml;
-
-        document.getElementById('interval-overlay').classList.add('active');
 
         // Preload Image & Reset Opacity
         const mImg = document.getElementById('monster-img');
@@ -375,6 +376,31 @@ class Game {
         const nameScale = m.name.length > 10 ? 10 / m.name.length : 1;
         monsterNameEl.style.setProperty('--monster-name-scale', nameScale);
         this._updateStageProgressUI();
+
+        // ボスの場合はカットインを表示してからインターバルオーバーレイを表示
+        if (m.number === 10) {
+            this._showBossCutIn(m, () => {
+                document.getElementById('interval-overlay').classList.add('active');
+            });
+        } else {
+            document.getElementById('interval-overlay').classList.add('active');
+        }
+    }
+
+    _showBossCutIn(m, onComplete) {
+        const overlay = document.getElementById('boss-cutin-overlay');
+        document.getElementById('boss-cutin-img').src = m.imageSrc;
+        document.getElementById('boss-cutin-name').textContent = m.name;
+        overlay.classList.remove('fade-out');
+        overlay.classList.add('active');
+        // 2秒表示後にフェードアウト
+        setTimeout(() => {
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                overlay.classList.remove('active', 'fade-out');
+                onComplete();
+            }, 500);
+        }, 2000);
     }
 
     _showInfoOverlay() {
@@ -424,6 +450,19 @@ class Game {
         renderRows(document.getElementById('info-enemy-rows'), enemyRows);
         renderRows(document.getElementById('info-player-rows'), playerRows);
         document.getElementById('info-overlay').classList.add('active');
+        // 表示後にはみ出しチェック → フォント縮小
+        requestAnimationFrame(() => this._fitInfoRows());
+    }
+
+    _fitInfoRows() {
+        document.querySelectorAll('#info-overlay .info-row').forEach(row => {
+            if (row.scrollWidth <= row.clientWidth) return;
+            let fs = parseFloat(window.getComputedStyle(row).fontSize);
+            while (row.scrollWidth > row.clientWidth && fs > 14) {
+                fs -= 1;
+                row.style.fontSize = fs + 'px';
+            }
+        });
     }
 
     _hideInfoOverlay() {
@@ -816,8 +855,31 @@ class Game {
             if (this.timerIntervalId) clearInterval(this.timerIntervalId);
             setTimeout(() => this._onMonsterDefeated(m), 1500);
         } else if (!hasEvent) {
-            // イベントなし＋HP残あり → モンスターターンへ
-            setTimeout(() => this.startMonsterTurn(), 1500);
+            // いかりチェック（HP残あり・未いかり・Rare/Heal以外・HP30%未満）
+            let angerTriggered = false;
+            if (!m.isAngry && m.hp > 0 && m.hpRatio < 0.3 && !m.isRare && !m.isHeal) {
+                const angerChance = m.number === 10 ? 0.1 : 0.05;
+                if (Math.random() < angerChance) {
+                    m.isAngry = true;
+                    m.attackPower += m.number === 10 ? 2 : 1;
+                    document.querySelector('.monster-container').classList.add('angry');
+                    angerTriggered = true;
+                    if (m.number === 10) {
+                        this.sound.playBossAngryBgm();
+                    }
+                }
+            }
+
+            if (angerTriggered) {
+                // 攻撃メッセージが終わってからいかりメッセージを表示
+                setTimeout(() => {
+                    this._showMessage(`${m.name}は\nいかりくるった！`, false, 1500, 'text-monster-action');
+                    setTimeout(() => this.startMonsterTurn(), 1500);
+                }, 1500);
+            } else {
+                // イベントなし＋HP残あり → モンスターターンへ
+                setTimeout(() => this.startMonsterTurn(), 1500);
+            }
         } else {
             // イベント発火（HP回復済み）→ モンスターターンへ
             this.startMonsterTurn();
@@ -1032,7 +1094,7 @@ class Game {
         });
 
         // Save to Monster Note
-        this._saveMonsterRecord(m, totalTime);
+        const isNewRecord = this._saveMonsterRecord(m, totalTime);
 
         this.sound.playSe('defeat');
         this._showMessage(`${m.name}\nをたおした！`, false, 1500, 'text-neutral');
@@ -1114,17 +1176,26 @@ class Game {
                     // dropSwordLevel / dropShieldLevel はデフォルトの nextSwordLevel / nextShieldLevel のまま
                 }
 
+                // ドロップ後にノート登録メッセージを挟むラッパー
+                const afterDrop = () => {
+                    if (isNewRecord) {
+                        this._showNoteRegistration(m.name, () => this._nextMonster());
+                    } else {
+                        this._nextMonster();
+                    }
+                };
+
                 if (swordDropped && shieldDropped) {
                     // 剣→盾の順でシーケンス実行
                     this._doSwordDrop(dropSwordLevel, () => {
-                        this._doShieldDrop(dropShieldLevel, () => this._nextMonster(), 0);
+                        this._doShieldDrop(dropShieldLevel, () => afterDrop(), 0);
                     }, 500);
                 } else if (swordDropped) {
-                    this._doSwordDrop(dropSwordLevel, () => this._nextMonster(), 500);
+                    this._doSwordDrop(dropSwordLevel, () => afterDrop(), 500);
                 } else if (shieldDropped) {
-                    this._doShieldDrop(dropShieldLevel, () => this._nextMonster(), 500);
+                    this._doShieldDrop(dropShieldLevel, () => afterDrop(), 500);
                 } else {
-                    setTimeout(() => this._nextMonster(), 1500);
+                    setTimeout(() => afterDrop(), 1500);
                 }
             }, delayAfterBonus);
 
@@ -1650,7 +1721,10 @@ class Game {
         const filename = parts[parts.length - 1];
         const monsterName = this._getMonsterName(filename);
 
-        if (!collection[monsterName]) {
+        if (!monsterName) return false; // 画像なし → 登録スキップ
+
+        const isNew = !collection[monsterName];
+        if (isNew) {
             collection[monsterName] = {
                 defeated: true,
                 fastestTime: time,
@@ -1671,6 +1745,13 @@ class Game {
         } catch (e) {
             console.warn("Storage write failed", e);
         }
+        return isNew;
+    }
+
+    _showNoteRegistration(monsterName, onComplete) {
+        this.sound.playSe('note');
+        this._showMessage(`${monsterName}が\nノートにとうろくされた！`, false, 2000, 'text-neutral');
+        setTimeout(onComplete, 2000);
     }
 
     showNote() {
