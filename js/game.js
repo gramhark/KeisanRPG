@@ -110,6 +110,11 @@ class Game {
         // Restart
         document.getElementById('restart-btn').addEventListener('click', () => location.reload()); // Simple reload
 
+        // Quit battle button
+        document.getElementById('quit-battle-btn').addEventListener('click', () => this._onQuitBattleBtnClick());
+        document.getElementById('quit-yes-btn').addEventListener('click', () => location.reload());
+        document.getElementById('quit-no-btn').addEventListener('click', () => this._resumeFromQuitConfirm());
+
         // Numpad
         document.querySelectorAll('.num-btn').forEach(btn => {
             btn.addEventListener('touchstart', (e) => { e.preventDefault(); this._handleInput(btn.dataset.key); });
@@ -1355,6 +1360,42 @@ class Game {
             el.className = 'attack-effect-img';
             el.src = '';
         }, { once: true });
+    }
+
+    // -------------------------------------------------------
+    // バトル離脱（一時停止 → 確認 → TOP遷移）
+    // -------------------------------------------------------
+    _onQuitBattleBtnClick() {
+        // BATTLE / TRANSITION 中のみ受け付ける
+        if (this.state !== GameState.BATTLE && this.state !== GameState.TRANSITION) return;
+
+        // タイマーを停止
+        if (this.timerIntervalId) {
+            clearInterval(this.timerIntervalId);
+            this.timerIntervalId = null;
+        }
+        // 一時停止前の状態と経過時間を保存
+        this._pausedState = this.state;
+        this._pausedElapsed = this.timerStart ? Date.now() - this.timerStart : 0;
+        this.state = GameState.TRANSITION;
+
+        document.getElementById('quit-confirm-overlay').classList.add('active');
+    }
+
+    _resumeFromQuitConfirm() {
+        document.getElementById('quit-confirm-overlay').classList.remove('active');
+
+        if (this._pausedState === GameState.BATTLE) {
+            // タイマーを経過時間分ずらして再開
+            this.state = GameState.BATTLE;
+            this.timerStart = Date.now() - (this._pausedElapsed || 0);
+            this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+            this._timerLoop();
+        } else {
+            this.state = this._pausedState || GameState.TRANSITION;
+        }
+        this._pausedState = null;
+        this._pausedElapsed = 0;
     }
 
     /**

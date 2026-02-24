@@ -79,6 +79,12 @@
                     <!-- Populated by JS -->
                 </div>
 
+                <button id="quit-battle-btn" class="quit-battle-btn" aria-label="トップにもどる">
+                    <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700"/>
+                    </svg>
+                </button>
+
                 <div class="monster-container">
                     <img id="monster-img" src="" alt="Monster">
                     <img id="attack-effect-img" class="attack-effect-img" src="" alt="" aria-hidden="true">
@@ -141,6 +147,17 @@
                         <button class="num-btn" data-key="0">0</button>
                         <button class="num-btn action-btn green" data-key="ENTER">いけ!</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quit Battle Confirm Overlay -->
+        <div id="quit-confirm-overlay" class="overlay">
+            <div class="overlay-content quit-confirm-content">
+                <p class="quit-confirm-msg">バトルを<br>やめる？</p>
+                <div class="quit-confirm-buttons">
+                    <button id="quit-yes-btn" class="primary-btn">はい</button>
+                    <button id="quit-no-btn" class="orange-btn">いいえ</button>
                 </div>
             </div>
         </div>
