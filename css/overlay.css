@@ -296,8 +296,8 @@
 }
 
 .boss-cutin-img {
-    max-width: 60%;
-    max-height: 45vh;
+    max-width: 82%;
+    max-height: 62vh;
     object-fit: contain;
     filter: drop-shadow(0 0 15px rgba(255, 50, 0, 0.9)) drop-shadow(0 0 50px rgba(255, 0, 0, 0.6));
     opacity: 0;
@@ -318,7 +318,7 @@
 }
 
 #boss-cutin-overlay.active .boss-cutin-img {
-    animation: boss-cutin-img-zoom 0.6s 0.15s ease-out both;
+    animation: boss-cutin-img-zoom 1.6s 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
 #boss-cutin-overlay.active .boss-cutin-name {
@@ -332,9 +332,10 @@
 }
 
 @keyframes boss-cutin-img-zoom {
-    0%   { opacity: 0; transform: scale(0.1) translateY(20px); }
-    50%  { opacity: 1; transform: scale(1.15) translateY(0); }
-    100% { opacity: 1; transform: scale(1.0) translateY(0); }
+    0%   { opacity: 0;   transform: scale(0.05) translateY(40px); }
+    30%  { opacity: 1;   transform: scale(0.6)  translateY(10px); }
+    75%  { opacity: 1;   transform: scale(1.08) translateY(0); }
+    100% { opacity: 1;   transform: scale(1.0)  translateY(0); }
 }
 
 @keyframes boss-cutin-name-rise {
@@ -350,6 +351,17 @@
 @keyframes boss-cutin-fadeout {
     0%   { opacity: 1; }
     100% { opacity: 0; }
+}
+
+/* ボス登場時：interval-overlay の画像をズームイン後にバウンス */
+#interval-overlay.boss-entrance .interval-img {
+    animation: boss-interval-enter 0.5s ease-out both,
+               bounce 2s 0.5s infinite ease-in-out;
+}
+
+@keyframes boss-interval-enter {
+    0%   { opacity: 0; transform: scale(0.3) translateY(0); }
+    100% { opacity: 1; transform: scale(1)   translateY(0); }
 }
 
 /* ============================================================
@@ -437,6 +449,11 @@
     display: flex;
     gap: 28px;
     margin-bottom: 32px;
+}
+
+#app.portrait-mode .info-content {
+    width: 1020px;
+    max-width: 96%;
 }
 
 #app.portrait-mode .info-sections {

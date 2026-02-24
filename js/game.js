@@ -380,7 +380,7 @@ class Game {
         // ボスの場合はカットインを表示してからインターバルオーバーレイを表示
         if (m.number === 10) {
             this._showBossCutIn(m, () => {
-                document.getElementById('interval-overlay').classList.add('active');
+                document.getElementById('interval-overlay').classList.add('active', 'boss-entrance');
             });
         } else {
             document.getElementById('interval-overlay').classList.add('active');
@@ -393,12 +393,12 @@ class Game {
         document.getElementById('boss-cutin-name').textContent = m.name;
         overlay.classList.remove('fade-out');
         overlay.classList.add('active');
-        // 2秒表示後にフェードアウト
+        // 2秒表示後：フェードアウト開始と同時にinterval-overlayを表示（戦闘画面チラ見え防止）
         setTimeout(() => {
             overlay.classList.add('fade-out');
+            onComplete(); // フェードアウト開始と同時にinterval表示
             setTimeout(() => {
                 overlay.classList.remove('active', 'fade-out');
-                onComplete();
             }, 500);
         }, 2000);
     }
@@ -428,13 +428,13 @@ class Game {
         const enemyRows = [
             { label: 'なまえ', value: m.name },
             { label: 'HP', value: `${m.hp} / ${m.maxHp}` },
-            { label: 'こうげきりょく', value: String(m.attackPower) },
+            { label: 'こうげき', value: String(m.attackPower) },
         ];
 
         const playerRows = [
-            { label: 'こうげきりょく', value: String(playerAtk) },
-            { label: 'ぼうぎょりょく', value: shield ? String(playerDef) : 'なし' },
-            { label: 'たての たいきゅう', value: shield ? `${this.shieldDurability} / ${shield.maxDurability}` : 'なし' },
+            { label: 'こうげき', value: String(playerAtk) },
+            { label: 'ぼうぎょ', value: shield ? String(playerDef) : 'なし' },
+            { label: 'たて', value: shield ? `${this.shieldDurability} / ${shield.maxDurability}` : 'なし' },
             { label: 'オーラ', value: auraText, highlight: auraHighlight },
         ];
 
@@ -508,7 +508,7 @@ class Game {
         });
     }
     startBattle() {
-        document.getElementById('interval-overlay').classList.remove('active');
+        document.getElementById('interval-overlay').classList.remove('active', 'boss-entrance');
         this.state = GameState.TRANSITION; // Block during announcement
 
         const isBoss = this.monsters[this.currentMonsterIdx].number === 10;
