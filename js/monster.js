@@ -191,13 +191,13 @@ function findMonsterImage(monster) {
 
     if (candidates.length === 0) return '';
 
-    // 重み付き抽選：出現条件OK かつ ノート未登録のヤン系は重み 1.15、それ以外は 1.0
+    // 重み付き抽選：出現条件OK かつ ノート未登録のヤン系は重み 10.0、それ以外は 1.0
     const weights = candidates.map(f => {
         let n = f.replace(/\.(webp|png|jpg|jpeg)$/i, '');
         n = n.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
         const isYan = YAN_SERIES_ORDER.indexOf(n) !== -1;
         const inCollection = collection[n] && collection[n].defeated;
-        return (isYan && !inCollection) ? 1.15 : 1.0;
+        return (isYan && !inCollection) ? 10.0 : 1.0;
     });
     const totalWeight = weights.reduce((s, w) => s + w, 0);
     let rand = Math.random() * totalWeight;

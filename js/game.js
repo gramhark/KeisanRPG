@@ -109,6 +109,10 @@ class Game {
         document.getElementById('info-btn').addEventListener('click', () => this._showInfoOverlay());
         document.getElementById('info-close-btn').addEventListener('click', () => this._hideInfoOverlay());
 
+        // Boss cutin buttons (ボスカットイン画面内のボタン)
+        document.getElementById('boss-battle-start-btn').addEventListener('click', () => this._onBossCutinBattleStart());
+        document.getElementById('boss-info-btn').addEventListener('click', () => this._showInfoOverlay());
+
         // Restart
         document.getElementById('restart-btn').addEventListener('click', () => location.reload()); // Simple reload
 
@@ -377,30 +381,59 @@ class Game {
         monsterNameEl.style.setProperty('--monster-name-scale', nameScale);
         this._updateStageProgressUI();
 
-        // ボスの場合はカットインを表示してからインターバルオーバーレイを表示
+        // ボスの場合はカットインを表示（interval-overlay は使わない）
         if (m.number === 10) {
-            this._showBossCutIn(m, () => {
-                document.getElementById('interval-overlay').classList.add('active', 'boss-entrance');
-            });
+            this._showBossCutIn(m);
         } else {
             document.getElementById('interval-overlay').classList.add('active');
         }
     }
 
-    _showBossCutIn(m, onComplete) {
+    _showBossCutIn(m) {
         const overlay = document.getElementById('boss-cutin-overlay');
-        document.getElementById('boss-cutin-img').src = m.imageSrc;
-        document.getElementById('boss-cutin-name').textContent = m.name;
+        const imgEl = document.getElementById('boss-cutin-img');
+        const labelEl = overlay.querySelector('.boss-cutin-label');
+        const nameEl = document.getElementById('boss-cutin-name');
+        const btnsEl = document.getElementById('boss-cutin-btns');
+
+        // リセット
+        imgEl.src = m.imageSrc;
+        nameEl.textContent = m.name;
+        imgEl.classList.remove('zoom-up');
+        labelEl.classList.remove('fade-out-el');
+        nameEl.classList.remove('fade-out-el');
+        btnsEl.classList.remove('visible');
         overlay.classList.remove('fade-out');
         overlay.classList.add('active');
-        // 2秒表示後：フェードアウト開始と同時にinterval-overlayを表示（戦闘画面チラ見え防止）
+
+        // 2秒後: ラベル・名前フェードアウト + 画像ズームアップ
         setTimeout(() => {
-            overlay.classList.add('fade-out');
-            onComplete(); // フェードアウト開始と同時にinterval表示
+            labelEl.classList.add('fade-out-el');
+            nameEl.classList.add('fade-out-el');
+            imgEl.classList.add('zoom-up');
+
+            // 0.5秒後: ボタン表示
             setTimeout(() => {
-                overlay.classList.remove('active', 'fade-out');
+                btnsEl.classList.add('visible');
             }, 500);
         }, 2000);
+    }
+
+    _onBossCutinBattleStart() {
+        const overlay = document.getElementById('boss-cutin-overlay');
+        const imgEl = document.getElementById('boss-cutin-img');
+        const labelEl = overlay.querySelector('.boss-cutin-label');
+        const nameEl = document.getElementById('boss-cutin-name');
+        const btnsEl = document.getElementById('boss-cutin-btns');
+
+        // カットインオーバーレイを非表示にしてバトル開始
+        overlay.classList.remove('active');
+        imgEl.classList.remove('zoom-up');
+        labelEl.classList.remove('fade-out-el');
+        nameEl.classList.remove('fade-out-el');
+        btnsEl.classList.remove('visible');
+
+        this.startBattle();
     }
 
     _showInfoOverlay() {
@@ -427,15 +460,16 @@ class Game {
 
         const enemyRows = [
             { label: 'なまえ', value: m.name },
-            { label: 'HP', value: `${m.hp} / ${m.maxHp}` },
-            { label: 'こうげき', value: String(m.attackPower) },
+            { label: 'たいりょく', value: `${m.hp} / ${m.maxHp}` },
+            { label: 'こうげきりょく', value: String(m.attackPower) },
         ];
 
         const playerRows = [
-            { label: 'こうげき', value: String(playerAtk) },
-            { label: 'ぼうぎょ', value: shield ? String(playerDef) : 'なし' },
-            { label: 'たて', value: shield ? `${this.shieldDurability} / ${shield.maxDurability}` : 'なし' },
-            { label: 'オーラ', value: auraText, highlight: auraHighlight },
+            { label: 'たいりょく', value: `${this.playerHp} / ${CONSTANTS.PLAYER_MAX_HP}` },
+            { label: 'こうげきりょく', value: String(playerAtk) },
+            { label: 'ぼうぎょりょく', value: shield ? String(playerDef) : 'なし' },
+            { label: 'たてのたいきゅう', value: shield ? `${this.shieldDurability} / ${shield.maxDurability}` : 'なし' },
+            { label: 'オーラレベル', value: auraText, highlight: auraHighlight },
         ];
 
         const renderRows = (el, rows) => {
@@ -1497,8 +1531,8 @@ class Game {
     // バトル離脱（一時停止 → 確認 → TOP遷移）
     // -------------------------------------------------------
     _onQuitBattleBtnClick() {
-        // BATTLE / TRANSITION 中のみ受け付ける
-        if (this.state !== GameState.BATTLE && this.state !== GameState.TRANSITION) return;
+        // BATTLE 中のみ受け付ける（TRANSITION中は演出中のため受け付けない）
+        if (this.state !== GameState.BATTLE) return;
 
         // タイマーを停止
         if (this.timerIntervalId) {
@@ -1506,7 +1540,7 @@ class Game {
             this.timerIntervalId = null;
         }
         // 一時停止前の状態と経過時間を保存
-        this._pausedState = this.state;
+        this._pausedState = GameState.BATTLE;
         this._pausedElapsed = this.timerStart ? Date.now() - this.timerStart : 0;
         this.state = GameState.TRANSITION;
 
@@ -1516,15 +1550,12 @@ class Game {
     _resumeFromQuitConfirm() {
         document.getElementById('quit-confirm-overlay').classList.remove('active');
 
-        if (this._pausedState === GameState.BATTLE) {
-            // タイマーを経過時間分ずらして再開
-            this.state = GameState.BATTLE;
-            this.timerStart = Date.now() - (this._pausedElapsed || 0);
-            this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
-            this._timerLoop();
-        } else {
-            this.state = this._pausedState || GameState.TRANSITION;
-        }
+        // 常にBATTLE状態から再開（タイマーを経過時間分ずらして再起動）
+        this.state = GameState.BATTLE;
+        this.timerStart = Date.now() - (this._pausedElapsed || 0);
+        this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+        this._timerLoop();
+
         this._pausedState = null;
         this._pausedElapsed = 0;
     }

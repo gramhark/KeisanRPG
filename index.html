@@ -81,7 +81,7 @@
 
                 <button id="quit-battle-btn" class="quit-battle-btn" aria-label="トップにもどる">
                     <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700"/>
+                        <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
                     </svg>
                 </button>
 
@@ -168,6 +168,11 @@
                 <div class="boss-cutin-label">BOSS！</div>
                 <img id="boss-cutin-img" class="boss-cutin-img" src="" alt="">
                 <div id="boss-cutin-name" class="boss-cutin-name"></div>
+                <!-- ズームアップ後に表示されるボタン -->
+                <div id="boss-cutin-btns" class="boss-cutin-btns interval-btns">
+                    <button id="boss-battle-start-btn" class="orange-btn">たたかう</button>
+                    <button id="boss-info-btn" class="primary-btn">じょうほう</button>
+                </div>
             </div>
         </div>
 
@@ -188,12 +193,12 @@
             <div class="overlay-content info-content">
                 <div class="info-sections">
                     <div class="info-section">
-                        <h3 class="info-section-title enemy-title">てきじょうほう</h3>
+                        <h3 class="info-section-title enemy-title">モンスターじょうほう</h3>
                         <div class="info-rows" id="info-enemy-rows"></div>
                     </div>
                     <div class="info-divider"></div>
                     <div class="info-section">
-                        <h3 class="info-section-title player-title">ステータス</h3>
+                        <h3 class="info-section-title player-title">じぶんのじょうほう</h3>
                         <div class="info-rows" id="info-player-rows"></div>
                     </div>
                 </div>
