@@ -9,11 +9,23 @@ const NORMAL_ATK = [0, 1, 1, 1, 2, 2, 2, 3, 3, 4];
 const BOSS_HP = [0, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20];
 const BOSS_ATK = [0, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7];
 
+/* ============================================================
+   Special シリーズ 固有セリフ定義
+   Specialモンスターを追加するときはここにセリフを追加する
+   ============================================================ */
+const SPECIAL_MONSTER_DATA = {
+    'ミスターといし': {
+        quote: 'ぶきをつよくしてやろうか・・？'
+    }
+    // 今後のSpecialモンスターはここに追加
+};
+
 class Monster {
-    constructor(number, isRare, isHeal, opCount, leftDigits, rightDigits) {
+    constructor(number, isRare, isHeal, opCount, leftDigits, rightDigits, isSpecial = false) {
         this.number = number;
         this.isRare = isRare;
         this.isHeal = isHeal;
+        this.isSpecial = isSpecial;
         this.opCount = opCount;
         this.leftDigits = leftDigits;
         this.rightDigits = rightDigits; // needed for boss06 check logic
@@ -24,7 +36,7 @@ class Monster {
         this.isAngry = false;
 
         // HP
-        if (isRare || isHeal) {
+        if (isRare || isHeal || isSpecial) {
             this.maxHp = 1;
         } else if (number === 10) {
             const bId = this.bossId;
@@ -33,8 +45,10 @@ class Monster {
             this.maxHp = NORMAL_HP[number] || 1;
         }
 
-        // 攻撃力（Rare/Heal はステージ番号に対応する値を使用）
-        if (number === 10) {
+        // 攻撃力（Rare/Heal/Special はステージ番号に対応する値を使用）
+        if (isSpecial) {
+            this.attackPower = 1;
+        } else if (number === 10) {
             const bId = this.bossId;
             this.attackPower = BOSS_ATK[bId] || 4;
         } else {
@@ -49,6 +63,7 @@ class Monster {
     _getName() {
         if (this.isRare) return "レアモンスター";
         if (this.isHeal) return "回復モンスター";
+        if (this.isSpecial) return "スペシャルモンスター";
         return `モンスター #${this.number}`;
     }
 
@@ -161,6 +176,8 @@ function findMonsterImage(monster) {
         candidates = assets.filter(f => f.toLowerCase().startsWith('rare_'));
     } else if (monster.isHeal) {
         candidates = assets.filter(f => f.toLowerCase().startsWith('heal_'));
+    } else if (monster.isSpecial) {
+        candidates = assets.filter(f => f.toLowerCase().startsWith('special_'));
     } else {
         // Try specific Boss prefix first if it's the boss stage (10)
         if (monster.number === 10) {
@@ -175,9 +192,9 @@ function findMonsterImage(monster) {
         }
     }
 
-    // ヤン系モンスターの出現制限チェック（Rare・Heal は対象外）
+    // ヤン系モンスターの出現制限チェック（Rare・Heal・Special は対象外）
     let collection = {};
-    if (!monster.isRare && !monster.isHeal) {
+    if (!monster.isRare && !monster.isHeal && !monster.isSpecial) {
         try {
             const stored = localStorage.getItem('math_battle_collection_v1');
             if (stored) collection = JSON.parse(stored);
@@ -211,8 +228,13 @@ function findMonsterImage(monster) {
     // E.g. 01_もちもち.webp -> もちもち
     let name = choice.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     // Remove prefixes
-    name = name.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
+    name = name.replace(/^(rare_|heal_|special_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
     monster.name = name; // Update name in place
+    // Special: セリフを設定する
+    if (monster.isSpecial) {
+        const specialData = SPECIAL_MONSTER_DATA[name];
+        monster.quote = specialData ? specialData.quote : '';
+    }
 
     return `assets/image/monster/${choice}`;
 }

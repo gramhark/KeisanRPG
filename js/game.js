@@ -25,6 +25,7 @@ class Game {
         this.swordLevel = 0;
         this.shieldLevel = 0;
         this.shieldDurability = 0;
+        this.swordBonus = 0; // Special_モンスター撃破による武器補正
 
         this.dodgeStreak = 0;       // 連続回避カウント (0–3)
         this.specialMoveReady = false; // 必殺技待機フラグ
@@ -199,17 +200,26 @@ class Game {
         // Init Monsters
         this.monsters = [];
         const opCount = this.operators.length;
+        let hasSpecial = false;
         for (let i = 1; i <= CONSTANTS.TOTAL_MONSTERS; i++) {
             let isRare = false;
+            let isSpecial = false;
             if (i !== CONSTANTS.TOTAL_MONSTERS) {
-                isRare = Math.random() < 0.02;
-
+                // Special判定を先にする（ボス戦除外）
+                // 1回しか出ないように、既に決定済みの場合はスキップする
+                if (!hasSpecial && Math.random() < 0.05) {
+                    isSpecial = true;
+                    hasSpecial = true;
+                } else {
+                    isRare = Math.random() < 0.02;
+                }
             }
-            const m = new Monster(i, isRare, false, opCount, this.leftDigits, this.rightDigits);
+            const m = new Monster(i, isRare, false, opCount, this.leftDigits, this.rightDigits, isSpecial);
             this.monsters.push(m);
         }
 
         this.currentMonsterIdx = 0;
+        this.swordBonus = 0; // Special_モンスター撃破による武器補正
         this.swordLevel = 0; // ぼうを最初から持つ
         this.shieldLevel = 0;
         this.shieldDurability = 0;
@@ -217,9 +227,13 @@ class Game {
         this.specialMoveReady = false;
         const swordLabelEl = document.getElementById('sword-label');
         swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
+        swordLabelEl.classList.remove('equip-flash');
+        void swordLabelEl.offsetWidth;
+        swordLabelEl.classList.add('equip-flash');
         document.getElementById('sword-aura-wrapper').style.display = 'inline-flex';
         this._updateAuraUI();
         document.getElementById('shield-label').style.display = 'none';
+        document.getElementById('shield-label').classList.remove('equip-flash');
         this.defeatTimes = [];
 
         // Switch Screen
@@ -353,8 +367,8 @@ class Game {
         // いかりクラスをリセット
         document.querySelector('.monster-container').classList.remove('angry');
 
-        // BGM Check (Boss or Normal or Rare or Heal)
-        this.sound.playBgm(m.number === 10, m.isRare, m.isHeal);
+        // BGM Check (Boss or Normal or Rare or Heal or Special)
+        this.sound.playBgm(m.number === 10, m.isRare, m.isHeal, m.isSpecial);
 
         // Fixed 3-line centered message format
         const msgEl = document.getElementById('interval-msg');
@@ -363,6 +377,16 @@ class Game {
             msgHtml += `<br>かいふくの チャンスだ！`;
         }
         msgEl.innerHTML = msgHtml;
+
+        // Special: セリフを表示する
+        const quoteEl = document.getElementById('special-quote');
+        if (m.isSpecial && m.quote) {
+            quoteEl.textContent = `「${m.quote}」`;
+            quoteEl.style.display = 'block';
+        } else {
+            quoteEl.textContent = '';
+            quoteEl.style.display = 'none';
+        }
 
         // Preload Image & Reset Opacity
         const mImg = document.getElementById('monster-img');
@@ -440,7 +464,7 @@ class Game {
         const m = this.monsters[this.currentMonsterIdx];
         const sword = SWORD_DATA[this.swordLevel];
         const shield = SHIELD_DATA[this.shieldLevel];
-        const playerAtk = CONSTANTS.NORMAL_DAMAGE + sword.bonus;
+        const playerAtk = CONSTANTS.NORMAL_DAMAGE + sword.bonus + this.swordBonus;
         const playerDef = shield ? shield.reduction : 0;
 
         // オーラ段階テキスト
@@ -838,9 +862,9 @@ class Game {
 
         const isCrit = elapsed <= CONSTANTS.CRITICAL_THRESHOLD;
 
-        // 【新ダメージ計算式】 ((基本1 × クリ補正) + けん補正) × 必殺技補正
+        // 【新ダメージ計算式】 ((基本1 × クリ補正) + けん補正 + Special補正) × 必殺技補正
         const critMult = isCrit ? CONSTANTS.CRITICAL_DAMAGE : CONSTANTS.NORMAL_DAMAGE;
-        let damage = (CONSTANTS.NORMAL_DAMAGE * critMult) + SWORD_DATA[this.swordLevel].bonus;
+        let damage = (CONSTANTS.NORMAL_DAMAGE * critMult) + SWORD_DATA[this.swordLevel].bonus + this.swordBonus;
 
         // 必殺技発動
         const isSpecial = this.specialMoveReady;
@@ -891,7 +915,7 @@ class Game {
         } else if (!hasEvent) {
             // いかりチェック（HP残あり・未いかり・Rare/Heal以外・HP30%未満）
             let angerTriggered = false;
-            if (!m.isAngry && m.hp > 0 && m.hpRatio < 0.3 && !m.isRare && !m.isHeal) {
+            if (!m.isAngry && m.hp > 0 && m.hpRatio < 0.3 && !m.isRare && !m.isHeal && !m.isSpecial) {
                 const angerChance = m.number === 10 ? 0.1 : 0.05;
                 if (Math.random() < angerChance) {
                     m.isAngry = true;
@@ -1143,7 +1167,22 @@ class Game {
             let hasBonus = false;
 
             // Bonuses
-            if (m.isRare) {
+            if (m.isSpecial) {
+                // Special: ドロップなし → 武器補正 +1 → ノート登録
+                this.swordBonus += 1;
+                this.sound.playSe('atkup');
+                this._showAtkUpEffect();
+                hasBonus = true;
+                this._showMessage('けんのつよさが\nあがった！', false, 2000, 'text-player-action');
+                setTimeout(() => {
+                    if (isNewRecord) {
+                        this._showNoteRegistration(m.name, () => this._nextMonster());
+                    } else {
+                        this._nextMonster();
+                    }
+                }, 2000);
+                return; // Specialは独自フロー
+            } else if (m.isRare) {
                 // レアモンスターは攻撃バフなし（装備ドロップのみ）
                 // hasBonus は false のまま → ドロップ演出まで待機なし
             } else if (m.isHeal) {
@@ -1252,6 +1291,9 @@ class Game {
                 this.swordLevel = level;
                 const swordLabelEl = document.getElementById('sword-label');
                 swordLabelEl.src = 'assets/image/equipment/' + sword.img;
+                swordLabelEl.classList.remove('equip-flash');
+                void swordLabelEl.offsetWidth;
+                swordLabelEl.classList.add('equip-flash');
                 document.getElementById('sword-aura-wrapper').style.display = 'inline-flex';
                 this.sound.playSe('equip');
                 this._showMessage(`${sword.name}を\nそうびした！`, false, 2000, 'text-neutral');
@@ -1282,6 +1324,9 @@ class Game {
                 const shieldLabelEl = document.getElementById('shield-label');
                 shieldLabelEl.src = 'assets/image/equipment/' + shield.img;
                 shieldLabelEl.style.display = 'inline-block';
+                shieldLabelEl.classList.remove('equip-flash');
+                void shieldLabelEl.offsetWidth;
+                shieldLabelEl.classList.add('equip-flash');
                 this.sound.playSe('equip');
                 this._showMessage(`${shield.name}を\nそうびした！`, false, 2000, 'text-neutral');
 
@@ -1304,7 +1349,7 @@ class Game {
         // HP10→0%, HP9→3%, HP8→5%, HP7→10%, HP6→15%, HP5→20%, HP4→25%, HP3→30%, HP2→35%, HP1→40%
         const HEAL_RATE_BY_HP = [0, 0.40, 0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.03, 0.00];
         const nextM = this.monsters[this.currentMonsterIdx];
-        if (!nextM.isRare && nextM.number !== 10) {
+        if (!nextM.isRare && !nextM.isSpecial && nextM.number !== 10) {
             const healRate = HEAL_RATE_BY_HP[this.playerHp] ?? 0;
             if (healRate > 0 && Math.random() < healRate) {
                 // convert to heal
@@ -1681,6 +1726,25 @@ class Game {
         animate();
     }
 
+    /**
+     * Special_モンスター撃破時: 青いグラデーションを下から上に走らせるエフェクト
+     */
+    _showAtkUpEffect() {
+        const panel = document.querySelector('.panel');
+        if (!panel) return;
+
+        // 既存のエフェクト要素を除去
+        const old = panel.querySelector('.atkup-effect');
+        if (old) old.remove();
+
+        const el = document.createElement('div');
+        el.className = 'atkup-effect';
+        panel.appendChild(el);
+
+        // アニメーション終了後に削除
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+    }
+
     _shakeScreen() {
         const target = document.querySelector('.screen.active');
         if (!target) return;
@@ -1733,7 +1797,7 @@ class Game {
        ============================================================ */
     _getMonsterName(filename) {
         let name = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-        name = name.replace(/^(rare_|heal_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
+        name = name.replace(/^(rare_|heal_|special_|boss\d+next_|boss\d+_|\d+_|lastboss_)/i, '');
         return name;
     }
 
@@ -1819,6 +1883,8 @@ class Game {
             let category = 'その他';
             if (filename.toLowerCase().startsWith('boss') || filename.toLowerCase().startsWith('lastboss')) {
                 category = 'ボス';
+            } else if (filename.toLowerCase().startsWith('special')) {
+                category = 'とくべつ';
             } else if (filename.toLowerCase().startsWith('heal')) {
                 category = 'かいふく';
             } else if (filename.toLowerCase().startsWith('rare')) {

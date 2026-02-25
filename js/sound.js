@@ -26,6 +26,8 @@ class SoundManager {
         this.seSPAttack = document.getElementById('se-spatattack');
         this.bgmBossAngry = document.getElementById('bgm-bossangry');
         this.seNote = document.getElementById('se-note');
+        this.bgmSpecial = document.getElementById('bgm-special');
+        this.seAtkUp = document.getElementById('se-atkup');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -54,6 +56,8 @@ class SoundManager {
         this.seSPAttack.src = 'assets/audio/SE/SPattack.webm';
         this.bgmBossAngry.src = 'assets/audio/BGM/Bossangry.webm';
         this.seNote.src = 'assets/audio/SE/note.webm';
+        this.bgmSpecial.src = 'assets/audio/BGM/mrtoisi.webm';
+        this.seAtkUp.src = 'assets/audio/SE/ATKup.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -98,12 +102,13 @@ class SoundManager {
         }, stepTime);
     }
 
-    playBgm(isBoss, isRare = false, isHeal = false) {
+    playBgm(isBoss, isRare = false, isHeal = false, isSpecial = false) {
         // Stop current if different
         let target = this.bgmBattle;
         if (isBoss) target = this.bgmBoss;
         else if (isRare) target = this.bgmRare;
         else if (isHeal) target = this.bgmHeal;
+        else if (isSpecial) target = this.bgmSpecial;
         if (this.currentBgm && this.currentBgm !== target) {
             if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
             this.currentBgm.pause();
@@ -114,8 +119,8 @@ class SoundManager {
         }
         if (this.currentBgm !== target || target.paused) {
             this.currentBgm = target;
-            if (target === this.bgmRare || target === this.bgmHeal) {
-                this.fadeInBgm(target, 0.5, 500);
+            if (target === this.bgmRare || target === this.bgmHeal || target === this.bgmSpecial) {
+                this.fadeInBgm(target, 0.5, 1000); // Specialは1秒FI
             } else {
                 this.currentBgm.volume = 0.5;
                 this.currentBgm.play().catch(e => console.log('Audio play failed (user interact needed)', e));
@@ -131,7 +136,7 @@ class SoundManager {
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
-        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover, this.bgmBossAngry].forEach(bgm => {
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover, this.bgmBossAngry, this.bgmSpecial].forEach(bgm => {
             if (bgm && bgm._fadeInterval) clearInterval(bgm._fadeInterval);
             if (bgm) bgm.pause();
             if (bgm) bgm.currentTime = 0;
@@ -162,6 +167,7 @@ class SoundManager {
             case 'dodge': se = this.seDodge; break;
             case 'spatattack': se = this.seSPAttack; break;
             case 'note': se = this.seNote; break;
+            case 'atkup': se = this.seAtkUp; break;
         }
         if (se) {
             se.currentTime = 0;

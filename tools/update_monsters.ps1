@@ -14,6 +14,7 @@ $Files = Get-ChildItem -Path $ImgDir -Include *.webp, *.png, *.jpg, *.jpeg -Recu
 # Custom Sort: Lastboss before Heal
 $Files = $Files | Sort-Object {
     if ($_.Name -like "Boss16next_*") { 80 }
+    elseif ($_.Name -like "Special_*") { 85 }
     elseif ($_.Name -like "Heal_*") { 90 }
     elseif ($_.Name -like "Rare_*") { 100 }
     else { 0 }

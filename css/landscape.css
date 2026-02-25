@@ -135,6 +135,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    position: relative;
+    overflow: hidden;
 }
 
 #app.landscape-mode .panel-section {
@@ -463,5 +465,3 @@
     padding: 16px 48px;
     font-size: 28px;
 }
-
-

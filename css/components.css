@@ -437,6 +437,27 @@ input[type="text"]:focus {
     animation: blink-damage 0.2s step-end;
 }
 
+/* 装備時の高速点滅 (3回点滅) */
+@keyframes equip-blink {
+
+    0%,
+    33.3%,
+    66.6% {
+        opacity: 0;
+    }
+
+    16.6%,
+    49.9%,
+    83.3%,
+    100% {
+        opacity: 1;
+    }
+}
+
+.equip-flash {
+    animation: equip-blink 0.4s linear forwards;
+}
+
 /* クリティカル：速い5回点滅 */
 @keyframes blink-critical {
     0% {
@@ -896,4 +917,72 @@ input[type="text"]:focus {
 .time-slowest {
     color: #ff4b4b !important;
     text-shadow: 0 0 8px rgba(255, 75, 75, 0.6);
+}
+
+/* ============================================================
+   Special_モンスター セリフ表示
+   ============================================================ */
+.special-quote {
+    display: none;
+    text-align: center;
+    font-family: var(--font-pixel);
+    font-size: 22px;
+    color: #a0e0ff;
+    text-shadow: 0 0 8px rgba(100, 200, 255, 0.8), 0 0 20px rgba(100, 200, 255, 0.4);
+    background: rgba(0, 60, 120, 0.55);
+    border: 2px solid rgba(100, 200, 255, 0.4);
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin-bottom: 8px;
+    max-width: 90%;
+    word-break: break-all;
+    animation: specialQuoteFadeIn 0.5s ease-out;
+}
+
+@keyframes specialQuoteFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   ATKupエフェクト（青いグラデーションが下から上へ走る）
+   パネルエリア（ユーザーウィンドウ）に対して適用
+   ============================================================ */
+.atkup-effect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    background: linear-gradient(to top,
+            rgba(0, 180, 255, 0.55) 0%,
+            rgba(0, 120, 255, 0.35) 30%,
+            rgba(0, 80, 200, 0.15) 60%,
+            transparent 100%);
+    pointer-events: none;
+    z-index: 25;
+    animation: atkUpSweep 0.9s ease-out forwards;
+}
+
+@keyframes atkUpSweep {
+    0% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: translateY(-110%);
+        opacity: 0;
+    }
 }
