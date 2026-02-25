@@ -132,6 +132,13 @@ class Game {
         document.addEventListener('keydown', (e) => {
             // Interval Screen (Fight Start)
             if (this.state === GameState.INTERVAL && e.key === 'Enter') {
+                // ボスカットインオーバーレイが表示中の場合は「たたかう」ボタンを使う
+                const bossCutin = document.getElementById('boss-cutin-overlay');
+                const btnsVisible = document.getElementById('boss-cutin-btns').classList.contains('visible');
+                if (bossCutin && bossCutin.classList.contains('active')) {
+                    if (btnsVisible) this._onBossCutinBattleStart();
+                    return;
+                }
                 this.startBattle();
                 return;
             }
@@ -378,10 +385,19 @@ class Game {
         }
         msgEl.innerHTML = msgHtml;
 
-        // Special: セリフを表示する
+        // セリフウィンドウの決定（interval-overlay 内）
+        // 優先順: Special固有セリフ → ヤンシリーズ自己紹介 → 非表示
+        // ※ボスのセリフはboss-cutin-quoteで処理するためここでは不要
         const quoteEl = document.getElementById('special-quote');
+        const isYanMonster = typeof YAN_SERIES_ORDER !== 'undefined' && YAN_SERIES_ORDER.indexOf(m.name) !== -1;
+
         if (m.isSpecial && m.quote) {
+            // Special固有セリフ
             quoteEl.textContent = `「${m.quote}」`;
+            quoteEl.style.display = 'block';
+        } else if (isYanMonster) {
+            // ヤンシリーズは自分の名前を「！」付きで叫ぶ
+            quoteEl.textContent = `「${m.name}！」`;
             quoteEl.style.display = 'block';
         } else {
             quoteEl.textContent = '';
@@ -419,6 +435,7 @@ class Game {
         const labelEl = overlay.querySelector('.boss-cutin-label');
         const nameEl = document.getElementById('boss-cutin-name');
         const btnsEl = document.getElementById('boss-cutin-btns');
+        const quoteEl = document.getElementById('boss-cutin-quote');
 
         // リセット
         imgEl.src = m.imageSrc;
@@ -428,12 +445,27 @@ class Game {
         nameEl.classList.remove('fade-out-el');
         btnsEl.classList.remove('visible');
         overlay.classList.remove('fade-out');
+
+        // ボスのセリフ（名前を「！」付きで叫ぶ）
+        // ヤン系ボスのみ叫ぶ（名前に「ヤン」を含む場合）
+        // ※「ぼろぼろのヤンダ」は変身イベントのメッセージで叫んでいるので除外
+        if (quoteEl) {
+            const isYanBoss = m.name.includes('ヤン') && m.name !== 'ぼろぼろのヤンダ';
+            if (isYanBoss) {
+                quoteEl.textContent = `「${m.name}！」`;
+                quoteEl.style.display = 'block';
+            } else {
+                quoteEl.style.display = 'none';
+            }
+        }
+
         overlay.classList.add('active');
 
-        // 2秒後: ラベル・名前フェードアウト + 画像ズームアップ
+        // 2秒後: ラベル・名前・セリフをフェードアウト + 画像ズームアップ
         setTimeout(() => {
             labelEl.classList.add('fade-out-el');
             nameEl.classList.add('fade-out-el');
+            if (quoteEl) quoteEl.style.display = 'none';
             imgEl.classList.add('zoom-up');
 
             // 0.5秒後: ボタン表示
@@ -449,6 +481,7 @@ class Game {
         const labelEl = overlay.querySelector('.boss-cutin-label');
         const nameEl = document.getElementById('boss-cutin-name');
         const btnsEl = document.getElementById('boss-cutin-btns');
+        const quoteEl = document.getElementById('boss-cutin-quote');
 
         // カットインオーバーレイを非表示にしてバトル開始
         overlay.classList.remove('active');
@@ -456,6 +489,7 @@ class Game {
         labelEl.classList.remove('fade-out-el');
         nameEl.classList.remove('fade-out-el');
         btnsEl.classList.remove('visible');
+        if (quoteEl) quoteEl.style.display = 'none';
 
         this.startBattle();
     }
@@ -568,6 +602,9 @@ class Game {
     startBattle() {
         document.getElementById('interval-overlay').classList.remove('active', 'boss-entrance');
         this.state = GameState.TRANSITION; // Block during announcement
+
+        // ★ バトル開始前に問題表示を即座にクリア（前回の問題文の残像防止）
+        this._clearProblemDisplay();
 
         const isBoss = this.monsters[this.currentMonsterIdx].number === 10;
         this.problem = new MathProblem(this.leftDigits, this.rightDigits, this.operators, isBoss);
@@ -1730,19 +1767,34 @@ class Game {
      * Special_モンスター撃破時: 青いグラデーションを下から上に走らせるエフェクト
      */
     _showAtkUpEffect() {
-        const panel = document.querySelector('.panel');
-        if (!panel) return;
+        // ユーザー名があるウィンドウ（ステータスウィンドウ）だけにグラデーションを適用する
+        const statusPanel = document.querySelector('.panel-section--status');
+        if (!statusPanel) return;
 
-        // 既存のエフェクト要素を除去
-        const old = panel.querySelector('.atkup-effect');
-        if (old) old.remove();
+        // 既存のクリップコンテナを除去
+        const oldClip = statusPanel.querySelector('.atkup-clip');
+        if (oldClip) oldClip.remove();
+
+        // ステータスウィンドウは position:static の場合があるので relative に変更
+        const prevPosition = statusPanel.style.position;
+        statusPanel.style.position = 'relative';
+
+        // 絶対配置のクリップコンテナ経由でoverflow:hiddenを実現する
+        // （statusPanel本体にoverflow:hiddenを当てるとflexレイアウトが崩れるため）
+        const clipDiv = document.createElement('div');
+        clipDiv.className = 'atkup-clip';
+        clipDiv.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:25;';
+        statusPanel.appendChild(clipDiv);
 
         const el = document.createElement('div');
         el.className = 'atkup-effect';
-        panel.appendChild(el);
+        clipDiv.appendChild(el);
 
-        // アニメーション終了後に削除
-        el.addEventListener('animationend', () => el.remove(), { once: true });
+        // アニメーション終了後にクリップコンテナごと削除し、position を元に戻す
+        el.addEventListener('animationend', () => {
+            clipDiv.remove();
+            statusPanel.style.position = prevPosition;
+        }, { once: true });
     }
 
     _shakeScreen() {

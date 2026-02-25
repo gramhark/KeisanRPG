@@ -952,7 +952,7 @@ input[type="text"]:focus {
 }
 
 /* ============================================================
-   ATKupエフェクト（青いグラデーションが下から上へ走る）
+   ATKupエフェクト（青いグラデーション帯が下から上へ流れる）
    パネルエリア（ユーザーウィンドウ）に対して適用
    ============================================================ */
 .atkup-effect {
@@ -961,26 +961,31 @@ input[type="text"]:focus {
     right: 0;
     bottom: 0;
     height: 100%;
+    /* グラデーション帯: 上下が薄く(透明)、中央が濃い青 */
     background: linear-gradient(to top,
-            rgba(0, 180, 255, 0.55) 0%,
-            rgba(0, 120, 255, 0.35) 30%,
-            rgba(0, 80, 200, 0.15) 60%,
+            transparent 0%,
+            rgba(0, 150, 255, 0.30) 20%,
+            rgba(0, 180, 255, 0.70) 50%,
+            rgba(0, 150, 255, 0.30) 80%,
             transparent 100%);
     pointer-events: none;
-    z-index: 25;
-    animation: atkUpSweep 0.9s ease-out forwards;
+    animation: atkUpSweep 2.5s ease-in-out forwards;
 }
 
 @keyframes atkUpSweep {
+
+    /* 開始: 帯が画面下で待機（見えない） */
     0% {
-        transform: translateY(0%);
+        transform: translateY(100%);
         opacity: 1;
     }
 
-    70% {
-        opacity: 0.9;
+    /* ウィンドウを通過中: 帯で塗りつぶし */
+    50% {
+        opacity: 1;
     }
 
+    /* 終了: 帯が画面上に抜けながらフェード */
     100% {
         transform: translateY(-110%);
         opacity: 0;
