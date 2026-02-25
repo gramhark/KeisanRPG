@@ -562,8 +562,8 @@
    じょうほう ウィンドウ
    ============================================================ */
 .info-overlay {
-    z-index: 110;
-    /* interval-overlay(100) より前面 */
+    z-index: 130;
+    /* interval-overlay(100) / boss-cutin-overlay(120) より前面 */
 }
 
 .info-content {
