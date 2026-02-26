@@ -656,23 +656,37 @@
 }
 
 #app.landscape-mode .shop-item-img {
-    width: 70px;
-    height: 70px;
+    width: 150px;
+    height: 150px;
     object-fit: contain;
     filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.7));
 }
 
 #app.landscape-mode .shop-item-name {
     font-family: var(--font-pixel);
-    font-size: 18px;
+    font-size: 35px;
     color: #e2e8f0;
     text-align: center;
 }
 
 #app.landscape-mode .shop-item-price {
     font-family: var(--font-pixel);
-    font-size: 16px;
+    font-size: 35px;
     color: var(--success-color);
+}
+
+/* ============================================================
+   ショップ アイテム詳細オーバーレイ (横画面)
+   ============================================================ */
+#app.landscape-mode .shop-item-content {
+    width: 600px;
+    max-width: 95%;
+}
+
+#app.landscape-mode .shop-buy-buttons button {
+    width: 200px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* ============================================================

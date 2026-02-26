@@ -721,7 +721,11 @@
 
 #app.portrait-mode .shop-buy-buttons button {
     font-size: 44px !important;
-    padding: 20px 50px !important;
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 240px;
 }
 
 #app.portrait-mode .shop-msg-text {

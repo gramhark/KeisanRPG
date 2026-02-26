@@ -207,9 +207,7 @@
     max-width: 55%;
     max-height: 55%;
     object-fit: contain;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1))
-            drop-shadow(0 0 10px rgba(255, 215, 0, 0.8))
-            drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
     animation: malle-appear 0.5s ease-out;
     z-index: 5;
 }
@@ -219,10 +217,12 @@
         opacity: 0;
         transform: scale(0.3) translateY(30px);
     }
+
     60% {
         opacity: 1;
         transform: scale(1.1) translateY(-10px);
     }
+
     100% {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -740,7 +740,7 @@
 
 .shop-item-detail-price {
     font-family: var(--font-pixel);
-    font-size: 28px;
+    font-size: 35px;
     color: var(--success-color);
 }
 
@@ -790,4 +790,5 @@
 .shop-msg-overlay #shop-msg-close-btn {
     font-size: 32px;
     padding: 14px 50px;
+    margin: 0 auto;
 }
