@@ -21,8 +21,37 @@
 <body>
     <div id="app">
         <script>/* ★追加★ #app直後で即実行。adjustScale()より前に向きを判定して初期クラスを付与しtopページのレイアウト再構築アニメを防ぐ */(function () { var a = document.getElementById('app'); if (window.innerHeight > window.innerWidth) { a.classList.add('portrait-mode'); } else { a.classList.add('landscape-mode'); } })();</script>
-        <!-- Setup Screen -->
-        <div id="setup-screen" class="screen active">
+        <!-- Top Screen (Portal) -->
+        <div id="top-screen" class="screen active">
+            <div class="top-content">
+                <div class="top-title-area">
+                    <img src="assets/image/other/title.webp" alt="マスバトール" class="title-img">
+                    <p class="subtitle">〜 けいさんバトルRPG 〜</p>
+                </div>
+                <div class="top-menu">
+                    <button id="battle-prep-btn" class="primary-btn top-battle-btn">バトルへ</button>
+                    <div class="top-menu-row">
+                        <button id="top-note-btn" class="orange-btn">モンスターノート</button>
+                        <button id="top-item-note-btn" class="orange-btn">アイテムノート</button>
+                    </div>
+                    <div class="top-menu-row">
+                        <button id="top-shop-btn" class="green-btn">ショップ</button>
+                        <button id="top-request-btn" class="secondary-btn">アイデアを おくる</button>
+                    </div>
+                </div>
+            </div>
+            <footer class="setup-footer">
+                <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
+            </footer>
+        </div>
+
+        <!-- Setup Screen (バトルじゅんび) -->
+        <div id="setup-screen" class="screen">
+            <button id="back-to-top-btn" class="quit-battle-btn" aria-label="トップにもどる">
+                <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                </svg>
+            </button>
             <img src="assets/image/other/title.webp" alt="マスバトール" class="title-img">
             <p class="subtitle">〜 けいさんバトルRPG 〜</p>
 
@@ -60,19 +89,51 @@
 
                 <button id="start-btn" class="primary-btn">バトルスタート</button>
             </div>
-            <div class="top-action-group">
-                <button id="note-btn" class="orange-btn">モンスターノート</button>
-                <button id="open-request-btn" class="secondary-btn">アイデアを おくる</button>
+        </div>
+
+        <!-- Item Note Screen (アイテムノート) -->
+        <div id="item-note-screen" class="screen">
+            <h1 class="title">アイテムノート</h1>
+            <div id="item-note-grid" class="note-grid" style="flex: 1; overflow-y: auto;">
+                <!-- Populated by JS -->
             </div>
-            <footer class="setup-footer">
-                <p>&copy; 2026 Gramhark. All Rights Reserved.</p>
-            </footer>
+            <div class="note-footer">
+                <div class="note-footer-buttons">
+                    <button id="close-item-note-btn" class="primary-btn">もどる</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Screen (ショップ) -->
+        <div id="shop-screen" class="screen">
+            <button id="shop-back-btn" class="quit-battle-btn" aria-label="もどる">
+                <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                </svg>
+            </button>
+            <div class="shop-layout">
+                <div class="shop-pane-left">
+                    <h1 class="title shop-title">ショップ</h1>
+                    <div id="shop-clerk-quote" class="special-quote shop-clerk-quote">いらっしゃい！</div>
+                    <img src="assets/image/item/SHOP.webp" id="shop-clerk-img" class="shop-clerk-img" alt="てんいん">
+                </div>
+                <div class="shop-pane-right">
+                    <div class="shop-gold-area">
+                        <img src="assets/image/item/malle.webp" class="malle-icon" alt="マール">
+                        <span id="shop-gold-text" class="shop-gold-text">0マール</span>
+                    </div>
+                    <div id="shop-items" class="shop-items">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Battle Screen -->
         <div id="battle-screen" class="screen">
             <div class="battle-view">
                 <div id="message-overlay" class="message-overlay"></div>
+                <img id="item-use-img" class="item-use-img" src="" alt="" style="display:none;" aria-hidden="true">
 
                 <!-- Stage Progress -->
                 <div id="stage-progress" class="stage-progress">
@@ -109,6 +170,9 @@
                             </div>
                             <img id="shield-label" class="sword-label" src="assets/image/equipment/shield01.webp"
                                 alt="はがねのたて" style="display:none;">
+                            <div id="item-slot-container" class="item-slot-container">
+                                <img id="item-slot-img" class="item-slot-img" src="" alt="" style="display:none;">
+                            </div>
                         </div>
                         <div class="hp-status">
                             <div class="hp-bar-container">
@@ -148,6 +212,29 @@
                         <button class="num-btn action-btn green" data-key="ENTER">いけ!</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Shop Item Detail Overlay -->
+        <div id="shop-item-overlay" class="overlay">
+            <div class="overlay-content shop-item-content">
+                <img id="shop-item-detail-img" src="" alt="" class="shop-item-detail-img">
+                <h2 id="shop-item-detail-name" class="shop-item-detail-name"></h2>
+                <p id="shop-item-detail-desc" class="shop-item-detail-desc"></p>
+                <p id="shop-item-detail-price" class="shop-item-detail-price"></p>
+                <p class="shop-buy-question">かう？</p>
+                <div class="shop-buy-buttons">
+                    <button id="shop-buy-yes-btn" class="primary-btn">はい</button>
+                    <button id="shop-buy-no-btn" class="orange-btn">いいえ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Message Overlay (マール不足 / アイテム所持中) -->
+        <div id="shop-msg-overlay" class="overlay shop-msg-overlay">
+            <div class="overlay-content">
+                <p id="shop-msg-text" class="shop-msg-text"></p>
+                <button id="shop-msg-close-btn" class="primary-btn">とじる</button>
             </div>
         </div>
 
@@ -331,6 +418,10 @@
             <audio id="se-note" preload="auto"></audio>
             <audio id="bgm-special" loop></audio>
             <audio id="se-atkup" preload="auto"></audio>
+            <audio id="se-buy" preload="auto"></audio>
+            <audio id="se-defup" preload="auto"></audio>
+            <audio id="se-throw" preload="auto"></audio>
+            <audio id="se-malle" preload="auto"></audio>
         </div>
     </div>
     <script src="assets/monster_list.js"></script>

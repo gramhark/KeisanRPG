@@ -486,3 +486,258 @@
     font-size: 40px !important;
     margin-bottom: 30px !important;
 }
+
+/* ============================================================
+   トップ画面 (縦画面)
+   ============================================================ */
+#app.portrait-mode #top-screen {
+    padding: 50px 40px 30px;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+}
+
+#app.portrait-mode .top-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+}
+
+#app.portrait-mode .top-title-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#app.portrait-mode #top-screen .title-img {
+    max-width: 85%;
+    margin-bottom: 10px;
+}
+
+#app.portrait-mode #top-screen .subtitle {
+    font-size: 28px;
+    margin-bottom: 40px;
+}
+
+#app.portrait-mode .top-menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+#app.portrait-mode .top-battle-btn {
+    font-size: 60px !important;
+    padding: 48px 20px !important;
+    width: 100%;
+    height: auto !important;
+}
+
+#app.portrait-mode .top-menu-row {
+    display: flex;
+    gap: 20px;
+}
+
+#app.portrait-mode .top-menu-row button {
+    flex: 1;
+    font-size: 30px !important;
+    padding: 26px 10px !important;
+    height: auto !important;
+}
+
+/* ============================================================
+   セットアップ画面 back button (縦画面)
+   ============================================================ */
+#app.portrait-mode #setup-screen {
+    position: relative;
+}
+
+/* ============================================================
+   ショップ画面 (縦画面)
+   ============================================================ */
+#app.portrait-mode #shop-screen {
+    position: relative;
+    padding: 70px 30px 30px;
+    overflow-y: auto;
+}
+
+#app.portrait-mode .shop-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+}
+
+#app.portrait-mode .shop-pane-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+#app.portrait-mode .shop-title {
+    font-size: 60px;
+    margin: 0;
+}
+
+#app.portrait-mode .shop-clerk-quote {
+    font-size: 28px !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+#app.portrait-mode .shop-clerk-img {
+    max-width: 340px;
+    max-height: 340px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+#app.portrait-mode .shop-pane-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+#app.portrait-mode .shop-gold-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 3px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 20px 30px;
+}
+
+#app.portrait-mode .malle-icon {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+}
+
+#app.portrait-mode .shop-gold-text {
+    font-family: var(--font-pixel);
+    font-size: 52px;
+    color: var(--accent-color);
+}
+
+#app.portrait-mode .shop-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+#app.portrait-mode .shop-item-btn {
+    background: #252b42;
+    border: 3px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    color: var(--text-color);
+}
+
+#app.portrait-mode .shop-item-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    border-color: var(--accent-color);
+}
+
+#app.portrait-mode .shop-item-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.7));
+}
+
+#app.portrait-mode .shop-item-name {
+    font-family: var(--font-pixel);
+    font-size: 26px;
+    color: #e2e8f0;
+    text-align: center;
+}
+
+#app.portrait-mode .shop-item-price {
+    font-family: var(--font-pixel);
+    font-size: 24px;
+    color: var(--success-color);
+}
+
+/* ============================================================
+   ショップ アイテム詳細 (縦画面)
+   ============================================================ */
+#app.portrait-mode .shop-item-content {
+    width: 620px;
+    padding: 50px 60px;
+    gap: 20px;
+}
+
+#app.portrait-mode .shop-item-detail-img {
+    width: 160px;
+    height: 160px;
+}
+
+#app.portrait-mode .shop-item-detail-name {
+    font-size: 52px;
+}
+
+#app.portrait-mode .shop-item-detail-desc {
+    font-size: 34px;
+}
+
+#app.portrait-mode .shop-item-detail-price {
+    font-size: 40px;
+}
+
+#app.portrait-mode .shop-buy-question {
+    font-size: 48px;
+}
+
+#app.portrait-mode .shop-buy-buttons button {
+    font-size: 44px !important;
+    padding: 20px 50px !important;
+}
+
+#app.portrait-mode .shop-msg-text {
+    font-size: 48px !important;
+}
+
+/* ============================================================
+   アイテムノート (縦画面) ← note.css の portrait overrides に合わせる
+   ============================================================ */
+#app.portrait-mode #item-note-screen {
+    padding: 0;
+}
+
+#app.portrait-mode #item-note-screen .title {
+    font-size: 56px;
+    padding: 30px 30px 10px;
+}
+
+#app.portrait-mode #close-item-note-btn {
+    font-size: 24px !important;
+    padding: 14px 10px !important;
+    height: auto !important;
+    width: 100%;
+}
+/* Item Slot */
+#app.portrait-mode .item-slot-container {
+    width: 45px;
+    height: 45px;
+    margin-left: 6px;
+}
+
+#app.portrait-mode #item-use-img {
+    width: 280px;
+    height: 280px;
+}

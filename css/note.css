@@ -99,6 +99,13 @@
     opacity: 0.7;
 }
 
+/* アイテムノート：登録済み（黄色グロウ） */
+.item-note-glow {
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1))
+            drop-shadow(0 0 8px rgba(255, 215, 0, 0.8))
+            drop-shadow(0 0 12px rgba(255, 215, 0, 0.5));
+}
+
 .note-name {
     font-size: 14px;
     color: #e2e8f0;

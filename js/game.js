@@ -2,7 +2,7 @@
 class Game {
     constructor() {
         this.sound = new SoundManager();
-        this.state = GameState.SETUP;
+        this.state = GameState.TOP;
 
         // Settings
         this.playerName = '';
@@ -39,6 +39,12 @@ class Game {
         this.dodgeStreak = 0;       // 連続回避カウント (0–3)
         this.specialMoveReady = false; // 必殺技待機フラグ
         this.hasSpecialMonsterAppeared = false; // スペシャルモンスター出現済みフラグ
+
+        // Gold & Item
+        this.gold = parseInt(localStorage.getItem('math_battle_gold')) || 0;
+        try { this.heldItem = JSON.parse(localStorage.getItem('math_battle_held_item')); } catch (e) { this.heldItem = null; }
+        this._shopSelectedItemIdx = null;
+        this.defenseBonus = 0; // ぼうぎょだまによる防御補正（1バトル中有効）
 
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
@@ -161,7 +167,7 @@ class Game {
         });
 
         // Request Form
-        document.getElementById('open-request-btn').addEventListener('click', () => {
+        document.getElementById('top-request-btn').addEventListener('click', () => {
             document.getElementById('request-overlay').classList.add('active');
         });
         document.getElementById('cancel-request-btn').addEventListener('click', () => {
@@ -169,13 +175,40 @@ class Game {
         });
         document.getElementById('submit-request-btn').addEventListener('click', () => this.submitRequest());
 
+        // Top Screen buttons
+        document.getElementById('battle-prep-btn').addEventListener('click', () => this.showSetup());
+        document.getElementById('top-note-btn').addEventListener('click', () => this.showNote());
+        document.getElementById('top-item-note-btn').addEventListener('click', () => this.showItemNote());
+        document.getElementById('top-shop-btn').addEventListener('click', () => this.showShop());
+
+        // Setup Screen back button
+        document.getElementById('back-to-top-btn').addEventListener('click', () => this.showTop());
+
         // Phase 1: Monster Note
-        document.getElementById('note-btn').addEventListener('click', () => {
-            this.showNote();
-        });
         document.getElementById('close-note-btn').addEventListener('click', () => {
             this.hideNote();
         });
+
+        // Item Note
+        document.getElementById('close-item-note-btn').addEventListener('click', () => this.hideItemNote());
+
+        // Shop
+        document.getElementById('shop-back-btn').addEventListener('click', () => this.hideShop());
+        document.getElementById('shop-buy-yes-btn').addEventListener('click', () => this._purchaseItem());
+        document.getElementById('shop-buy-no-btn').addEventListener('click', () => {
+            document.getElementById('shop-item-overlay').classList.remove('active');
+            this._shopSelectedItemIdx = null;
+        });
+        document.getElementById('shop-msg-close-btn').addEventListener('click', () => {
+            document.getElementById('shop-msg-overlay').classList.remove('active');
+        });
+
+        // Item Slot (battle)
+        const itemSlotImg = document.getElementById('item-slot-img');
+        if (itemSlotImg) {
+            itemSlotImg.addEventListener('click', () => this._onItemSlotTap());
+            itemSlotImg.addEventListener('touchstart', (e) => { e.preventDefault(); this._onItemSlotTap(); }, { passive: false });
+        }
 
         // Phase 2: Backup Feature (JSON)
         document.getElementById('save-backup-btn').addEventListener('click', () => this.saveBackup());
@@ -263,8 +296,10 @@ class Game {
         this.swordLevel = 0; // ぼうを最初から持つ
         this.shieldLevel = 0;
         this.shieldDurability = 0;
+        this.defenseBonus = 0;
         this.dodgeStreak = 0;
         this.specialMoveReady = false;
+        this._updateItemSlotUI();
         const swordLabelEl = document.getElementById('sword-label');
         swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
         swordLabelEl.classList.remove('equip-flash');
@@ -760,6 +795,7 @@ class Game {
                 this.shieldLevel = 0;
                 this.shieldDurability = 0;
 
+                damage = Math.max(0, damage - this.defenseBonus);
                 this.playerHp = Math.max(0, this.playerHp - damage);
                 this._updatePlayerHpUI();
                 this._damageScreen();
@@ -788,6 +824,7 @@ class Game {
         }
 
         // 通常被ダメージ
+        damage = Math.max(0, damage - this.defenseBonus);
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
 
@@ -1045,6 +1082,7 @@ class Game {
                 this.shieldLevel = 0;
                 this.shieldDurability = 0;
 
+                damage = Math.max(0, damage - this.defenseBonus);
                 this.playerHp = Math.max(0, this.playerHp - damage);
                 this._updatePlayerHpUI();
                 this._damageScreen(); // ★ モンスターからの攻撃（被弾）アニメーション
@@ -1079,6 +1117,7 @@ class Game {
             this._updateAuraUI();
         }
 
+        damage = Math.max(0, damage - this.defenseBonus);
         this.playerHp = Math.max(0, this.playerHp - damage);
         this._updatePlayerHpUI();
 
@@ -1320,11 +1359,18 @@ class Game {
                 }
 
                 // ドロップ後にノート登録メッセージを挟むラッパー
-                const afterDrop = () => {
+                const afterMalle = () => {
                     if (isNewRecord) {
                         this._showNoteRegistration(m.name, () => this._nextMonster());
                     } else {
                         this._nextMonster();
+                    }
+                };
+                const afterDrop = () => {
+                    if (m.number === 10) {
+                        this._doMalleDrop(m.bossId, afterMalle);
+                    } else {
+                        afterMalle();
                     }
                 };
 
@@ -1963,19 +2009,234 @@ class Game {
         setTimeout(onComplete, 2000);
     }
 
+    /* ============================================================
+       画面遷移
+       ============================================================ */
+    showTop() {
+        this.state = GameState.TOP;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('top-screen').classList.add('active');
+        this.adjustScale();
+    }
+
+    showSetup() {
+        this.state = GameState.SETUP;
+        document.getElementById('top-screen').classList.remove('active');
+        document.getElementById('setup-screen').classList.add('active');
+        this.adjustScale();
+    }
+
     showNote() {
         this.state = GameState.NOTE;
-        document.getElementById('setup-screen').classList.remove('active');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('note-screen').classList.add('active');
         this.adjustScale();
         this._renderNoteGrid();
     }
 
     hideNote() {
-        this.state = GameState.SETUP;
+        this.state = GameState.TOP;
         document.getElementById('note-screen').classList.remove('active');
-        document.getElementById('setup-screen').classList.add('active');
+        document.getElementById('top-screen').classList.add('active');
         this.adjustScale();
+    }
+
+    showItemNote() {
+        this.state = GameState.ITEM_NOTE;
+        document.getElementById('top-screen').classList.remove('active');
+        document.getElementById('item-note-screen').classList.add('active');
+        this.adjustScale();
+        this._renderItemNoteGrid();
+    }
+
+    hideItemNote() {
+        this.state = GameState.TOP;
+        document.getElementById('item-note-screen').classList.remove('active');
+        document.getElementById('top-screen').classList.add('active');
+        this.adjustScale();
+    }
+
+    showShop() {
+        this.sound.unlockAll();
+        this.state = GameState.SHOP;
+        document.getElementById('top-screen').classList.remove('active');
+        document.getElementById('shop-screen').classList.add('active');
+        this._updateShopGoldDisplay();
+        this._renderShopItems();
+        this._updateShopClerkSay('enter');
+        setTimeout(() => {
+            if (this.state === GameState.SHOP) this._updateShopClerkSay('waiting');
+        }, 2000);
+        this.adjustScale();
+    }
+
+    hideShop() {
+        this._updateShopClerkSay('leave');
+        setTimeout(() => {
+            this.state = GameState.TOP;
+            document.getElementById('shop-screen').classList.remove('active');
+            document.getElementById('top-screen').classList.add('active');
+            this.adjustScale();
+        }, 800);
+    }
+
+    /* ============================================================
+       ショップ
+       ============================================================ */
+    _updateShopGoldDisplay() {
+        const el = document.getElementById('shop-gold-text');
+        if (el) el.textContent = `${this.gold}マール`;
+    }
+
+    _updateShopClerkSay(mode) {
+        const el = document.getElementById('shop-clerk-quote');
+        if (!el) return;
+        el.style.display = 'block';
+        if (mode === 'enter') {
+            el.textContent = 'いらっしゃい！';
+        } else if (mode === 'waiting') {
+            el.textContent = 'じぶんの こうげきの ときに アイテムを さわると つかえるよ';
+        } else if (mode === 'leave') {
+            el.textContent = 'ありがとう！';
+        }
+    }
+
+    _renderShopItems() {
+        const container = document.getElementById('shop-items');
+        if (!container) return;
+        container.innerHTML = '';
+        ITEM_DATA.forEach((item, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'shop-item-btn';
+            btn.innerHTML = `
+                <img src="assets/image/item/${item.img}" alt="${item.name}" class="shop-item-img">
+                <div class="shop-item-name">${item.name}</div>
+                <div class="shop-item-price">${item.price}マール</div>
+            `;
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); this._openShopItemDetail(idx); });
+            btn.addEventListener('click', () => this._openShopItemDetail(idx));
+            container.appendChild(btn);
+        });
+    }
+
+    _openShopItemDetail(idx) {
+        this._shopSelectedItemIdx = idx;
+        const item = ITEM_DATA[idx];
+        document.getElementById('shop-item-detail-img').src = `assets/image/item/${item.img}`;
+        document.getElementById('shop-item-detail-name').textContent = item.name;
+        document.getElementById('shop-item-detail-desc').textContent = item.desc;
+        document.getElementById('shop-item-detail-price').textContent = `${item.price}マール`;
+        document.getElementById('shop-item-overlay').classList.add('active');
+    }
+
+    _purchaseItem() {
+        const idx = this._shopSelectedItemIdx;
+        if (idx === null || idx === undefined) return;
+        const item = ITEM_DATA[idx];
+
+        if (this.heldItem !== null) {
+            this._showShopMsg('アイテムを つかってから\nまた おいで！');
+            return;
+        }
+        if (this.gold < item.price) {
+            this._showShopMsg('マールが\nたりないよ！');
+            return;
+        }
+
+        // 購入成功
+        this.gold -= item.price;
+        this.heldItem = idx;
+        localStorage.setItem('math_battle_gold', this.gold);
+        localStorage.setItem('math_battle_held_item', JSON.stringify(idx));
+        this._updateItemCollection(item.name);
+        this.sound.playSe('buy');
+        this._updateShopGoldDisplay();
+        this._shopSelectedItemIdx = null;
+        document.getElementById('shop-item-overlay').classList.remove('active');
+    }
+
+    _showShopMsg(msg) {
+        document.getElementById('shop-msg-text').textContent = msg;
+        document.getElementById('shop-msg-overlay').classList.add('active');
+    }
+
+    _updateItemCollection(itemName) {
+        const STORAGE_KEY = 'math_battle_item_collection_v1';
+        let collection = {};
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) collection = JSON.parse(stored);
+        } catch (e) { }
+        collection[itemName] = true;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collection));
+    }
+
+    /* ============================================================
+       アイテムノート
+       ============================================================ */
+    _renderItemNoteGrid() {
+        const grid = document.getElementById('item-note-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const STORAGE_KEY = 'math_battle_item_collection_v1';
+        let collection = {};
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) collection = JSON.parse(stored);
+        } catch (e) { }
+
+        const categories = [
+            {
+                label: 'けん',
+                items: SWORD_DATA.filter(Boolean).map(d => ({ name: d.name, img: d.img, dir: 'equipment' }))
+            },
+            {
+                label: 'たて',
+                items: SHIELD_DATA.filter(Boolean).map(d => ({ name: d.name, img: d.img, dir: 'equipment' }))
+            },
+            {
+                label: 'どうぐ',
+                items: ITEM_DATA.map(d => ({ name: d.name, img: d.img, dir: 'item' }))
+            },
+        ];
+
+        categories.forEach(cat => {
+            const header = document.createElement('div');
+            header.className = 'note-category-header';
+            header.textContent = cat.label;
+            grid.appendChild(header);
+
+            cat.items.forEach(item => {
+                const isRegistered = !!collection[item.name];
+                const card = document.createElement('div');
+                card.className = 'note-card';
+
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'note-img-container';
+
+                const imgEl = document.createElement('img');
+                imgEl.src = `assets/image/${item.dir}/${item.img}`;
+                imgEl.className = 'note-img';
+
+                const nameEl = document.createElement('div');
+                nameEl.className = 'note-name';
+
+                if (!isRegistered) {
+                    card.classList.add('undefeated');
+                    imgEl.classList.add('silhouette');
+                    nameEl.textContent = '？？？';
+                } else {
+                    imgEl.classList.add('item-note-glow');
+                    nameEl.textContent = item.name;
+                }
+
+                imgContainer.appendChild(imgEl);
+                card.appendChild(imgContainer);
+                card.appendChild(nameEl);
+                grid.appendChild(card);
+            });
+        });
     }
 
     _renderNoteGrid() {
@@ -2071,6 +2332,116 @@ class Game {
         return (sum >>> 0).toString(16).padStart(8, '0');
     }
 
+    /* ============================================================
+       Item Slot (バトル中アイテム使用)
+       ============================================================ */
+    _updateItemSlotUI() {
+        const img = document.getElementById('item-slot-img');
+        if (!img) return;
+        if (this.heldItem) {
+            img.src = 'assets/image/item/' + this.heldItem.img;
+            img.style.display = '';
+        } else {
+            img.style.display = 'none';
+        }
+    }
+
+    _onItemSlotTap() {
+        if (this.state !== GameState.BATTLE || !this.isPlayerTurn) return;
+        if (!this.heldItem) return;
+        // タイマーを一時停止
+        clearInterval(this.timerIntervalId);
+        this.timerIntervalId = null;
+        this._pausedElapsed = Date.now() - this.timerStart;
+        this.state = GameState.TRANSITION;
+        this._useItem(this.heldItem);
+    }
+
+    _useItem(item) {
+        // アイテム使用演出
+        const useImg = document.getElementById('item-use-img');
+        useImg.src = 'assets/image/item/' + item.img;
+        useImg.classList.remove('item-use-anim');
+        void useImg.offsetWidth; // reflow
+        useImg.classList.add('item-use-anim');
+        useImg.style.display = '';
+
+        const m = this.monsters[this.currentMonsterIdx];
+        let message = '';
+        let thornKill = false;
+
+        switch (item.name) {
+            case 'かいふくだま':
+                this.playerHp = Math.min(CONSTANTS.PLAYER_MAX_HP, this.playerHp + 5);
+                this._updatePlayerHpUI();
+                this.sound.playSe('heal');
+                message = 'HPが\nかいふくした！';
+                break;
+            case 'こうげきだま':
+                this.swordBonus += 1;
+                this.sound.playSe('atkup');
+                this._showAtkUpEffect();
+                message = 'こうげきりょくが\nあがった！';
+                break;
+            case 'ぼうぎょだま':
+                this.defenseBonus += 1;
+                this.sound.playSe('defup');
+                message = 'ぼうぎょりょくが\nあがった！';
+                break;
+            case 'とげだま': {
+                const thornDamage = 3;
+                m.hp = Math.max(0, m.hp - thornDamage);
+                this._updateMonsterHpUI(m);
+                this._flashScreen('hit');
+                this.sound.playSe('throw');
+                message = `モンスターに\n${thornDamage}ダメージ！`;
+                thornKill = m.hp <= 0;
+                break;
+            }
+        }
+
+        // 所持アイテムをクリア
+        this.heldItem = null;
+        localStorage.removeItem('math_battle_held_item');
+        this._updateItemSlotUI();
+
+        this._showMessage(message, false, 2000, 'text-player-action');
+
+        setTimeout(() => {
+            useImg.style.display = 'none';
+            useImg.classList.remove('item-use-anim');
+            if (thornKill) {
+                // とげだまでモンスターを倒した場合
+                this._onMonsterDefeated(m);
+            } else {
+                // タイマー再開
+                this.timerStart = Date.now() - this._pausedElapsed;
+                this.state = GameState.BATTLE;
+            }
+        }, 2000);
+    }
+
+    _doMalleDrop(bossId, onComplete) {
+        const amount = BOSS_MALLE_DROP[bossId] || 0;
+        this.gold += amount;
+        localStorage.setItem('math_battle_gold', this.gold);
+
+        // マール画像をモンスターコンテナに表示
+        const monsterContainer = document.querySelector('.monster-container');
+        const malleImg = document.createElement('img');
+        malleImg.src = 'assets/image/item/malle.webp';
+        malleImg.className = 'malle-drop-img';
+        monsterContainer.appendChild(malleImg);
+
+        this.sound.playSe('malle');
+        this._showMessage(`${amount}マール\nてにはいった！`, false, 3000, 'text-neutral');
+
+        setTimeout(() => {
+            malleImg.remove();
+            onComplete();
+        }, 3000);
+    }
+
     saveBackup() {
         const STORAGE_KEY = 'math_battle_collection_v1';
         let collection = {};
@@ -2093,6 +2464,15 @@ class Game {
             delete entry.imageSrc;
             dataToSave[k] = entry;
         });
+
+        // 追加データ（ゴールド・所持アイテム・アイテムコレクション）
+        dataToSave['_money'] = this.gold;
+        const heldItemForSave = JSON.parse(localStorage.getItem('math_battle_held_item') || 'null');
+        dataToSave['_equippedItem'] = heldItemForSave ? heldItemForSave.name : null;
+        try {
+            dataToSave['_item_collection'] = JSON.parse(localStorage.getItem('math_battle_item_collection_v1') || '{}');
+        } catch (e) { dataToSave['_item_collection'] = {}; }
+
         dataToSave['_checksum'] = this._generateChecksum(dataToSave);
 
         const json = JSON.stringify(dataToSave, null, 2);
@@ -2142,18 +2522,52 @@ class Game {
                     return;
                 }
 
-                // 読み込み後に不要なデータを削除してクリーンアップ
+                // 追加データを取り出す（後方互換: なければデフォルト値）
+                const loadedMoney = typeof dataWithoutChecksum['_money'] === 'number' ? dataWithoutChecksum['_money'] : 0;
+                const loadedEquippedItemName = dataWithoutChecksum['_equippedItem'] || null;
+                const loadedItemCollection = (dataWithoutChecksum['_item_collection'] && typeof dataWithoutChecksum['_item_collection'] === 'object')
+                    ? dataWithoutChecksum['_item_collection'] : {};
+
+                // モンスターコレクション以外のキーを除外してクリーンアップ
+                const EXTRA_KEYS = ['_money', '_equippedItem', '_item_collection'];
+                EXTRA_KEYS.forEach(k => delete dataWithoutChecksum[k]);
                 Object.keys(dataWithoutChecksum).forEach(k => {
-                    if (dataWithoutChecksum[k].imageSrc) delete dataWithoutChecksum[k].imageSrc;
+                    if (dataWithoutChecksum[k] && dataWithoutChecksum[k].imageSrc) delete dataWithoutChecksum[k].imageSrc;
                 });
 
                 // localStorageに上書き保存（_checksumは除外）
                 const STORAGE_KEY = 'math_battle_collection_v1';
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataWithoutChecksum));
+
+                    // ゴールド復元
+                    this.gold = loadedMoney;
+                    localStorage.setItem('math_battle_gold', loadedMoney);
+
+                    // 所持アイテム復元
+                    if (loadedEquippedItemName) {
+                        const itemData = ITEM_DATA.find(i => i.name === loadedEquippedItemName);
+                        if (itemData) {
+                            this.heldItem = itemData;
+                            localStorage.setItem('math_battle_held_item', JSON.stringify(itemData));
+                        } else {
+                            this.heldItem = null;
+                            localStorage.removeItem('math_battle_held_item');
+                        }
+                    } else {
+                        this.heldItem = null;
+                        localStorage.removeItem('math_battle_held_item');
+                    }
+
+                    // アイテムコレクション復元
+                    localStorage.setItem('math_battle_item_collection_v1', JSON.stringify(loadedItemCollection));
+
                     alert('セーブデータを よみこんだよ！');
                     if (this.state === GameState.NOTE) {
                         this._renderNoteGrid();
+                    }
+                    if (this.state === GameState.SHOP) {
+                        this._updateShopGoldDisplay();
                     }
                 } catch (err) {
                     alert('エラーが おきました。');

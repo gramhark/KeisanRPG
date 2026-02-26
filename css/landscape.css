@@ -465,3 +465,234 @@
     padding: 16px 48px;
     font-size: 28px;
 }
+
+/* ============================================================
+   トップ画面 (横画面)
+   ============================================================ */
+#app.landscape-mode #top-screen {
+    padding: 20px 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+#app.landscape-mode .top-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    flex: 1;
+}
+
+#app.landscape-mode .top-title-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 380px;
+    flex-shrink: 0;
+}
+
+#app.landscape-mode #top-screen .title-img {
+    max-height: 200px;
+    max-width: 100%;
+    margin-bottom: 6px;
+}
+
+#app.landscape-mode #top-screen .subtitle {
+    font-size: 18px;
+    margin-bottom: 0;
+}
+
+#app.landscape-mode .top-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 550px;
+}
+
+#app.landscape-mode .top-battle-btn {
+    font-size: 34px !important;
+    padding: 20px !important;
+    width: 100%;
+    height: auto !important;
+}
+
+#app.landscape-mode .top-menu-row {
+    display: flex;
+    gap: 14px;
+}
+
+#app.landscape-mode .top-menu-row button {
+    flex: 1;
+    font-size: 20px !important;
+    padding: 15px 10px !important;
+    height: auto !important;
+}
+
+#app.landscape-mode .setup-footer {
+    font-size: 12px;
+    color: #5a6275;
+    padding-top: 10px;
+    text-align: center;
+}
+
+/* ============================================================
+   セットアップ画面 (横画面) - 戻るボタン追加対応
+   ============================================================ */
+#app.landscape-mode #setup-screen {
+    position: relative;
+}
+
+/* ============================================================
+   ショップ画面 (横画面)
+   ============================================================ */
+#app.landscape-mode #shop-screen {
+    position: relative;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#app.landscape-mode .shop-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+    padding-left: 60px;
+    /* quit-battle-btn 分の余白 */
+}
+
+#app.landscape-mode .shop-pane-left {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+#app.landscape-mode .shop-title {
+    font-size: 40px;
+    margin: 0;
+}
+
+#app.landscape-mode .shop-clerk-quote {
+    font-size: 18px !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+#app.landscape-mode .shop-clerk-img {
+    max-width: 260px;
+    max-height: 260px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+#app.landscape-mode .shop-pane-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+}
+
+#app.landscape-mode .shop-gold-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+    padding: 12px 20px;
+}
+
+#app.landscape-mode .malle-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+#app.landscape-mode .shop-gold-text {
+    font-family: var(--font-pixel);
+    font-size: 34px;
+    color: var(--accent-color);
+}
+
+#app.landscape-mode .shop-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    flex: 1;
+}
+
+#app.landscape-mode .shop-item-btn {
+    background: #252b42;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    color: var(--text-color);
+}
+
+#app.landscape-mode .shop-item-btn:active {
+    transform: scale(0.95);
+    border-color: var(--accent-color);
+}
+
+#app.landscape-mode .shop-item-img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.7));
+}
+
+#app.landscape-mode .shop-item-name {
+    font-family: var(--font-pixel);
+    font-size: 18px;
+    color: #e2e8f0;
+    text-align: center;
+}
+
+#app.landscape-mode .shop-item-price {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: var(--success-color);
+}
+
+/* ============================================================
+   アイテムノート (横画面)
+   ============================================================ */
+#app.landscape-mode #item-note-screen {
+    padding: 0;
+}
+
+#app.landscape-mode #item-note-screen .title {
+    font-size: 40px;
+    padding: 16px 20px 6px;
+    text-align: center;
+}
+
+#app.landscape-mode #close-item-note-btn {
+    font-size: 18px !important;
+    padding: 10px 20px !important;
+    height: auto !important;
+}
+/* Item Slot */
+#app.landscape-mode .item-slot-container {
+    width: 35px;
+    height: 35px;
+    margin-left: 4px;
+}
+
+#app.landscape-mode #item-use-img {
+    width: 180px;
+    height: 180px;
+}

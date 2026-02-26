@@ -28,6 +28,10 @@ class SoundManager {
         this.seNote = document.getElementById('se-note');
         this.bgmSpecial = document.getElementById('bgm-special');
         this.seAtkUp = document.getElementById('se-atkup');
+        this.seBuy = document.getElementById('se-buy');
+        this.seDefUp = document.getElementById('se-defup');
+        this.seThrow = document.getElementById('se-throw');
+        this.seMalle = document.getElementById('se-malle');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -58,6 +62,10 @@ class SoundManager {
         this.seNote.src = 'assets/audio/SE/note.webm';
         this.bgmSpecial.src = 'assets/audio/BGM/mrtoisi.webm';
         this.seAtkUp.src = 'assets/audio/SE/ATKup.webm';
+        this.seBuy.src = 'assets/audio/SE/buy.webm';
+        this.seDefUp.src = 'assets/audio/SE/DEFup.webm';
+        this.seThrow.src = 'assets/audio/SE/throw.webm';
+        this.seMalle.src = 'assets/audio/SE/malle.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -168,6 +176,10 @@ class SoundManager {
             case 'spatattack': se = this.seSPAttack; break;
             case 'note': se = this.seNote; break;
             case 'atkup': se = this.seAtkUp; break;
+            case 'buy': se = this.seBuy; break;
+            case 'defup': se = this.seDefUp; break;
+            case 'throw': se = this.seThrow; break;
+            case 'malle': se = this.seMalle; break;
         }
         if (se) {
             se.currentTime = 0;

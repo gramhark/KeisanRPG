@@ -19,13 +19,16 @@ const FORM_CONFIG = {
 
 /* State Management */
 const GameState = {
+    TOP: 'top',        // ポータル画面（起動時）
     SETUP: 'setup',
     BATTLE: 'battle',
     INTERVAL: 'interval',
     TRANSITION: 'transition',
     GAME_OVER: 'game_over',
     RESULT: 'result',
-    NOTE: 'note' // Monster Note Screen
+    NOTE: 'note',       // モンスターノート
+    ITEM_NOTE: 'item_note', // アイテムノート
+    SHOP: 'shop'        // ショップ
 };
 
 /* Item Data Tables */
@@ -50,7 +53,13 @@ const SHIELD_DATA = [
 const SWORD_DROP_RATE = [0.60, 0.40, 0.20, 0.10, 0.04, 0];
 const SHIELD_DROP_RATE = [0.40, 0.25, 0.15, 0.07, 0.03, 0];
 
-/* Assets Map (populated dynamically if needed, but here hardcoded matching existing files) */
-/* Ideally we'd scan the dir, but in browser we explicitly map or guess.
-   We will rely on simple ID mapping logic since we kept original names.
-*/
+/* Shop Item Data */
+const ITEM_DATA = [
+    { name: 'かいふくだま', price: 600,  desc: 'HPを かいふくする',      img: 'kaihukuDama.webp' },
+    { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくを あげる', img: 'kougekiDama.webp'  },
+    { name: 'ぼうぎょだま', price: 400,  desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp'   },
+    { name: 'とげだま',     price: 200,  desc: 'モンスターに なげる',      img: 'togeDama.webp'     },
+];
+
+/* Boss Malle Drop Amounts (indexed by bossId 1–16; index 0 unused) */
+const BOSS_MALLE_DROP = [0, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 1000, 1000];

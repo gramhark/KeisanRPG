@@ -103,9 +103,33 @@ button#open-request-btn {
     box-shadow: 0 4px 15px rgba(255, 171, 64, 0.3);
 }
 
+.green-btn {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: #1a4a2e;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: var(--font-pixel);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    vertical-align: middle;
+    line-height: 1;
+}
+
 .primary-btn:active,
 .secondary-btn:active,
-.orange-btn:active {
+.orange-btn:active,
+.green-btn:active {
     transform: scale(0.98);
 }
 
@@ -989,5 +1013,70 @@ input[type="text"]:focus {
     100% {
         transform: translateY(-110%);
         opacity: 0;
+    }
+}
+
+/* ============================================================
+   Item Slot（バトル画面・所持アイテム表示）
+   ============================================================ */
+.item-slot-container {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.item-slot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1))
+            drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+    transition: transform 0.15s;
+}
+
+.item-slot-img:hover {
+    transform: scale(1.12);
+}
+
+/* ============================================================
+   Item Use Image（アイテム使用演出）
+   ============================================================ */
+#item-use-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.item-use-anim {
+    animation: item-use-zoom 2.0s ease-out forwards;
+}
+
+@keyframes item-use-zoom {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
     }
 }
