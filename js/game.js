@@ -29,6 +29,7 @@ class Game {
 
         this.dodgeStreak = 0;       // 連続回避カウント (0–3)
         this.specialMoveReady = false; // 必殺技待機フラグ
+        this.hasSpecialMonsterAppeared = false; // スペシャルモンスター出現済みフラグ
 
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
@@ -204,28 +205,17 @@ class Game {
 
         this._updatePlayerHpUI();
 
-        // Init Monsters
+        // Init Monsters (初期化は通常モンスターのみ。実際の抽選は _determineMonster でおこなう)
         this.monsters = [];
         const opCount = this.operators.length;
-        let hasSpecial = false;
+        this.hasSpecialMonsterAppeared = false;
         for (let i = 1; i <= CONSTANTS.TOTAL_MONSTERS; i++) {
-            let isRare = false;
-            let isSpecial = false;
-            if (i !== CONSTANTS.TOTAL_MONSTERS) {
-                // Special判定を先にする（ボス戦除外）
-                // 1回しか出ないように、既に決定済みの場合はスキップする
-                if (!hasSpecial && Math.random() < 0.05) {
-                    isSpecial = true;
-                    hasSpecial = true;
-                } else {
-                    isRare = Math.random() < 0.02;
-                }
-            }
-            const m = new Monster(i, isRare, false, opCount, this.leftDigits, this.rightDigits, isSpecial);
+            const m = new Monster(i, false, false, opCount, this.leftDigits, this.rightDigits, false);
             this.monsters.push(m);
         }
 
         this.currentMonsterIdx = 0;
+        this._determineMonster(0); // 1体目の抽選
         this.swordBonus = 0; // Special_モンスター撃破による武器補正
         this.swordLevel = 0; // ぼうを最初から持つ
         this.shieldLevel = 0;
@@ -1382,18 +1372,7 @@ class Game {
             return;
         }
 
-        // Heal Opportunity Logic: rate depends on remaining HP
-        // HP10→0%, HP9→3%, HP8→5%, HP7→10%, HP6→15%, HP5→20%, HP4→25%, HP3→30%, HP2→35%, HP1→40%
-        const HEAL_RATE_BY_HP = [0, 0.40, 0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.03, 0.00];
-        const nextM = this.monsters[this.currentMonsterIdx];
-        if (!nextM.isRare && !nextM.isSpecial && nextM.number !== 10) {
-            const healRate = HEAL_RATE_BY_HP[this.playerHp] ?? 0;
-            if (healRate > 0 && Math.random() < healRate) {
-                // convert to heal
-                const newM = new Monster(nextM.number, false, true, nextM.opCount, nextM.leftDigits, nextM.rightDigits);
-                this.monsters[this.currentMonsterIdx] = newM;
-            }
-        }
+        this._determineMonster(this.currentMonsterIdx);
 
         document.getElementById('monster-img').style.opacity = '1'; // Reset fade
         this.showInterval();
@@ -1414,6 +1393,46 @@ class Game {
             alert("ゲームオーバー！ つぎはまけないぞ！");
             location.reload();
         }, 2000);
+    }
+
+    /**
+     * モンスターの抽選をおこなう
+     * 判定優先順位： 1. Rare 2. Special 3. Heal 4. Normal or Boss
+     * 安全装置： HPが6割を下回っている場合、RareおよびSpecial判定は行わない。
+     */
+    _determineMonster(idx) {
+        const m = this.monsters[idx];
+
+        // ボス（最後のモンスター）は抽選対象外
+        if (m.number === CONSTANTS.TOTAL_MONSTERS) {
+            return;
+        }
+
+        // 安全装置判定（HPが6割を下回っているか）
+        const isLowHp = this.playerHp < (CONSTANTS.PLAYER_MAX_HP * 0.6);
+
+        // 第1優先：Rare判定
+        if (!isLowHp && Math.random() < 0.02) {
+            this.monsters[idx] = new Monster(m.number, true, false, m.opCount, m.leftDigits, m.rightDigits, false);
+            return;
+        }
+
+        // 第2優先：Special判定（一度出たらもう出ない）
+        if (!isLowHp && !this.hasSpecialMonsterAppeared && Math.random() < 0.05) {
+            this.hasSpecialMonsterAppeared = true;
+            this.monsters[idx] = new Monster(m.number, false, false, m.opCount, m.leftDigits, m.rightDigits, true);
+            return;
+        }
+
+        // 第3優先：回復キャラ判定
+        const HEAL_RATE_BY_HP = [0, 0.40, 0.35, 0.30, 0.25, 0.20, 0.15, 0.10, 0.05, 0.03, 0.00];
+        const healRate = HEAL_RATE_BY_HP[this.playerHp] ?? 0;
+        if (Math.random() < healRate) {
+            this.monsters[idx] = new Monster(m.number, false, true, m.opCount, m.leftDigits, m.rightDigits, false);
+            return;
+        }
+
+        // 第4優先：通常（すでに通常なので何もしない）
     }
 
     _onGameClear() {
