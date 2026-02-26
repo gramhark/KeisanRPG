@@ -213,9 +213,14 @@ class Game {
         // Phase 2: Backup Feature (JSON)
         document.getElementById('save-backup-btn').addEventListener('click', () => this.saveBackup());
         document.getElementById('load-backup-btn').addEventListener('click', () => this.loadBackup());
+        document.getElementById('item-save-backup-btn').addEventListener('click', () => this.saveBackup());
+        document.getElementById('item-load-backup-btn').addEventListener('click', () => this.loadBackup());
 
         // Note Warning
         document.getElementById('note-warning-btn').addEventListener('click', () => {
+            document.getElementById('note-warning-modal').classList.add('active');
+        });
+        document.getElementById('item-note-warning-btn').addEventListener('click', () => {
             document.getElementById('note-warning-modal').classList.add('active');
         });
         document.getElementById('close-note-warning-modal').addEventListener('click', () => {
@@ -1917,6 +1922,34 @@ class Game {
         }, { once: true });
     }
 
+    /**
+     * ぼうぎょだま使用時: 黄金グラデーションを下から上に走らせるエフェクト
+     */
+    _showDefUpEffect() {
+        const statusPanel = document.querySelector('.panel-section--status');
+        if (!statusPanel) return;
+
+        const oldClip = statusPanel.querySelector('.defup-clip');
+        if (oldClip) oldClip.remove();
+
+        const prevPosition = statusPanel.style.position;
+        statusPanel.style.position = 'relative';
+
+        const clipDiv = document.createElement('div');
+        clipDiv.className = 'defup-clip';
+        clipDiv.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:25;';
+        statusPanel.appendChild(clipDiv);
+
+        const el = document.createElement('div');
+        el.className = 'defup-effect';
+        clipDiv.appendChild(el);
+
+        el.addEventListener('animationend', () => {
+            clipDiv.remove();
+            statusPanel.style.position = prevPosition;
+        }, { once: true });
+    }
+
     _shakeScreen() {
         const target = document.querySelector('.screen.active');
         if (!target) return;
@@ -2403,6 +2436,7 @@ class Game {
             case 'ぼうぎょだま':
                 this.defenseBonus += 1;
                 this.sound.playSe('defup');
+                this._showDefUpEffect();
                 message = 'ぼうぎょりょくが\nあがった！';
                 break;
             case 'とげだま': {
@@ -2434,6 +2468,8 @@ class Game {
                 // タイマー再開
                 this.timerStart = Date.now() - this._pausedElapsed;
                 this.state = GameState.BATTLE;
+                this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+                this._timerLoop();
             }
         }, 2000);
     }

@@ -1017,6 +1017,40 @@ input[type="text"]:focus {
 }
 
 /* ============================================================
+   DEFupエフェクト（黄金グラデーション帯が下から上へ流れる）
+   ぼうぎょだま使用時にパネルエリア（ユーザーウィンドウ）に適用
+   ============================================================ */
+.defup-effect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    background: linear-gradient(to top,
+            transparent 0%,
+            rgba(255, 200, 0, 0.30) 20%,
+            rgba(255, 220, 50, 0.70) 50%,
+            rgba(255, 200, 0, 0.30) 80%,
+            transparent 100%);
+    pointer-events: none;
+    animation: defUpSweep 2.5s ease-in-out forwards;
+}
+
+@keyframes defUpSweep {
+    0% {
+        transform: translateY(100%);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-110%);
+        opacity: 0;
+    }
+}
+
+/* ============================================================
    Item Slot（バトル画面・所持アイテム表示）
    ============================================================ */
 .item-slot-container {

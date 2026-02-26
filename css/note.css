@@ -210,19 +210,19 @@
     gap: 15px;
 }
 
-#app.portrait-mode #note-warning-btn {
+#app.portrait-mode .note-btn-info {
     grid-area: info;
 }
 
-#app.portrait-mode #save-backup-btn {
+#app.portrait-mode .note-btn-save {
     grid-area: save;
 }
 
-#app.portrait-mode #load-backup-btn {
+#app.portrait-mode .note-btn-load {
     grid-area: load;
 }
 
-#app.portrait-mode #close-note-btn {
+#app.portrait-mode .note-btn-close {
     grid-area: close;
 }
 
