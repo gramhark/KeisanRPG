@@ -6,9 +6,18 @@ class Game {
 
         // Settings
         this.playerName = '';
-        this.leftDigits = 1;
-        this.rightDigits = 1;
-        this.operators = ['+'];
+        this.leftDigits = parseInt(localStorage.getItem('math_battle_left_digits')) || 1;
+        this.rightDigits = parseInt(localStorage.getItem('math_battle_right_digits')) || 1;
+
+        const savedOperators = localStorage.getItem('math_battle_operators');
+        try {
+            this.operators = savedOperators ? JSON.parse(savedOperators) : ['+'];
+            if (!Array.isArray(this.operators) || this.operators.length === 0) {
+                this.operators = ['+'];
+            }
+        } catch (e) {
+            this.operators = ['+'];
+        }
 
         // Runtime
         this.playerHp = 10;
@@ -36,6 +45,7 @@ class Game {
         this.adjustScale();
 
         this._bindEvents();
+        this._applySavedSettingsUI();
         this._updateTimerBar(1); // Reset
     }
 
@@ -185,12 +195,45 @@ class Game {
         this.operators = active;
     }
 
+    _applySavedSettingsUI() {
+        // Left digits
+        document.querySelectorAll('#left-digits-group .toggle-btn').forEach(btn => {
+            if (parseInt(btn.dataset.value) === this.leftDigits) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Right digits
+        document.querySelectorAll('#right-digits-group .toggle-btn').forEach(btn => {
+            if (parseInt(btn.dataset.value) === this.rightDigits) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Operators
+        document.querySelectorAll('#operators-group .checkbox-btn').forEach(btn => {
+            if (this.operators.includes(btn.dataset.op)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
     /* Game Flow */
     startGame() {
         this.sound.unlockAll(); // ← この1行を追加
         const nameInput = document.getElementById('player-name').value.trim();
         this.playerName = nameInput || 'ゆうしゃ';
         localStorage.setItem('math_battle_player_name', nameInput);
+        localStorage.setItem('math_battle_left_digits', this.leftDigits);
+        localStorage.setItem('math_battle_right_digits', this.rightDigits);
+        localStorage.setItem('math_battle_operators', JSON.stringify(this.operators));
+
         if (this.operators.length === 0) {
             alert('どの けいさんに するか えらんでね！');
             return;
