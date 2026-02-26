@@ -596,18 +596,19 @@
     font-size: 42px !important;
     max-width: 600px !important;
     width: 100%;
-    min-height: 120px;
+    height: 200px;
     display: flex !important;
     align-items: center;
     justify-content: center;
     text-align: center;
     white-space: pre-wrap;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 #app.portrait-mode .shop-clerk-img {
-    max-width: 510px;
-    max-height: 510px;
+    max-width: 408px;
+    max-height: 408px;
     object-fit: contain;
     filter: drop-shadow(0 0 2px rgba(255, 255, 255, 1)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
 }

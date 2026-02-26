@@ -2093,11 +2093,11 @@ class Game {
         if (!el) return;
         el.style.display = 'block';
         if (mode === 'enter') {
-            el.textContent = 'いらっしゃい！';
+            el.innerHTML = 'いらっしゃい！';
         } else if (mode === 'waiting') {
-            el.textContent = 'じぶんの こうげきの ときに\nアイテムを さわると つかえるよ';
+            el.innerHTML = 'じぶんの こうげきの ときに<br>アイテムを さわるんじゃ';
         } else if (mode === 'leave') {
-            el.textContent = 'ありがとう！';
+            el.innerHTML = 'ありがとう！';
         }
     }
 
