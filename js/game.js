@@ -1401,6 +1401,7 @@ class Game {
             monsterContainer.appendChild(swordImg);
 
             this.sound.playSe('item');
+            this._updateItemCollection(sword.name);
             this._showMessage(`${sword.name}を\nてにいれた！`, false, 4500, 'text-neutral');
 
             setTimeout(() => {
@@ -1432,6 +1433,7 @@ class Game {
             monsterContainer.appendChild(shieldImg);
 
             this.sound.playSe('item');
+            this._updateItemCollection(shield.name);
             this._showMessage(`${shield.name}を\nてにいれた！`, false, 4500, 'text-neutral');
 
             setTimeout(() => {
@@ -2145,9 +2147,9 @@ class Game {
 
         // 購入成功
         this.gold -= item.price;
-        this.heldItem = idx;
+        this.heldItem = item; // オブジェクトとして保持（imgやnameが参照できるように）
         localStorage.setItem('math_battle_gold', this.gold);
-        localStorage.setItem('math_battle_held_item', JSON.stringify(idx));
+        localStorage.setItem('math_battle_held_item', JSON.stringify(item));
         this._updateItemCollection(item.name);
         this.sound.playSe('buy');
         this._updateShopGoldDisplay();
