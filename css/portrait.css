@@ -513,7 +513,7 @@
 }
 
 #app.portrait-mode #top-screen .title-img {
-    max-width: 85%;
+    max-width: 93.5%;
     margin-bottom: 10px;
 }
 
@@ -530,8 +530,8 @@
 }
 
 #app.portrait-mode .top-battle-btn {
-    font-size: 60px !important;
-    padding: 48px 20px !important;
+    font-size: 65px !important;
+    padding: 30px 20px !important;
     width: 100%;
     height: auto !important;
 }

@@ -1034,7 +1034,6 @@ input[type="text"]:focus {
     height: 100%;
     object-fit: contain;
     cursor: pointer;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 1)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
     transition: transform 0.15s;
 }
 

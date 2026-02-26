@@ -307,7 +307,7 @@ class Game {
         swordLabelEl.classList.add('equip-flash');
         document.getElementById('sword-aura-wrapper').style.display = 'inline-flex';
         this._updateAuraUI();
-        document.getElementById('shield-label').style.display = 'none';
+        document.getElementById('shield-label').style.visibility = 'hidden';
         document.getElementById('shield-label').classList.remove('equip-flash');
         this.defeatTimes = [];
 
@@ -804,7 +804,7 @@ class Game {
                 this.sound.playSe('shielddamage');
 
                 setTimeout(() => {
-                    document.getElementById('shield-label').style.display = 'none';
+                    document.getElementById('shield-label').style.visibility = 'hidden';
                     this._shakeScreen();
                     this._showMessage(`${shieldName}は\nこわれてしまった！`, false, 2000, 'text-monster-action');
                     this.sound.playSe('crush');
@@ -1091,7 +1091,7 @@ class Game {
                 this.sound.playSe('shielddamage');
 
                 setTimeout(() => {
-                    document.getElementById('shield-label').style.display = 'none';
+                    document.getElementById('shield-label').style.visibility = 'hidden';
                     this._shakeScreen();
                     this._showMessage(`${shieldName}は\nこわれてしまった！`, false, 2000, 'text-monster-action');
                     this.sound.playSe('crush');
@@ -1441,7 +1441,7 @@ class Game {
                 this.shieldDurability = shield.maxDurability;
                 const shieldLabelEl = document.getElementById('shield-label');
                 shieldLabelEl.src = 'assets/image/equipment/' + shield.img;
-                shieldLabelEl.style.display = 'inline-block';
+                shieldLabelEl.style.visibility = 'visible';
                 shieldLabelEl.classList.remove('equip-flash');
                 void shieldLabelEl.offsetWidth;
                 shieldLabelEl.classList.add('equip-flash');
@@ -2095,11 +2095,11 @@ class Game {
         if (!el) return;
         el.style.display = 'block';
         if (mode === 'enter') {
-            el.innerHTML = 'いらっしゃい！';
+            el.innerHTML = 'いらっしゃい';
         } else if (mode === 'waiting') {
             el.innerHTML = 'じぶんの こうげきの ときに<br>アイテムを さわるんじゃ';
         } else if (mode === 'leave') {
-            el.innerHTML = 'ありがとう！';
+            el.innerHTML = 'ありがとう';
         }
     }
 
