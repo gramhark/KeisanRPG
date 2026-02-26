@@ -1937,8 +1937,7 @@ class Game {
             collection[monsterName] = {
                 defeated: true,
                 fastestTime: time,
-                count: 1,
-                imageSrc: m.imageSrc  // 画像パスも保存
+                count: 1
             };
         } else {
             const rec = collection[monsterName];
@@ -1946,7 +1945,8 @@ class Game {
             if (time < rec.fastestTime) {
                 rec.fastestTime = time;
             }
-            rec.imageSrc = m.imageSrc;  // 画像パスを更新
+            // 不要なプロパティを削除（クリーンアップ）
+            if (rec.imageSrc) delete rec.imageSrc;
         }
 
         try {
@@ -2086,9 +2086,13 @@ class Game {
             return;
         }
 
-        // チェックサム追加
+        // チェックサム追加（同時に不要なデータを削除したコピーを作成）
         const dataToSave = {};
-        keys.forEach(k => { dataToSave[k] = collection[k]; });
+        keys.forEach(k => {
+            const entry = { ...collection[k] };
+            delete entry.imageSrc;
+            dataToSave[k] = entry;
+        });
         dataToSave['_checksum'] = this._generateChecksum(dataToSave);
 
         const json = JSON.stringify(dataToSave, null, 2);
@@ -2137,6 +2141,11 @@ class Game {
                     alert('このファイルは かいざんされているかも！ よみこめないよ！');
                     return;
                 }
+
+                // 読み込み後に不要なデータを削除してクリーンアップ
+                Object.keys(dataWithoutChecksum).forEach(k => {
+                    if (dataWithoutChecksum[k].imageSrc) delete dataWithoutChecksum[k].imageSrc;
+                });
 
                 // localStorageに上書き保存（_checksumは除外）
                 const STORAGE_KEY = 'math_battle_collection_v1';
