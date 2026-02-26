@@ -678,6 +678,9 @@ class Game {
         this.problem = new MathProblem(this.leftDigits, this.rightDigits, this.operators, isBoss);
         this.monsterBattleStart = Date.now();
 
+        // 最初のバトル開始時に きのけん(sword01) をアイテムノートに登録する
+        this._updateItemCollection('きのけん');
+
         this.startPlayerTurn();
     }
 
@@ -1597,12 +1600,19 @@ class Game {
         });
     }
 
-    _openImageModal(src, name, record = null) {
+    _openImageModal(src, name, record = null, isItem = false) {
         const modal = document.getElementById('image-modal');
         const modalImg = document.getElementById('image-modal-img');
         const captionText = document.getElementById('caption');
         modal.classList.add('active');
         modalImg.src = src;
+
+        // Apply yellow glow for items, otherwise default (monster) glow
+        if (isItem) {
+            modalImg.classList.add('item-zoom-glow');
+        } else {
+            modalImg.classList.remove('item-zoom-glow');
+        }
 
         let captionHTML = `<span class="modal-name">${name}</span>`;
         if (record) {
@@ -2069,12 +2079,14 @@ class Game {
         setTimeout(() => {
             if (this.state === GameState.SHOP) this._updateShopClerkSay('waiting');
         }, 2000);
+        this.sound.playShopBgm();
         this.adjustScale();
     }
 
     hideShop() {
         this._updateShopClerkSay('leave');
         setTimeout(() => {
+            this.sound.stopBgm();
             this.state = GameState.TOP;
             document.getElementById('shop-screen').classList.remove('active');
             document.getElementById('top-screen').classList.add('active');
@@ -2231,6 +2243,9 @@ class Game {
                 } else {
                     imgEl.classList.add('item-note-glow');
                     nameEl.textContent = item.name;
+                    card.addEventListener('click', () => {
+                        this._openImageModal(`assets/image/${item.dir}/${item.img}`, item.name, null, true);
+                    });
                 }
 
                 imgContainer.appendChild(imgEl);

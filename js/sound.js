@@ -6,6 +6,7 @@ class SoundManager {
         this.bgmHeal = document.getElementById('bgm-heal');
         this.bgmClear = document.getElementById('bgm-clear');
         this.bgmGameover = document.getElementById('bgm-gameover');
+        this.bgmShop = document.getElementById('bgm-shop');
         this.seAttack = document.getElementById('se-attack');
         this.seCritical = document.getElementById('se-critical');
         this.seDamage = document.getElementById('se-damage');
@@ -40,6 +41,7 @@ class SoundManager {
         this.bgmHeal.src = 'assets/audio/BGM/Healbattle.webm';
         this.bgmClear.src = 'assets/audio/BGM/clearBGM.webm';
         this.bgmGameover.src = 'assets/audio/BGM/gameover.webm';
+        this.bgmShop.src = 'assets/audio/BGM/SHOP.webm';
         this.seAttack.src = 'assets/audio/SE/attack.webm';
         this.seCritical.src = 'assets/audio/SE/critical.webm';
         this.seDamage.src = 'assets/audio/SE/damage.webm';
@@ -136,6 +138,20 @@ class SoundManager {
         }
     }
 
+    playShopBgm() {
+        if (this.currentBgm && this.currentBgm !== this.bgmShop) {
+            if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
+            this.currentBgm.pause();
+            if (this.currentBgm !== this.bgmBattle) {
+                this.currentBgm.currentTime = 0;
+            }
+        }
+        if (this.currentBgm !== this.bgmShop || this.bgmShop.paused) {
+            this.currentBgm = this.bgmShop;
+            this.fadeInBgm(this.bgmShop, 0.5, 1000);
+        }
+    }
+
     stopBgm() {
         if (this.currentBgm) {
             if (this.currentBgm._fadeInterval) clearInterval(this.currentBgm._fadeInterval);
@@ -144,7 +160,7 @@ class SoundManager {
         }
 
         // 全BGMをリセット（ゲームオーバー/タイトル戻り時用）
-        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover, this.bgmBossAngry, this.bgmSpecial].forEach(bgm => {
+        [this.bgmBattle, this.bgmBoss, this.bgmRare, this.bgmHeal, this.bgmClear, this.bgmGameover, this.bgmBossAngry, this.bgmSpecial, this.bgmShop].forEach(bgm => {
             if (bgm && bgm._fadeInterval) clearInterval(bgm._fadeInterval);
             if (bgm) bgm.pause();
             if (bgm) bgm.currentTime = 0;
