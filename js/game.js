@@ -2095,7 +2095,7 @@ class Game {
         if (mode === 'enter') {
             el.textContent = 'いらっしゃい！';
         } else if (mode === 'waiting') {
-            el.textContent = 'じぶんの こうげきの ときに アイテムを さわると つかえるよ';
+            el.textContent = 'じぶんの こうげきの ときに\nアイテムを さわると つかえるよ';
         } else if (mode === 'leave') {
             el.textContent = 'ありがとう！';
         }
