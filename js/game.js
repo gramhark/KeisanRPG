@@ -1335,13 +1335,13 @@ class Game {
 
                 // レアモンスターは2段階上、なければ1段階上、それもなければドロップなし
                 const calcRareSwordLevel = (current) => {
-                    if (current + 2 <= 4) return current + 2;
-                    if (current + 1 <= 4) return current + 1;
+                    if (current + 2 <= 5) return current + 2;
+                    if (current + 1 <= 5) return current + 1;
                     return -1;
                 };
                 const calcRareShieldLevel = (current) => {
-                    if (current + 2 <= 5) return current + 2;
-                    if (current + 1 <= 5) return current + 1;
+                    if (current + 2 <= 6) return current + 2;
+                    if (current + 1 <= 6) return current + 1;
                     return -1;
                 };
 
@@ -1369,10 +1369,10 @@ class Game {
                     }
                 } else if (m.number >= 1 && m.number <= 9) {
                     // 通常モンスター: 確率でドロップ
-                    if (nextSwordLevel <= 4 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
+                    if (nextSwordLevel <= 5 && Math.random() < SWORD_DROP_RATE[this.swordLevel]) {
                         swordDropped = true;
                     }
-                    if (nextShieldLevel <= 5 && Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
+                    if (nextShieldLevel <= 6 && Math.random() < SHIELD_DROP_RATE[this.shieldLevel]) {
                         shieldDropped = true;
                     }
                     // dropSwordLevel / dropShieldLevel はデフォルトの nextSwordLevel / nextShieldLevel のまま
@@ -2494,7 +2494,7 @@ class Game {
             case 'かいふくだま': return 'つかえるかず: なんこでも';
             case 'こうげきだま': return 'つかえるかず: 2こ';
             case 'ぼうぎょだま': return 'つかえるかず: 2こ';
-            case 'とげだま':     return 'つかえるかず: 1かいのバトルで 3こ';
+            case 'とげだま': return 'つかえるかず: 1かいのバトルで 3こ';
             default: return '';
         }
     }
@@ -2586,7 +2586,7 @@ class Game {
             case 'かいふくだま': return this.playerHp < CONSTANTS.PLAYER_MAX_HP;
             case 'こうげきだま': return (this._battleItemUsage.こうげきだま || 0) < 2;
             case 'ぼうぎょだま': return (this._battleItemUsage.ぼうぎょだま || 0) < 2;
-            case 'とげだま':     return (this._monsterItemUsage.とげだま || 0) < 3;
+            case 'とげだま': return (this._monsterItemUsage.とげだま || 0) < 3;
             default: return false;
         }
     }
@@ -2612,7 +2612,7 @@ class Game {
         // 使用回数をカウント
         if (itemName === 'こうげきだま') this._battleItemUsage.こうげきだま = (this._battleItemUsage.こうげきだま || 0) + 1;
         if (itemName === 'ぼうぎょだま') this._battleItemUsage.ぼうぎょだま = (this._battleItemUsage.ぼうぎょだま || 0) + 1;
-        if (itemName === 'とげだま')     this._monsterItemUsage.とげだま = (this._monsterItemUsage.とげだま || 0) + 1;
+        if (itemName === 'とげだま') this._monsterItemUsage.とげだま = (this._monsterItemUsage.とげだま || 0) + 1;
 
         // 確認パネルと選択状態をリセット
         document.getElementById('battle-item-confirm').style.display = 'none';

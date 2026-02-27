@@ -41,6 +41,7 @@ const SWORD_DATA = [
     { name: 'てつのけん', img: 'sword03.webp', bonus: 2 },
     { name: 'はがねのけん', img: 'sword04.webp', bonus: 3 },
     { name: 'きんのけん', img: 'sword05.webp', bonus: 4 },
+    { name: 'クリスタルのけん', img: 'sword06.webp', bonus: 5 },
 ];
 
 const SHIELD_DATA = [
@@ -50,11 +51,12 @@ const SHIELD_DATA = [
     { name: 'てつのたて', img: 'shield03.webp', reduction: 3, maxDurability: 3 },
     { name: 'はがねのたて', img: 'shield04.webp', reduction: 4, maxDurability: 4 },
     { name: 'きんのたて', img: 'shield05.webp', reduction: 5, maxDurability: 5 },
+    { name: 'クリスタルのたて', img: 'shield06.webp', reduction: 5, maxDurability: 6 },
 ];
 
 // インデックス = 現在の所持レベル → 次レベルのドロップ率
-const SWORD_DROP_RATE = [0.60, 0.40, 0.20, 0.10, 0.04, 0];
-const SHIELD_DROP_RATE = [0.40, 0.25, 0.15, 0.07, 0.03, 0];
+const SWORD_DROP_RATE = [0.75, 0.50, 0.25, 0.10, 0.04, 0];
+const SHIELD_DROP_RATE = [0.50, 0.35, 0.20, 0.10, 0.06, 0.03, 0];
 
 /* Shop Item Data */
 const ITEM_DATA = [
