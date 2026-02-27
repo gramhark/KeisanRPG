@@ -8,7 +8,8 @@ const CONSTANTS = {
     NORMAL_DAMAGE: 1,
     CRITICAL_DAMAGE: 2,
     FONT_PIXEL: 'DotGothic16, sans-serif',
-    MAX_GOLD: 99999
+    MAX_GOLD: 99999,
+    MAX_ITEM: 10       // 各アイテムの最大所持数
 };
 
 const FORM_CONFIG = {
@@ -29,7 +30,8 @@ const GameState = {
     RESULT: 'result',
     NOTE: 'note',       // モンスターノート
     ITEM_NOTE: 'item_note', // アイテムノート
-    SHOP: 'shop'        // ショップ
+    SHOP: 'shop',       // ショップ
+    BAG: 'bag'          // カバン
 };
 
 /* Item Data Tables */
@@ -56,7 +58,7 @@ const SHIELD_DROP_RATE = [0.40, 0.25, 0.15, 0.07, 0.03, 0];
 
 /* Shop Item Data */
 const ITEM_DATA = [
-    { name: 'かいふくだま', price: 600, desc: 'HPを かいふくする', img: 'kaihukuDama.webp' },
+    { name: 'かいふくだま', price: 600, desc: 'たいりょくを かいふくする', img: 'kaihukuDama.webp' },
     { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくを あげる', img: 'kougekiDama.webp' },
     { name: 'ぼうぎょだま', price: 800, desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp' },
     { name: 'とげだま', price: 300, desc: 'モンスターに なげる', img: 'togeDama.webp' },

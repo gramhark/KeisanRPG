@@ -40,11 +40,15 @@ class MathProblem {
     }
 
     _generateDivision() {
+        // 被除数（左辺）は除数（右辺）より桁数が少ないと整数商≥2が作れないため、
+        // 割り算に限り左辺の桁数を右辺の桁数以上に揃える
+        const effectiveLeftDigits = Math.max(this.leftDigits, this.rightDigits);
+
         // Try to generate clean division
         for (let i = 0; i < 200; i++) {
             // Determine Constraints
-            const leftMin = this.leftDigits === 1 ? 1 : 10;
-            const leftMax = this.leftDigits === 1 ? 9 : 99;
+            const leftMin = effectiveLeftDigits === 1 ? 1 : 10;
+            const leftMax = effectiveLeftDigits === 1 ? 9 : 99;
             const rightMin = this.rightDigits === 1 ? 2 : 10;
             const rightMax = this.rightDigits === 1 ? 9 : 99;
 
@@ -53,18 +57,7 @@ class MathProblem {
             // Max possible answer = leftMax / rightMin
             const maxAnswer = Math.floor(leftMax / rightMin);
 
-            if (maxAnswer < 2) {
-                // Impossible to satisfy Left/Right constraints with Answer >= 2
-                // Example: Left=1 (max 9), Right=2 (min 10) -> 9/10 < 1.
-                // In this case, we must relax constraints or swap.
-                // Let's assume user wants valid division, so we swap implicitly or just return fallback for now?
-                // Actually, if user sets Left=1, Right=2, they probably mean "Small / Big" which is < 1.
-                // But this game is integer math.
-                // So we must assume they mean "Big / Small" regardless of UI order, OR
-                // we strictly follow UI. If UI says Left=1, Right=2, it's impossible for integer result >= 1.
-                // So we'll trigger fallback logic below.
-                continue;
-            }
+            if (maxAnswer < 2) continue;
 
             // Pick Answer
             // We want answer to be 2..maxAnswer, but cap at 99 (2 digits max)
@@ -90,12 +83,8 @@ class MathProblem {
             }
         }
 
-        // Fallback if strict constraints fail (e.g. Left=1, Right=2)
-        // We will generate a valid "2-digit / 1-digit" or similar reasonable fallback
-        // matching at least one constraint if possible.
-        // If user set Left=2, Right=2, we should have found one (e.g. 90/45=2).
-        // If we really can't, return a simple valid one.
-        const fallbackLeft = this.leftDigits === 1 ? 8 : 24;
+        // Fallback
+        const fallbackLeft = effectiveLeftDigits === 1 ? 8 : 24;
         const fallbackRight = this.rightDigits === 1 ? 2 : 12;
         // Ensure valid division
         if (fallbackLeft >= fallbackRight && fallbackLeft % fallbackRight === 0) {
@@ -112,6 +101,15 @@ class MathProblem {
 
     generate() {
         this.operator = this.operators[Math.floor(Math.random() * this.operators.length)];
+
+        // 左1桁・右2桁の場合、引き算・割り算は左2桁・右1桁として生成する
+        const origLeft = this.leftDigits;
+        const origRight = this.rightDigits;
+        if (this.leftDigits === 1 && this.rightDigits === 2 &&
+            (this.operator === '-' || this.operator === '/')) {
+            this.leftDigits = 2;
+            this.rightDigits = 1;
+        }
 
         if (this.operator === '/') {
             const div = this._generateDivision();
@@ -154,6 +152,10 @@ class MathProblem {
                 }
             }
         }
+
+        // 桁数設定を元に戻す
+        this.leftDigits = origLeft;
+        this.rightDigits = origRight;
 
         const opDisplay = { '+': '＋', '-': '－', '*': '×', '/': '÷' }[this.operator];
         this.displayText = `${this.left} ${opDisplay} ${this.right} ＝ `;

@@ -36,11 +36,14 @@
                     </div>
                     <div class="top-menu-row">
                         <button id="top-shop-btn" class="green-btn">ショップ</button>
-                        <button id="top-request-btn" class="secondary-btn">アイデアを おくる</button>
+                        <button id="top-bag-btn" class="green-btn">カバン</button>
                     </div>
                     <div class="top-menu-row">
                         <button id="top-save-backup-btn" class="secondary-btn">データを ほぞん</button>
                         <button id="top-load-backup-btn" class="secondary-btn">データを よみこむ</button>
+                    </div>
+                    <div class="top-menu-row">
+                        <button id="top-request-btn" class="secondary-btn">アイデアを おくる</button>
                     </div>
                 </div>
             </div>
@@ -90,6 +93,19 @@
                 </div>
 
                 <button id="start-btn" class="primary-btn">バトルスタート</button>
+            </div>
+        </div>
+
+        <!-- Bag Screen (カバン) -->
+        <div id="bag-screen" class="screen">
+            <button id="close-bag-btn" class="quit-battle-btn" aria-label="トップにもどる">
+                <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                </svg>
+            </button>
+            <h1 class="title">カバン</h1>
+            <div id="bag-grid" class="bag-grid">
+                <!-- Populated by JS -->
             </div>
         </div>
 
@@ -174,7 +190,7 @@
                             <img id="shield-label" class="sword-label" src="assets/image/equipment/shield01.webp"
                                 alt="はがねのたて" style="visibility:hidden;">
                             <div id="item-slot-container" class="item-slot-container">
-                                <img id="item-slot-img" class="item-slot-img" src="" alt="" style="display:none;">
+                                <img id="kaban-slot-img" class="item-slot-img kaban-slot-img" src="assets/image/other/kaban.webp" alt="カバン">
                             </div>
                         </div>
                         <div class="hp-status">
@@ -237,6 +253,46 @@
             <div class="overlay-content">
                 <p id="shop-msg-text" class="shop-msg-text"></p>
                 <button id="shop-msg-close-btn" class="primary-btn">とじる</button>
+            </div>
+        </div>
+
+        <!-- Bag Item Detail Overlay (カバン画面でタップしたとき) -->
+        <div id="bag-detail-overlay" class="overlay bag-detail-overlay">
+            <div class="overlay-content bag-detail-content">
+                <img id="bag-detail-img" class="bag-detail-img" src="" alt="">
+                <h2 id="bag-detail-name" class="bag-detail-name"></h2>
+                <p id="bag-detail-desc" class="bag-detail-desc"></p>
+                <p id="bag-detail-limit" class="bag-detail-limit"></p>
+                <p id="bag-detail-count" class="bag-detail-count"></p>
+                <button id="bag-detail-close-btn" class="primary-btn bag-detail-close-btn">とじる</button>
+            </div>
+        </div>
+
+        <!-- Battle Bag Overlay (戦闘中カバン使用ウィンドウ) -->
+        <div id="battle-bag-overlay" class="overlay battle-bag-overlay">
+            <div class="battle-bag-content">
+                <div class="battle-bag-header">
+                    <button id="battle-bag-close-btn" class="quit-battle-btn" aria-label="もどる">
+                        <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                        </svg>
+                    </button>
+                    <h2 class="battle-bag-title">カバン</h2>
+                </div>
+                <div id="battle-bag-grid" class="battle-bag-grid">
+                    <!-- Populated by JS -->
+                </div>
+                <div id="battle-item-confirm" class="battle-item-confirm" style="display:none;">
+                    <button id="battle-item-use-btn" class="primary-btn">つかう</button>
+                    <button id="battle-item-cancel-btn" class="secondary-btn">やめる</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Use Limit Message (つかえないよ！) -->
+        <div id="item-limit-overlay" class="overlay item-limit-overlay">
+            <div class="item-limit-content">
+                <p class="item-limit-text">つかえないよ！</p>
             </div>
         </div>
 

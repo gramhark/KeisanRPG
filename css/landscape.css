@@ -507,7 +507,7 @@
 #app.landscape-mode .top-menu {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
     width: 600px;
 }
 
@@ -520,13 +520,13 @@
 
 #app.landscape-mode .top-menu-row {
     display: flex;
-    gap: 24px;
+    gap: 12px;
 }
 
 #app.landscape-mode .top-menu-row button {
     flex: 1;
-    font-size: 20px !important;
-    padding: 15px 10px !important;
+    font-size: 18px !important;
+    padding: 11px 8px !important;
     height: auto !important;
 }
 
@@ -714,4 +714,78 @@
 #app.landscape-mode #item-use-img {
     width: 180px;
     height: 180px;
+}
+
+/* ============================================================
+   カバン画面 (横画面)
+   ============================================================ */
+#app.landscape-mode #bag-screen {
+    position: relative;
+    padding: 0;
+}
+
+#app.landscape-mode #bag-screen .title {
+    font-size: 40px;
+    padding: 16px 20px 6px;
+    text-align: center;
+}
+
+#app.landscape-mode .bag-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 20px 30px;
+    flex: 1;
+    overflow-y: auto;
+    align-content: start;
+}
+
+#app.landscape-mode .bag-card {
+    background: linear-gradient(145deg, #1a2138, #111526);
+    border: 3px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+#app.landscape-mode .bag-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.4);
+    border-color: var(--primary-color);
+}
+
+#app.landscape-mode .bag-card--empty {
+    opacity: 0.5;
+}
+
+#app.landscape-mode .bag-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+#app.landscape-mode .bag-item-count {
+    font-family: var(--font-pixel);
+    font-size: 30px;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+#app.landscape-mode .bag-item-name {
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    color: #e2e8f0;
+    text-align: center;
+}
+
+/* カバンアイコン（戦闘中）*/
+#app.landscape-mode .kaban-slot-img {
+    width: 39px;
+    height: 39px;
 }

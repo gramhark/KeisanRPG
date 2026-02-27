@@ -40,11 +40,15 @@ class Game {
         this.specialMoveReady = false; // 必殺技待機フラグ
         this.hasSpecialMonsterAppeared = false; // スペシャルモンスター出現済みフラグ
 
-        // Gold & Item
+        // Gold & Bag
         this.gold = Math.min(parseInt(localStorage.getItem('math_battle_gold')) || 0, CONSTANTS.MAX_GOLD);
-        try { this.heldItem = JSON.parse(localStorage.getItem('math_battle_held_item')); } catch (e) { this.heldItem = null; }
+        this.bag = this._loadBag(); // { かいふくだま: N, こうげきだま: N, ... }
         this._shopSelectedItemIdx = null;
         this.defenseBonus = 0; // ぼうぎょだまによる防御補正（1バトル中有効）
+        // バトル中アイテム使用回数（1バトル通算 or モンスター1体）
+        this._battleItemUsage = { こうげきだま: 0, ぼうぎょだま: 0 };
+        this._monsterItemUsage = { とげだま: 0 };
+        this._battleSelectedItem = null;
 
         // Auto Scaling
         window.addEventListener('resize', () => this.adjustScale());
@@ -180,6 +184,7 @@ class Game {
         document.getElementById('top-note-btn').addEventListener('click', () => this.showNote());
         document.getElementById('top-item-note-btn').addEventListener('click', () => this.showItemNote());
         document.getElementById('top-shop-btn').addEventListener('click', () => this.showShop());
+        document.getElementById('top-bag-btn').addEventListener('click', () => this.showBag());
 
         // Setup Screen back button
         document.getElementById('back-to-top-btn').addEventListener('click', () => this.showTop());
@@ -187,6 +192,12 @@ class Game {
         // Phase 1: Monster Note
         document.getElementById('close-note-btn').addEventListener('click', () => {
             this.hideNote();
+        });
+
+        // Bag Screen
+        document.getElementById('close-bag-btn').addEventListener('click', () => this.hideBag());
+        document.getElementById('bag-detail-close-btn').addEventListener('click', () => {
+            document.getElementById('bag-detail-overlay').classList.remove('active');
         });
 
         // Item Note
@@ -203,12 +214,21 @@ class Game {
             document.getElementById('shop-msg-overlay').classList.remove('active');
         });
 
-        // Item Slot (battle)
-        const itemSlotImg = document.getElementById('item-slot-img');
-        if (itemSlotImg) {
-            itemSlotImg.addEventListener('click', () => this._onItemSlotTap());
-            itemSlotImg.addEventListener('touchstart', (e) => { e.preventDefault(); this._onItemSlotTap(); }, { passive: false });
+        // Kaban Slot (battle) — カバンアイコンをタップでカバンウィンドウを開く
+        const kabanSlotImg = document.getElementById('kaban-slot-img');
+        if (kabanSlotImg) {
+            kabanSlotImg.addEventListener('click', () => this._openBattleBag());
+            kabanSlotImg.addEventListener('touchstart', (e) => { e.preventDefault(); this._openBattleBag(); }, { passive: false });
         }
+
+        // Battle Bag Overlay
+        document.getElementById('battle-bag-close-btn').addEventListener('click', () => this._closeBattleBag());
+        document.getElementById('battle-item-use-btn').addEventListener('click', () => this._executeBattleItemUse());
+        document.getElementById('battle-item-cancel-btn').addEventListener('click', () => {
+            document.getElementById('battle-item-confirm').style.display = 'none';
+            document.querySelectorAll('.battle-bag-card.selected').forEach(c => c.classList.remove('selected'));
+            this._battleSelectedItem = null;
+        });
 
         // Phase 2: Backup Feature (JSON)
         document.getElementById('top-save-backup-btn').addEventListener('click', () => this.saveBackup());
@@ -291,7 +311,9 @@ class Game {
         this.defenseBonus = 0;
         this.dodgeStreak = 0;
         this.specialMoveReady = false;
-        this._updateItemSlotUI();
+        // バトル通算の使用回数リセット
+        this._battleItemUsage = { こうげきだま: 0, ぼうぎょだま: 0 };
+        this._monsterItemUsage = { とげだま: 0 };
         const swordLabelEl = document.getElementById('sword-label');
         swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
         swordLabelEl.classList.remove('equip-flash');
@@ -662,6 +684,9 @@ class Game {
     startBattle() {
         document.getElementById('interval-overlay').classList.remove('active', 'boss-entrance');
         this.state = GameState.TRANSITION; // Block during announcement
+
+        // モンスター1体ごとのアイテム使用回数リセット
+        this._monsterItemUsage = { とげだま: 0 };
 
         // ★ バトル開始前に問題表示を即座にクリア（前回の問題文の残像防止）
         this._clearProblemDisplay();
@@ -1149,7 +1174,7 @@ class Game {
 
             m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this._showMessage("たいりょくが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
             await new Promise(resolve => setTimeout(resolve, 1500)); // Wait before next problem
             return true;
@@ -1184,7 +1209,7 @@ class Game {
 
             m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this._showMessage("たいりょくが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
             await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
@@ -1215,7 +1240,7 @@ class Game {
             m.hp = m.maxHp;
             m.attackPower = 1;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this._showMessage("たいりょくが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
             await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
@@ -1231,7 +1256,7 @@ class Game {
 
             m.hp = m.maxHp;
             this._updateMonsterHpUI(m);
-            this._showMessage("HPが ぜんかいふくした！", false, 1500, 'text-monster-action');
+            this._showMessage("たいりょくが ぜんかいふくした！", false, 1500, 'text-monster-action');
             this.sound.playSe('heal');
             await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
@@ -1294,7 +1319,7 @@ class Game {
                 this._updatePlayerHpUI();
                 this.sound.playSe('heal');
                 hasBonus = true;
-                this._showMessage("HPが ぜんかいふくした！", false, 2000, 'text-player-action');
+                this._showMessage("たいりょくが ぜんかいふくした！", false, 2000, 'text-player-action');
             }
 
             const delayAfterBonus = hasBonus ? 2000 : 0;
@@ -2135,9 +2160,9 @@ class Game {
         if (mode === 'enter') {
             el.innerHTML = 'いらっしゃい';
         } else if (mode === 'waiting') {
-            el.innerHTML = 'じぶんの こうげきの ときに<br>アイテムを さわるんじゃ';
+            el.innerHTML = 'じぶんの こうげきの ときに<br>カバンから つかうんじゃ';
         } else if (mode === 'leave') {
-            el.innerHTML = 'ありがとう';
+            el.innerHTML = 'またおいで';
         }
     }
 
@@ -2174,8 +2199,9 @@ class Game {
         if (idx === null || idx === undefined) return;
         const item = ITEM_DATA[idx];
 
-        if (this.heldItem !== null) {
-            this._showShopMsg('アイテムを つかってから\nまた おいで！');
+        const currentCount = this.bag[item.name] || 0;
+        if (currentCount >= CONSTANTS.MAX_ITEM) {
+            this._showShopMsg('もう もてないぞ！');
             return;
         }
         if (this.gold < item.price) {
@@ -2185,12 +2211,13 @@ class Game {
 
         // 購入成功
         this.gold -= item.price;
-        this.heldItem = item; // オブジェクトとして保持（imgやnameが参照できるように）
+        this.bag[item.name] = currentCount + 1;
+        this._saveBag();
         localStorage.setItem('math_battle_gold', this.gold);
-        localStorage.setItem('math_battle_held_item', JSON.stringify(item));
         this._updateItemCollection(item.name);
         this.sound.playSe('buy');
         this._updateShopGoldDisplay();
+        this._renderShopItems(); // 個数表示を更新
         this._shopSelectedItemIdx = null;
         document.getElementById('shop-item-overlay').classList.remove('active');
         this._showShopMsg(`${item.name}を\nかった！`);
@@ -2377,36 +2404,234 @@ class Game {
     }
 
     /* ============================================================
-       Item Slot (バトル中アイテム使用)
+       カバン (バトル中アイテム使用)
        ============================================================ */
-    _updateItemSlotUI() {
-        const img = document.getElementById('item-slot-img');
-        if (!img) return;
-        if (this.heldItem) {
-            img.src = 'assets/image/item/' + this.heldItem.img;
-            img.style.display = '';
-        } else {
-            img.style.display = 'none';
+
+    /** バッグデータをlocalStorageから読み込む */
+    _loadBag() {
+        try {
+            const stored = JSON.parse(localStorage.getItem('math_battle_bag') || '{}');
+            const bag = {};
+            ITEM_DATA.forEach(item => {
+                bag[item.name] = Math.max(0, Math.min(CONSTANTS.MAX_ITEM,
+                    parseInt(stored[item.name]) || 0));
+            });
+            return bag;
+        } catch (e) {
+            const bag = {};
+            ITEM_DATA.forEach(item => { bag[item.name] = 0; });
+            return bag;
         }
     }
 
-    _onItemSlotTap() {
+    /** バッグデータをlocalStorageに保存する */
+    _saveBag() {
+        localStorage.setItem('math_battle_bag', JSON.stringify(this.bag));
+    }
+
+    /** カバンを開く（TOPから） */
+    showBag() {
+        this.state = GameState.BAG;
+        document.getElementById('top-screen').classList.remove('active');
+        document.getElementById('bag-screen').classList.add('active');
+        this.adjustScale();
+        this._renderBagGrid();
+    }
+
+    hideBag() {
+        document.getElementById('bag-detail-overlay').classList.remove('active');
+        this.state = GameState.TOP;
+        document.getElementById('bag-screen').classList.remove('active');
+        document.getElementById('top-screen').classList.add('active');
+        this.adjustScale();
+    }
+
+    /** カバン画面のアイテムグリッドを描画する */
+    _renderBagGrid() {
+        const grid = document.getElementById('bag-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        ITEM_DATA.forEach(item => {
+            const count = this.bag[item.name] || 0;
+            const card = document.createElement('div');
+            card.className = 'bag-card' + (count === 0 ? ' bag-card--empty' : '');
+
+            const imgEl = document.createElement('img');
+            imgEl.src = 'assets/image/item/' + item.img;
+            imgEl.className = 'bag-item-img';
+            if (count === 0) imgEl.classList.add('bag-img--empty');
+
+            const countEl = document.createElement('div');
+            countEl.className = 'bag-item-count';
+            countEl.textContent = `×${count}`;
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'bag-item-name';
+            nameEl.textContent = item.name;
+
+            card.appendChild(imgEl);
+            card.appendChild(countEl);
+            card.appendChild(nameEl);
+
+            card.addEventListener('click', () => this._showBagItemDetail(item, count));
+            grid.appendChild(card);
+        });
+    }
+
+    /** カバン画面：アイテム詳細を表示する */
+    _showBagItemDetail(item, count) {
+        document.getElementById('bag-detail-img').src = 'assets/image/item/' + item.img;
+        document.getElementById('bag-detail-name').textContent = item.name;
+        document.getElementById('bag-detail-desc').textContent = item.desc;
+        document.getElementById('bag-detail-limit').textContent = this._getItemLimitText(item.name);
+        document.getElementById('bag-detail-count').textContent = `${count} / ${CONSTANTS.MAX_ITEM}`;
+        document.getElementById('bag-detail-overlay').classList.add('active');
+    }
+
+    /** アイテムの戦闘中使用制限テキストを返す */
+    _getItemLimitText(itemName) {
+        switch (itemName) {
+            case 'かいふくだま': return 'つかえるかず: なんこでも';
+            case 'こうげきだま': return 'つかえるかず: 2こ';
+            case 'ぼうぎょだま': return 'つかえるかず: 2こ';
+            case 'とげだま':     return 'つかえるかず: 1かいのバトルで 3こ';
+            default: return '';
+        }
+    }
+
+    /** 戦闘中カバンウィンドウを開く */
+    _openBattleBag() {
         if (this.state !== GameState.BATTLE || !this.isPlayerTurn) return;
-        if (!this.heldItem) return;
         // タイマーを一時停止
         clearInterval(this.timerIntervalId);
         this.timerIntervalId = null;
         this._pausedElapsed = Date.now() - this.timerStart;
         this.state = GameState.TRANSITION;
-        this._useItem(this.heldItem);
+
+        this._battleSelectedItem = null;
+        this._renderBattleBagGrid();
+        document.getElementById('battle-item-confirm').style.display = 'none';
+        document.getElementById('battle-bag-overlay').classList.add('active');
     }
 
-    _useItem(item) {
-        // アイテム使用演出
+    /** 戦闘中カバンウィンドウを閉じ、バトルを再開する */
+    _closeBattleBag() {
+        document.getElementById('battle-bag-overlay').classList.remove('active');
+        document.getElementById('battle-item-confirm').style.display = 'none';
+        this._battleSelectedItem = null;
+        // タイマー再開
+        this.timerStart = Date.now() - this._pausedElapsed;
+        this.state = GameState.BATTLE;
+        this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+        this._timerLoop();
+    }
+
+    /** 戦闘中カバンのアイテムグリッドを描画する */
+    _renderBattleBagGrid() {
+        const grid = document.getElementById('battle-bag-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        ITEM_DATA.forEach(item => {
+            const count = this.bag[item.name] || 0;
+            const card = document.createElement('div');
+            card.className = 'battle-bag-card' + (count === 0 ? ' battle-bag-card--empty' : '');
+
+            const imgEl = document.createElement('img');
+            imgEl.src = 'assets/image/item/' + item.img;
+            imgEl.className = 'battle-bag-item-img';
+            if (count === 0) imgEl.classList.add('bag-img--empty');
+
+            const countEl = document.createElement('div');
+            countEl.className = 'battle-bag-item-count';
+            countEl.textContent = `×${count}`;
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'battle-bag-item-name';
+            nameEl.textContent = item.name;
+
+            card.appendChild(imgEl);
+            card.appendChild(countEl);
+            card.appendChild(nameEl);
+
+            if (count > 0) {
+                card.addEventListener('click', () => this._onBattleBagItemTap(item.name, card));
+                card.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this._onBattleBagItemTap(item.name, card);
+                }, { passive: false });
+            }
+
+            grid.appendChild(card);
+        });
+    }
+
+    /** 戦闘中カバンでアイテムをタップしたとき */
+    _onBattleBagItemTap(itemName, card) {
+        if (!this._canUseItem(itemName)) {
+            // 使用制限に達している
+            this._showItemLimitMsg();
+            return;
+        }
+        // 選択中のカードをハイライト
+        document.querySelectorAll('.battle-bag-card.selected').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        this._battleSelectedItem = itemName;
+        document.getElementById('battle-item-confirm').style.display = 'flex';
+    }
+
+    /** アイテムが使用可能かチェックする */
+    _canUseItem(itemName) {
+        if ((this.bag[itemName] || 0) <= 0) return false;
+        switch (itemName) {
+            case 'かいふくだま': return this.playerHp < CONSTANTS.PLAYER_MAX_HP;
+            case 'こうげきだま': return (this._battleItemUsage.こうげきだま || 0) < 2;
+            case 'ぼうぎょだま': return (this._battleItemUsage.ぼうぎょだま || 0) < 2;
+            case 'とげだま':     return (this._monsterItemUsage.とげだま || 0) < 3;
+            default: return false;
+        }
+    }
+
+    /** 戦闘中 つかう を実行する */
+    _executeBattleItemUse() {
+        const itemName = this._battleSelectedItem;
+        if (!itemName) return;
+
+        // 念のため再チェック
+        if (!this._canUseItem(itemName)) {
+            this._showItemLimitMsg();
+            document.getElementById('battle-item-confirm').style.display = 'none';
+            this._battleSelectedItem = null;
+            document.querySelectorAll('.battle-bag-card.selected').forEach(c => c.classList.remove('selected'));
+            return;
+        }
+
+        // バッグから消費
+        this.bag[itemName]--;
+        this._saveBag();
+
+        // 使用回数をカウント
+        if (itemName === 'こうげきだま') this._battleItemUsage.こうげきだま = (this._battleItemUsage.こうげきだま || 0) + 1;
+        if (itemName === 'ぼうぎょだま') this._battleItemUsage.ぼうぎょだま = (this._battleItemUsage.ぼうぎょだま || 0) + 1;
+        if (itemName === 'とげだま')     this._monsterItemUsage.とげだま = (this._monsterItemUsage.とげだま || 0) + 1;
+
+        // 確認パネルと選択状態をリセット
+        document.getElementById('battle-item-confirm').style.display = 'none';
+        document.querySelectorAll('.battle-bag-card.selected').forEach(c => c.classList.remove('selected'));
+        this._battleSelectedItem = null;
+
+        // カバンウィンドウを一時的に隠してアイテム使用演出
+        document.getElementById('battle-bag-overlay').classList.remove('active');
+
+        const item = ITEM_DATA.find(i => i.name === itemName);
+        this._useItemEffect(item);
+    }
+
+    /** アイテム使用演出（カバンウィンドウを閉じた後に実行） */
+    _useItemEffect(item) {
         const useImg = document.getElementById('item-use-img');
         useImg.src = 'assets/image/item/' + item.img;
         useImg.classList.remove('item-use-anim');
-        void useImg.offsetWidth; // reflow
+        void useImg.offsetWidth;
         useImg.classList.add('item-use-anim');
         useImg.style.display = '';
 
@@ -2419,7 +2644,7 @@ class Game {
                 this.playerHp = Math.min(CONSTANTS.PLAYER_MAX_HP, this.playerHp + 5);
                 this._updatePlayerHpUI();
                 this.sound.playSe('heal');
-                message = 'HPが\nかいふくした！';
+                message = 'たいりょくが\nかいふくした！';
                 break;
             case 'こうげきだま':
                 this.swordBonus += 1;
@@ -2445,27 +2670,30 @@ class Game {
             }
         }
 
-        // 所持アイテムをクリア
-        this.heldItem = null;
-        localStorage.removeItem('math_battle_held_item');
-        this._updateItemSlotUI();
-
         this._showMessage(message, false, 2000, 'text-player-action');
 
         setTimeout(() => {
             useImg.style.display = 'none';
             useImg.classList.remove('item-use-anim');
             if (thornKill) {
-                // とげだまでモンスターを倒した場合
+                // とげだまでモンスターを倒した
                 this._onMonsterDefeated(m);
             } else {
-                // タイマー再開
-                this.timerStart = Date.now() - this._pausedElapsed;
-                this.state = GameState.BATTLE;
-                this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
-                this._timerLoop();
+                // カバンウィンドウを再表示
+                this._renderBattleBagGrid();
+                document.getElementById('battle-item-confirm').style.display = 'none';
+                document.getElementById('battle-bag-overlay').classList.add('active');
             }
         }, 2000);
+    }
+
+    /** つかえないよ！メッセージを1.5秒表示する */
+    _showItemLimitMsg() {
+        const overlay = document.getElementById('item-limit-overlay');
+        overlay.classList.add('active');
+        setTimeout(() => {
+            overlay.classList.remove('active');
+        }, 1500);
     }
 
     _doMalleDrop(bossId, onComplete) {
@@ -2512,10 +2740,9 @@ class Game {
             dataToSave[k] = entry;
         });
 
-        // 追加データ（ゴールド・所持アイテム・アイテムコレクション）
+        // 追加データ（ゴールド・カバン・アイテムコレクション）
         dataToSave['_money'] = this.gold;
-        const heldItemForSave = JSON.parse(localStorage.getItem('math_battle_held_item') || 'null');
-        dataToSave['_equippedItem'] = heldItemForSave ? heldItemForSave.name : null;
+        dataToSave['_bag'] = { ...this.bag };
         try {
             dataToSave['_item_collection'] = JSON.parse(localStorage.getItem('math_battle_item_collection_v1') || '{}');
         } catch (e) { dataToSave['_item_collection'] = {}; }
@@ -2571,12 +2798,14 @@ class Game {
 
                 // 追加データを取り出す（後方互換: なければデフォルト値）
                 const loadedMoney = typeof dataWithoutChecksum['_money'] === 'number' ? dataWithoutChecksum['_money'] : 0;
-                const loadedEquippedItemName = dataWithoutChecksum['_equippedItem'] || null;
+                const loadedBagRaw = (dataWithoutChecksum['_bag'] && typeof dataWithoutChecksum['_bag'] === 'object')
+                    ? dataWithoutChecksum['_bag'] : {};
                 const loadedItemCollection = (dataWithoutChecksum['_item_collection'] && typeof dataWithoutChecksum['_item_collection'] === 'object')
                     ? dataWithoutChecksum['_item_collection'] : {};
 
                 // モンスターコレクション以外のキーを除外してクリーンアップ
-                const EXTRA_KEYS = ['_money', '_equippedItem', '_item_collection'];
+                // _equippedItemは旧バックアップ互換のため含める
+                const EXTRA_KEYS = ['_money', '_bag', '_equippedItem', '_item_collection'];
                 EXTRA_KEYS.forEach(k => delete dataWithoutChecksum[k]);
                 Object.keys(dataWithoutChecksum).forEach(k => {
                     if (dataWithoutChecksum[k] && dataWithoutChecksum[k].imageSrc) delete dataWithoutChecksum[k].imageSrc;
@@ -2591,20 +2820,14 @@ class Game {
                     this.gold = Math.min(loadedMoney, CONSTANTS.MAX_GOLD);
                     localStorage.setItem('math_battle_gold', this.gold);
 
-                    // 所持アイテム復元
-                    if (loadedEquippedItemName) {
-                        const itemData = ITEM_DATA.find(i => i.name === loadedEquippedItemName);
-                        if (itemData) {
-                            this.heldItem = itemData;
-                            localStorage.setItem('math_battle_held_item', JSON.stringify(itemData));
-                        } else {
-                            this.heldItem = null;
-                            localStorage.removeItem('math_battle_held_item');
-                        }
-                    } else {
-                        this.heldItem = null;
-                        localStorage.removeItem('math_battle_held_item');
-                    }
+                    // カバン（アイテム個数）復元
+                    const restoredBag = {};
+                    ITEM_DATA.forEach(item => {
+                        restoredBag[item.name] = Math.max(0, Math.min(CONSTANTS.MAX_ITEM,
+                            parseInt(loadedBagRaw[item.name]) || 0));
+                    });
+                    this.bag = restoredBag;
+                    this._saveBag();
 
                     // アイテムコレクション復元
                     localStorage.setItem('math_battle_item_collection_v1', JSON.stringify(loadedItemCollection));
@@ -2615,6 +2838,10 @@ class Game {
                     }
                     if (this.state === GameState.SHOP) {
                         this._updateShopGoldDisplay();
+                        this._renderShopItems();
+                    }
+                    if (this.state === GameState.BAG) {
+                        this._renderBagGrid();
                     }
                 } catch (err) {
                     alert('エラーが おきました。');
