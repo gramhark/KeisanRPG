@@ -541,7 +541,7 @@
     position: absolute;
     top: 20px;
     left: 10px;
-    z-index: 15;
+    z-index: 150;
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid rgba(255, 215, 0, 0.55);
     border-radius: 10px;
@@ -568,6 +568,10 @@
 /* ============================================================
    戦闘やめる確認ダイアログ
    ============================================================ */
+#quit-confirm-overlay {
+    z-index: 160;
+}
+
 #quit-confirm-overlay .overlay-content {
     background: var(--panel-color);
     border: 2px solid var(--border-color);

@@ -211,21 +211,8 @@ class Game {
         }
 
         // Phase 2: Backup Feature (JSON)
-        document.getElementById('save-backup-btn').addEventListener('click', () => this.saveBackup());
-        document.getElementById('load-backup-btn').addEventListener('click', () => this.loadBackup());
-        document.getElementById('item-save-backup-btn').addEventListener('click', () => this.saveBackup());
-        document.getElementById('item-load-backup-btn').addEventListener('click', () => this.loadBackup());
-
-        // Note Warning
-        document.getElementById('note-warning-btn').addEventListener('click', () => {
-            document.getElementById('note-warning-modal').classList.add('active');
-        });
-        document.getElementById('item-note-warning-btn').addEventListener('click', () => {
-            document.getElementById('note-warning-modal').classList.add('active');
-        });
-        document.getElementById('close-note-warning-modal').addEventListener('click', () => {
-            document.getElementById('note-warning-modal').classList.remove('active');
-        });
+        document.getElementById('top-save-backup-btn').addEventListener('click', () => this.saveBackup());
+        document.getElementById('top-load-backup-btn').addEventListener('click', () => this.loadBackup());
     }
 
     _updateOperators() {
@@ -1738,8 +1725,11 @@ class Game {
     // バトル離脱（一時停止 → 確認 → TOP遷移）
     // -------------------------------------------------------
     _onQuitBattleBtnClick() {
-        // BATTLE 中のみ受け付ける（TRANSITION中は演出中のため受け付けない）
-        if (this.state !== GameState.BATTLE) return;
+        // もしすでに確認画面が出ていたら何もしない
+        if (document.getElementById('quit-confirm-overlay').classList.contains('active')) return;
+
+        // ゲームオーバーやリザルト画面では受け付けない
+        if (this.state === GameState.GAME_OVER || this.state === GameState.RESULT) return;
 
         // タイマーを停止
         if (this.timerIntervalId) {
@@ -1747,7 +1737,7 @@ class Game {
             this.timerIntervalId = null;
         }
         // 一時停止前の状態と経過時間を保存
-        this._pausedState = GameState.BATTLE;
+        this._pausedState = this.state;
         this._pausedElapsed = this.timerStart ? Date.now() - this.timerStart : 0;
         this.state = GameState.TRANSITION;
 
@@ -1757,11 +1747,13 @@ class Game {
     _resumeFromQuitConfirm() {
         document.getElementById('quit-confirm-overlay').classList.remove('active');
 
-        // 常にBATTLE状態から再開（タイマーを経過時間分ずらして再起動）
-        this.state = GameState.BATTLE;
-        this.timerStart = Date.now() - (this._pausedElapsed || 0);
-        this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
-        this._timerLoop();
+        // 一時停止前の状態から再開（BATTLE状態だった場合のみタイマーを経過時間分ずらして再起動）
+        this.state = this._pausedState || GameState.BATTLE;
+        if (this.state === GameState.BATTLE) {
+            this.timerStart = Date.now() - (this._pausedElapsed || 0);
+            this.timerIntervalId = setInterval(() => this._timerLoop(), 100);
+            this._timerLoop();
+        }
 
         this._pausedState = null;
         this._pausedElapsed = 0;
@@ -2487,7 +2479,7 @@ class Game {
         monsterContainer.appendChild(malleImg);
 
         this.sound.playSe('malle');
-        this._showMessage(`${amount}マール\nてにはいった！`, false, 3000, 'text-neutral');
+        this._showMessage(`${amount}マールを\nてにいれた！`, false, 3000, 'text-neutral');
 
         setTimeout(() => {
             malleImg.remove();

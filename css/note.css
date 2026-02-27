@@ -206,7 +206,7 @@
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
         "save load"
-        "info close";
+        "info info";
     gap: 15px;
 }
 
@@ -220,10 +220,6 @@
 
 #app.portrait-mode .note-btn-load {
     grid-area: load;
-}
-
-#app.portrait-mode .note-btn-close {
-    grid-area: close;
 }
 
 #app.portrait-mode .note-footer-buttons button {

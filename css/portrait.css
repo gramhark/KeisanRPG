@@ -471,21 +471,7 @@
     margin-top: 8px;
 }
 
-/* --- Note Warning Overrides --- */
-#app.portrait-mode #note-warning-modal .overlay-content {
-    max-width: 700px !important;
-    padding: 40px !important;
-}
 
-#app.landscape-mode #note-warning-modal .overlay-content {
-    max-width: 700px !important;
-    /* 500px * 1.2 */
-}
-
-#app.portrait-mode #note-warning-modal h2 {
-    font-size: 40px !important;
-    margin-bottom: 30px !important;
-}
 
 /* ============================================================
    トップ画面 (縦画面)
@@ -744,12 +730,6 @@
     padding: 30px 30px 10px;
 }
 
-#app.portrait-mode #close-item-note-btn {
-    font-size: 24px !important;
-    padding: 14px 10px !important;
-    height: auto !important;
-    width: 100%;
-}
 
 /* Item Slot */
 #app.portrait-mode .item-slot-container {

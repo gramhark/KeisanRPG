@@ -38,6 +38,10 @@
                         <button id="top-shop-btn" class="green-btn">ショップ</button>
                         <button id="top-request-btn" class="secondary-btn">アイデアを おくる</button>
                     </div>
+                    <div class="top-menu-row">
+                        <button id="top-save-backup-btn" class="secondary-btn">データを ほぞん</button>
+                        <button id="top-load-backup-btn" class="secondary-btn">データを よみこむ</button>
+                    </div>
                 </div>
             </div>
             <footer class="setup-footer">
@@ -93,17 +97,14 @@
 
         <!-- Item Note Screen (アイテムノート) -->
         <div id="item-note-screen" class="screen">
+            <button id="close-item-note-btn" class="quit-battle-btn" aria-label="トップにもどる">
+                <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                </svg>
+            </button>
             <h1 class="title">アイテムノート</h1>
             <div id="item-note-grid" class="note-grid" style="flex: 1; overflow-y: auto;">
                 <!-- Populated by JS -->
-            </div>
-            <div class="note-footer">
-                <div class="note-footer-buttons">
-                    <button id="item-note-warning-btn" class="secondary-btn note-btn-info">ノートのせつめい</button>
-                    <button id="item-save-backup-btn" class="secondary-btn note-btn-save">ほぞん</button>
-                    <button id="item-load-backup-btn" class="secondary-btn note-btn-load">よみこむ</button>
-                    <button id="close-item-note-btn" class="primary-btn note-btn-close">もどる</button>
-                </div>
             </div>
         </div>
 
@@ -321,34 +322,14 @@
 
         <!-- Note Screen (図鑑画面) -->
         <div id="note-screen" class="screen">
+            <button id="close-note-btn" class="quit-battle-btn" aria-label="トップにもどる">
+                <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 4 L2 16 L14 28 L14 21 L30 21 L30 11 L14 11 Z" fill="#ffd700" />
+                </svg>
+            </button>
             <h1 class="title">モンスターノート</h1>
             <div id="note-grid" class="note-grid" style="flex: 1; overflow-y: auto;">
                 <!-- Javascript will populate this -->
-            </div>
-            <div class="note-footer">
-                <div class="note-footer-buttons">
-                    <button id="note-warning-btn" class="secondary-btn note-btn-info">ノートのせつめい</button>
-                    <button id="save-backup-btn" class="secondary-btn note-btn-save">ほぞん</button>
-                    <button id="load-backup-btn" class="secondary-btn note-btn-load">よみこむ</button>
-                    <button id="close-note-btn" class="primary-btn note-btn-close">もどる</button>
-                </div>
-            </div>
-        </div>
-
-
-
-        <!-- Note Warning Modal -->
-        <div id="note-warning-modal" class="overlay">
-            <div class="overlay-content" style="max-width: 500px; padding: 30px;">
-                <span id="close-note-warning-modal" class="close-modal">&times;</span>
-                <h2 style="color: var(--accent-color); margin-bottom: 20px; text-align: center;">ノートのちゅうい</h2>
-                <div style="font-size: 24px; line-height: 1.6; text-align: left; margin-bottom: 0;">
-                    <p style="margin-bottom: 15px; font-weight: bold; color: var(--primary-color);">ここに かいてあることが
-                        わからないときは おとなの ひとに よんでもらってね！</p>
-                    <p style="margin-bottom: 15px;">ノートは サイトの りれきを けすと クリアされてしまうよ。ちゅういしてね。</p>
-                    <p style="margin-bottom: 0;">もしノートが きえても、 「ほぞん」ボタンで セーブファイルを ほぞんしておけば、<br>「よみこみ」ボタンで ノートをもどせるよ。こまめに
-                        「ほぞん」 しておいてね！</p>
-                </div>
             </div>
         </div>
 

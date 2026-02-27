@@ -702,11 +702,7 @@
     text-align: center;
 }
 
-#app.landscape-mode #close-item-note-btn {
-    font-size: 18px !important;
-    padding: 10px 20px !important;
-    height: auto !important;
-}
+
 
 /* Item Slot */
 #app.landscape-mode .item-slot-container {

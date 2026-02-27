@@ -57,8 +57,8 @@ const SHIELD_DROP_RATE = [0.40, 0.25, 0.15, 0.07, 0.03, 0];
 const ITEM_DATA = [
     { name: 'かいふくだま', price: 600, desc: 'HPを かいふくする', img: 'kaihukuDama.webp' },
     { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくを あげる', img: 'kougekiDama.webp' },
-    { name: 'ぼうぎょだま', price: 400, desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp' },
-    { name: 'とげだま', price: 200, desc: 'モンスターに なげる', img: 'togeDama.webp' },
+    { name: 'ぼうぎょだま', price: 800, desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp' },
+    { name: 'とげだま', price: 300, desc: 'モンスターに なげる', img: 'togeDama.webp' },
 ];
 
 /* Boss Malle Drop Amounts (indexed by bossId 1–16; index 0 unused) */
