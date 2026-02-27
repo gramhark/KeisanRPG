@@ -7,7 +7,8 @@ const CONSTANTS = {
     CRITICAL_THRESHOLD: 3.0,
     NORMAL_DAMAGE: 1,
     CRITICAL_DAMAGE: 2,
-    FONT_PIXEL: 'DotGothic16, sans-serif'
+    FONT_PIXEL: 'DotGothic16, sans-serif',
+    MAX_GOLD: 99999
 };
 
 const FORM_CONFIG = {

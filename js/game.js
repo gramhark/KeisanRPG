@@ -41,7 +41,7 @@ class Game {
         this.hasSpecialMonsterAppeared = false; // スペシャルモンスター出現済みフラグ
 
         // Gold & Item
-        this.gold = parseInt(localStorage.getItem('math_battle_gold')) || 0;
+        this.gold = Math.min(parseInt(localStorage.getItem('math_battle_gold')) || 0, CONSTANTS.MAX_GOLD);
         try { this.heldItem = JSON.parse(localStorage.getItem('math_battle_held_item')); } catch (e) { this.heldItem = null; }
         this._shopSelectedItemIdx = null;
         this.defenseBonus = 0; // ぼうぎょだまによる防御補正（1バトル中有効）
@@ -2110,6 +2110,7 @@ class Game {
 
     hideShop() {
         this._updateShopClerkSay('leave');
+        document.getElementById('shop-item-overlay').classList.remove('active');
         setTimeout(() => {
             this.sound.stopBgm();
             this.state = GameState.TOP;
@@ -2192,6 +2193,7 @@ class Game {
         this._updateShopGoldDisplay();
         this._shopSelectedItemIdx = null;
         document.getElementById('shop-item-overlay').classList.remove('active');
+        this._showShopMsg(`${item.name}を\nかった！`);
     }
 
     _showShopMsg(msg) {
@@ -2468,7 +2470,7 @@ class Game {
 
     _doMalleDrop(bossId, onComplete) {
         const amount = BOSS_MALLE_DROP[bossId] || 0;
-        this.gold += amount;
+        this.gold = Math.min(this.gold + amount, CONSTANTS.MAX_GOLD);
         localStorage.setItem('math_battle_gold', this.gold);
 
         // マール画像をモンスターコンテナに表示
@@ -2586,8 +2588,8 @@ class Game {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataWithoutChecksum));
 
                     // ゴールド復元
-                    this.gold = loadedMoney;
-                    localStorage.setItem('math_battle_gold', loadedMoney);
+                    this.gold = Math.min(loadedMoney, CONSTANTS.MAX_GOLD);
+                    localStorage.setItem('math_battle_gold', this.gold);
 
                     // 所持アイテム復元
                     if (loadedEquippedItemName) {
