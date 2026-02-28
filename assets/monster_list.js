@@ -140,6 +140,7 @@
     "Boss15next_ぼろぼろのヤンダ.webp",
     "Boss16_こうてつカブトサムライ.webp",
     "Boss16next_しんのかみダイオウグソクナイト.webp",
+    "Special_ミスターてっぱん.webp",
     "Special_ミスターといし.webp",
     "Heal_おやみみ～.webp",
     "Heal_かいふくぐさ.webp",

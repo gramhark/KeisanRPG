@@ -16,8 +16,10 @@ const BOSS_ATK = [0, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7];
 const SPECIAL_MONSTER_DATA = {
     'ミスターといし': {
         quote: 'ぶきをつよくしてやろうか・・？'
+    },
+    'ミスターてっぱん': {
+        quote: 'たてをつよくしてやろう'
     }
-    // 今後のSpecialモンスターはここに追加
 };
 
 class Monster {
@@ -25,7 +27,9 @@ class Monster {
         this.number = number;
         this.isRare = isRare;
         this.isHeal = isHeal;
-        this.isSpecial = isSpecial;
+        this.isSpecial = isSpecial; // {boolean}
+        this.specialName = (typeof isSpecial === 'string') ? isSpecial : null; // Special monster specific name identifier
+        if (this.specialName) this.isSpecial = true;
         this.opCount = opCount;
         this.leftDigits = leftDigits;
         this.rightDigits = rightDigits; // needed for boss06 check logic
@@ -177,7 +181,11 @@ function findMonsterImage(monster) {
     } else if (monster.isHeal) {
         candidates = assets.filter(f => f.toLowerCase().startsWith('heal_'));
     } else if (monster.isSpecial) {
-        candidates = assets.filter(f => f.toLowerCase().startsWith('special_'));
+        if (monster.specialName) {
+            candidates = assets.filter(f => f.toLowerCase().startsWith(`special_${monster.specialName}.`));
+        } else {
+            candidates = assets.filter(f => f.toLowerCase().startsWith('special_'));
+        }
     } else {
         // Try specific Boss prefix first if it's the boss stage (10)
         if (monster.number === 10) {

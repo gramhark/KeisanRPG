@@ -780,19 +780,18 @@
 .shop-msg-text {
     font-family: var(--font-pixel);
     font-size: 36px;
-    color: var(--danger-color);
+    color: #4facfe;
     text-align: center;
     line-height: 1.6;
     white-space: pre-line;
-    margin-bottom: 24px;
 }
 
 .shop-msg-overlay .overlay-content {
     background: var(--panel-color);
-    border: 3px solid var(--danger-color);
+    border: 3px solid #4facfe;
     border-radius: 20px;
     padding: 40px 50px;
-    box-shadow: 0 0 20px rgba(255, 75, 75, 0.4);
+    box-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
 }
 
 .shop-msg-overlay #shop-msg-close-btn {
@@ -875,11 +874,26 @@
     padding: 40px 50px;
 }
 
-#app.portrait-mode .bag-detail-name { font-size: 48px; }
-#app.portrait-mode .bag-detail-desc { font-size: 32px; }
-#app.portrait-mode .bag-detail-limit { font-size: 28px; }
-#app.portrait-mode .bag-detail-count { font-size: 36px; }
-#app.portrait-mode .bag-detail-close-btn { font-size: 40px; padding: 18px 60px; }
+#app.portrait-mode .bag-detail-name {
+    font-size: 48px;
+}
+
+#app.portrait-mode .bag-detail-desc {
+    font-size: 32px;
+}
+
+#app.portrait-mode .bag-detail-limit {
+    font-size: 28px;
+}
+
+#app.portrait-mode .bag-detail-count {
+    font-size: 36px;
+}
+
+#app.portrait-mode .bag-detail-close-btn {
+    font-size: 40px;
+    padding: 18px 60px;
+}
 
 /* ============================================================
    戦闘中カバンオーバーレイ
@@ -1009,7 +1023,9 @@
     width: 680px;
 }
 
-#app.portrait-mode .battle-bag-title { font-size: 38px; }
+#app.portrait-mode .battle-bag-title {
+    font-size: 38px;
+}
 
 #app.portrait-mode .battle-bag-grid {
     gap: 18px;
@@ -1026,8 +1042,13 @@
     height: 70px;
 }
 
-#app.portrait-mode .battle-bag-item-count { font-size: 30px; }
-#app.portrait-mode .battle-bag-item-name  { font-size: 22px; }
+#app.portrait-mode .battle-bag-item-count {
+    font-size: 30px;
+}
+
+#app.portrait-mode .battle-bag-item-name {
+    font-size: 22px;
+}
 
 #app.portrait-mode .battle-item-confirm button {
     font-size: 38px;
@@ -1044,10 +1065,23 @@
     min-height: 80px;
 }
 
-#app.landscape-mode .battle-bag-item-img { width: 40px; height: 40px; }
-#app.landscape-mode .battle-bag-item-count { font-size: 18px; }
-#app.landscape-mode .battle-bag-item-name  { font-size: 14px; }
-#app.landscape-mode .battle-item-confirm button { font-size: 24px; padding: 10px 28px; }
+#app.landscape-mode .battle-bag-item-img {
+    width: 40px;
+    height: 40px;
+}
+
+#app.landscape-mode .battle-bag-item-count {
+    font-size: 18px;
+}
+
+#app.landscape-mode .battle-bag-item-name {
+    font-size: 14px;
+}
+
+#app.landscape-mode .battle-item-confirm button {
+    font-size: 24px;
+    padding: 10px 28px;
+}
 
 /* ============================================================
    つかえないよ！ メッセージ
@@ -1074,5 +1108,10 @@
     text-shadow: 0 0 10px rgba(255, 75, 75, 0.6);
 }
 
-#app.portrait-mode .item-limit-text { font-size: 52px; }
-#app.landscape-mode .item-limit-text { font-size: 36px; }
+#app.portrait-mode .item-limit-text {
+    font-size: 52px;
+}
+
+#app.landscape-mode .item-limit-text {
+    font-size: 36px;
+}

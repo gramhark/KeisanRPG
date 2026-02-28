@@ -38,7 +38,8 @@ class Game {
 
         this.dodgeStreak = 0;       // 連続回避カウント (0–3)
         this.specialMoveReady = false; // 必殺技待機フラグ
-        this.hasSpecialMonsterAppeared = false; // スペシャルモンスター出現済みフラグ
+        this.timers = [];
+        this.specialMonstersAppeared = []; // スペシャルモンスター出現済みリスト
 
         // Gold & Bag
         this.gold = Math.min(parseInt(localStorage.getItem('math_battle_gold')) || 0, CONSTANTS.MAX_GOLD);
@@ -210,9 +211,7 @@ class Game {
             document.getElementById('shop-item-overlay').classList.remove('active');
             this._shopSelectedItemIdx = null;
         });
-        document.getElementById('shop-msg-close-btn').addEventListener('click', () => {
-            document.getElementById('shop-msg-overlay').classList.remove('active');
-        });
+        // [REMOVED shop-msg-close-btn listener because of auto-close]
 
         // Kaban Slot (battle) — カバンアイコンをタップでカバンウィンドウを開く
         const kabanSlotImg = document.getElementById('kaban-slot-img');
@@ -296,7 +295,8 @@ class Game {
         // Init Monsters (初期化は通常モンスターのみ。実際の抽選は _determineMonster でおこなう)
         this.monsters = [];
         const opCount = this.operators.length;
-        this.hasSpecialMonsterAppeared = false;
+        this.defeatTimes = [];
+        this.specialMonstersAppeared = [];
         for (let i = 1; i <= CONSTANTS.TOTAL_MONSTERS; i++) {
             const m = new Monster(i, false, false, opCount, this.leftDigits, this.rightDigits, false);
             this.monsters.push(m);
@@ -1297,12 +1297,22 @@ class Game {
 
             // Bonuses
             if (m.isSpecial) {
-                // Special: ドロップなし → 武器補正 +1 → ノート登録
-                this.swordBonus += 1;
-                this.sound.playSe('atkup');
-                this._showAtkUpEffect();
-                hasBonus = true;
-                this._showMessage('けんのつよさが\nあがった！', false, 2000, 'text-player-action');
+                if (m.name === 'ミスターといし') {
+                    // ドロップなし → 武器補正 +1 → ノート登録
+                    this.swordBonus += 1;
+                    this.sound.playSe('atkup');
+                    this._showAtkUpEffect();
+                    hasBonus = true;
+                    this._showMessage('けんのつよさが\nあがった！', false, 2000, 'text-player-action');
+                } else if (m.name === 'ミスターてっぱん') {
+                    // ドロップなし → 盾の耐久度 +1 → ノート登録
+                    this.shieldDurability += 1;
+                    this.sound.playSe('atkup');  // ミスターといしに準ずるため同じSE
+                    this._showDefUpEffect();     // ぼうぎょだま使用時と同じエフェクト
+                    hasBonus = true;
+                    this._showMessage('たてのたいきゅうが\nあがった！', false, 2000, 'text-player-action');
+                }
+
                 setTimeout(() => {
                     if (isNewRecord) {
                         this._showNoteRegistration(m.name, () => this._nextMonster());
@@ -1529,10 +1539,16 @@ class Game {
         }
 
         // 第2優先：Special判定（一度出たらもう出ない）
-        if (!isLowHp && !this.hasSpecialMonsterAppeared && Math.random() < 0.05) {
-            this.hasSpecialMonsterAppeared = true;
-            this.monsters[idx] = new Monster(m.number, false, false, m.opCount, m.leftDigits, m.rightDigits, true);
-            return;
+        if (!isLowHp) {
+            // Find which specials haven't appeared yet
+            const availableSpecials = ['ミスターといし', 'ミスターてっぱん'].filter(name => !this.specialMonstersAppeared.includes(name));
+            if (availableSpecials.length > 0 && Math.random() < 0.05) {
+                // Pick one randomly
+                const chosenSpecial = availableSpecials[Math.floor(Math.random() * availableSpecials.length)];
+                this.specialMonstersAppeared.push(chosenSpecial);
+                this.monsters[idx] = new Monster(m.number, false, false, m.opCount, m.leftDigits, m.rightDigits, chosenSpecial);
+                return;
+            }
         }
 
         // 第3優先：回復キャラ判定
@@ -2224,8 +2240,15 @@ class Game {
     }
 
     _showShopMsg(msg) {
+        const ov = document.getElementById('shop-msg-overlay');
         document.getElementById('shop-msg-text').textContent = msg;
-        document.getElementById('shop-msg-overlay').classList.add('active');
+        ov.classList.add('active');
+
+        // 1秒後に自動で消える
+        if (this._shopMsgTimeout) clearTimeout(this._shopMsgTimeout);
+        this._shopMsgTimeout = setTimeout(() => {
+            ov.classList.remove('active');
+        }, 1000);
     }
 
     _updateItemCollection(itemName) {
