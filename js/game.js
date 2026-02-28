@@ -1407,6 +1407,8 @@ class Game {
                 const afterDrop = () => {
                     if (m.number === 10) {
                         this._doMalleDrop(m.bossId, afterMalle);
+                    } else if (m.isRare) {
+                        this._doMalleDrop(null, afterMalle, 500);
                     } else {
                         afterMalle();
                     }
@@ -2785,9 +2787,9 @@ class Game {
         const monsterImg = document.getElementById('monster-img');
         if (!monsterImg) return;
         const filterMap = {
-            poison:    'drop-shadow(0 0 2px rgba(220,100,255,0.9)) drop-shadow(0 0 8px rgba(140,0,255,0.7)) sepia(1) saturate(6) hue-rotate(260deg) brightness(0.72)',
+            poison: 'drop-shadow(0 0 2px rgba(220,100,255,0.9)) drop-shadow(0 0 8px rgba(140,0,255,0.7)) sepia(1) saturate(6) hue-rotate(260deg) brightness(0.72)',
             paralyzed: 'drop-shadow(0 0 2px rgba(255,255,120,0.9)) drop-shadow(0 0 8px rgba(255,210,0,0.8)) sepia(1) saturate(7) hue-rotate(18deg) brightness(1.05)',
-            stone:     'drop-shadow(0 0 2px rgba(160,160,160,0.6)) grayscale(1) brightness(0.52) contrast(0.85)'
+            stone: 'drop-shadow(0 0 2px rgba(160,160,160,0.6)) grayscale(1) brightness(0.52) contrast(0.85)'
         };
         monsterImg.style.filter = filterMap[type] || '';
     }
@@ -2848,8 +2850,13 @@ class Game {
         nextAction();
     }
 
-    _doMalleDrop(bossId, onComplete) {
-        const amount = BOSS_MALLE_DROP[bossId] || 0;
+    _doMalleDrop(bossId, onComplete, directAmount = null) {
+        const amount = directAmount !== null ? directAmount : (BOSS_MALLE_DROP[bossId] || 0);
+        if (amount <= 0) {
+            onComplete();
+            return;
+        }
+
         this.gold = Math.min(this.gold + amount, CONSTANTS.MAX_GOLD);
         localStorage.setItem('math_battle_gold', this.gold);
 
