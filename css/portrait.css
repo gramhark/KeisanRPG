@@ -547,7 +547,7 @@
 #app.portrait-mode #shop-screen {
     position: relative;
     padding: 70px 30px 30px;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 #app.portrait-mode .shop-header {
@@ -563,6 +563,8 @@
     align-items: center;
     gap: 24px;
     width: 100%;
+    flex: 1;
+    overflow: hidden;
 }
 
 #app.portrait-mode .shop-pane-left {
@@ -604,6 +606,8 @@
     flex-direction: column;
     gap: 20px;
     width: 100%;
+    flex: 1;
+    overflow: hidden;
 }
 
 #app.portrait-mode .shop-gold-area {
@@ -633,6 +637,9 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    overflow-y: auto;
+    flex: 1;
+    align-content: start;
 }
 
 #app.portrait-mode .shop-item-btn {

@@ -33,6 +33,9 @@ class SoundManager {
         this.seDefUp = document.getElementById('se-defup');
         this.seThrow = document.getElementById('se-throw');
         this.seMalle = document.getElementById('se-malle');
+        this.seDoku = document.getElementById('se-doku');
+        this.seMahi = document.getElementById('se-mahi');
+        this.seSekka = document.getElementById('se-sekka');
 
         // Load sources
         this.bgmBattle.src = 'assets/audio/BGM/battle.webm';
@@ -68,6 +71,9 @@ class SoundManager {
         this.seDefUp.src = 'assets/audio/SE/DEFup.webm';
         this.seThrow.src = 'assets/audio/SE/throw.webm';
         this.seMalle.src = 'assets/audio/SE/malle.webm';
+        this.seDoku.src = 'assets/audio/SE/doku.webm';
+        this.seMahi.src = 'assets/audio/SE/mahi.webm';
+        this.seSekka.src = 'assets/audio/SE/sekka.webm';
 
         this.currentBgm = null;
         this.isPausedByVisibility = false;
@@ -196,6 +202,9 @@ class SoundManager {
             case 'defup': se = this.seDefUp; break;
             case 'throw': se = this.seThrow; break;
             case 'malle': se = this.seMalle; break;
+            case 'doku': se = this.seDoku; break;
+            case 'mahi': se = this.seMahi; break;
+            case 'sekka': se = this.seSekka; break;
         }
         if (se) {
             se.currentTime = 0;

@@ -223,6 +223,33 @@ input[type="text"]:focus {
     overflow: visible;
 }
 
+/* モンスター画像ラッパー（ステータスマスク用） */
+.monster-img-wrapper {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+}
+
+/* ステータスマスク（毒・麻痺・石化） */
+.monster-status-mask {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+.monster-status-mask.mask--poison {
+    background: rgba(150, 30, 220, 0.40);
+}
+
+.monster-status-mask.mask--paralyzed {
+    background: rgba(255, 230, 0, 0.40);
+}
+
+.monster-status-mask.mask--stone {
+    background: rgba(140, 140, 140, 0.55);
+}
+
 /* ===== 攻撃エフェクト画像 ===== */
 .attack-effect-img {
     position: absolute;

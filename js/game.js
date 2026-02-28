@@ -48,7 +48,7 @@ class Game {
         this.defenseBonus = 0; // ぼうぎょだまによる防御補正（1バトル中有効）
         // バトル中アイテム使用回数（1バトル通算 or モンスター1体）
         this._battleItemUsage = { こうげきだま: 0, ぼうぎょだま: 0 };
-        this._monsterItemUsage = { とげだま: 0 };
+        this._monsterItemUsage = { とげだま: 0, どくだま: false, まひだま: false, せきかだま: false };
         this._battleSelectedItem = null;
 
         // Auto Scaling
@@ -313,7 +313,7 @@ class Game {
         this.specialMoveReady = false;
         // バトル通算の使用回数リセット
         this._battleItemUsage = { こうげきだま: 0, ぼうぎょだま: 0 };
-        this._monsterItemUsage = { とげだま: 0 };
+        this._monsterItemUsage = { とげだま: 0, どくだま: false, まひだま: false, せきかだま: false };
         const swordLabelEl = document.getElementById('sword-label');
         swordLabelEl.src = 'assets/image/equipment/' + SWORD_DATA[0].img;
         swordLabelEl.classList.remove('equip-flash');
@@ -686,7 +686,14 @@ class Game {
         this.state = GameState.TRANSITION; // Block during announcement
 
         // モンスター1体ごとのアイテム使用回数リセット
-        this._monsterItemUsage = { とげだま: 0 };
+        this._monsterItemUsage = { とげだま: 0, どくだま: false, まひだま: false, せきかだま: false };
+
+        // モンスターのステータス状態をリセット
+        const bm = this.monsters[this.currentMonsterIdx];
+        bm.isPoisoned = false;
+        bm.isParalyzed = false;
+        bm.isStoned = false;
+        this._clearMonsterStatusMask();
 
         // ★ バトル開始前に問題表示を即座にクリア（前回の問題文の残像防止）
         this._clearProblemDisplay();
@@ -768,9 +775,10 @@ class Game {
     _timerLoop() {
         if (this.state !== GameState.BATTLE) return;
 
+        const cm = this.monsters[this.currentMonsterIdx];
         const timerSeconds = this.isPlayerTurn
             ? CONSTANTS.TIMER_SECONDS
-            : CONSTANTS.MONSTER_TIMER_SECONDS;
+            : (cm && cm.isParalyzed ? 30 : CONSTANTS.MONSTER_TIMER_SECONDS);
 
         const elapsed = (Date.now() - this.timerStart) / 1000;
         const remaining = Math.max(0, timerSeconds - elapsed);
@@ -834,7 +842,7 @@ class Game {
                     } else {
                         setTimeout(() => {
                             this._updateInputUI();
-                            this.startPlayerTurn();
+                            this._afterMonsterTurnEffects(() => this.startPlayerTurn());
                         }, 2000);
                     }
                 }, 1000);
@@ -863,7 +871,7 @@ class Game {
         } else {
             setTimeout(() => {
                 this._updateInputUI();
-                this.startPlayerTurn();
+                this._afterMonsterTurnEffects(() => this.startPlayerTurn());
             }, 1500);
         }
     }
@@ -983,7 +991,7 @@ class Game {
                 this._updateAuraUI();
             }
 
-            setTimeout(() => this.startPlayerTurn(), 1500);
+            setTimeout(() => this._afterMonsterTurnEffects(() => this.startPlayerTurn()), 1500);
             return;
         }
 
@@ -1121,7 +1129,7 @@ class Game {
                     } else {
                         setTimeout(() => {
                             this._updateInputUI(); // Clear the answer display for retry
-                            this.startPlayerTurn();
+                            this._afterMonsterTurnEffects(() => this.startPlayerTurn());
                         }, 2000);
                     }
                 }, 1000);
@@ -1156,7 +1164,7 @@ class Game {
         } else {
             setTimeout(() => {
                 this._updateInputUI(); // Clear the answer display for retry
-                this.startPlayerTurn();
+                this._afterMonsterTurnEffects(() => this.startPlayerTurn());
             }, 1500);
         }
     }
@@ -2518,6 +2526,9 @@ class Game {
             case 'こうげきだま': return 'つかえるかず: 2こ';
             case 'ぼうぎょだま': return 'つかえるかず: 2こ';
             case 'とげだま': return 'つかえるかず: 1かいのバトルで 3こ';
+            case 'どくだま': return 'つかえるかず: 1たいに 1こ';
+            case 'まひだま': return 'つかえるかず: 1たいに 1こ';
+            case 'せきかだま': return 'つかえるかず: 1たいに 1こ\nボスには つかえない';
             default: return '';
         }
     }
@@ -2590,6 +2601,14 @@ class Game {
 
     /** 戦闘中カバンでアイテムをタップしたとき */
     _onBattleBagItemTap(itemName, card) {
+        // せきかだまはボスには使えない
+        if (itemName === 'せきかだま') {
+            const sm = this.monsters[this.currentMonsterIdx];
+            if (sm.number === 10) {
+                this._showBossBlockMsg();
+                return;
+            }
+        }
         if (!this._canUseItem(itemName)) {
             // 使用制限に達している
             this._showItemLimitMsg();
@@ -2610,6 +2629,9 @@ class Game {
             case 'こうげきだま': return (this._battleItemUsage.こうげきだま || 0) < 2;
             case 'ぼうぎょだま': return (this._battleItemUsage.ぼうぎょだま || 0) < 2;
             case 'とげだま': return (this._monsterItemUsage.とげだま || 0) < 3;
+            case 'どくだま': return !this._monsterItemUsage.どくだま;
+            case 'まひだま': return !this._monsterItemUsage.まひだま;
+            case 'せきかだま': return !this._monsterItemUsage.せきかだま;
             default: return false;
         }
     }
@@ -2636,6 +2658,9 @@ class Game {
         if (itemName === 'こうげきだま') this._battleItemUsage.こうげきだま = (this._battleItemUsage.こうげきだま || 0) + 1;
         if (itemName === 'ぼうぎょだま') this._battleItemUsage.ぼうぎょだま = (this._battleItemUsage.ぼうぎょだま || 0) + 1;
         if (itemName === 'とげだま') this._monsterItemUsage.とげだま = (this._monsterItemUsage.とげだま || 0) + 1;
+        if (itemName === 'どくだま') this._monsterItemUsage.どくだま = true;
+        if (itemName === 'まひだま') this._monsterItemUsage.まひだま = true;
+        if (itemName === 'せきかだま') this._monsterItemUsage.せきかだま = true;
 
         // 確認パネルと選択状態をリセット
         document.getElementById('battle-item-confirm').style.display = 'none';
@@ -2691,6 +2716,23 @@ class Game {
                 thornKill = m.hp <= 0;
                 break;
             }
+            case 'どくだま':
+                m.isPoisoned = true;
+                this._applyMonsterStatusMask('poison');
+                this.sound.playSe('doku');
+                message = `${m.name}は\nどくになった！`;
+                break;
+            case 'まひだま':
+                m.isParalyzed = true;
+                this._applyMonsterStatusMask('paralyzed');
+                this.sound.playSe('mahi');
+                message = `${m.name}は\nまひした！`;
+                break;
+            case 'せきかだま':
+                m.isStoned = true;
+                this.sound.playSe('sekka');
+                message = `せきかだまを\nなげた！`;
+                break;
         }
 
         this._showMessage(message, false, 2000, 'text-player-action');
@@ -2717,6 +2759,93 @@ class Game {
         setTimeout(() => {
             overlay.classList.remove('active');
         }, 1500);
+    }
+
+    /** ボスには きかない！メッセージを1.5秒表示する */
+    _showBossBlockMsg() {
+        const overlay = document.getElementById('item-limit-overlay');
+        const textEl = document.querySelector('.item-limit-text');
+        const origText = textEl ? textEl.textContent : '';
+        if (textEl) textEl.textContent = 'ボスには きかない！';
+        overlay.classList.add('active');
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            if (textEl) textEl.textContent = origText;
+        }, 1500);
+    }
+
+    /**
+     * モンスターに状態異常カラーフィルターをかける。
+     * #monster-img の CSS filter を上書きすることで
+     * PNG 透明部分を自然に無視してモンスターの形にのみ適用される。
+     */
+    _applyMonsterStatusMask(type) {
+        this._monsterStatusStackCount = (this._monsterStatusStackCount || 0) + 1;
+        this._activeStatusVisual = type;
+        const monsterImg = document.getElementById('monster-img');
+        if (!monsterImg) return;
+        const filterMap = {
+            poison:    'drop-shadow(0 0 2px rgba(220,100,255,0.9)) drop-shadow(0 0 8px rgba(140,0,255,0.7)) sepia(1) saturate(6) hue-rotate(260deg) brightness(0.72)',
+            paralyzed: 'drop-shadow(0 0 2px rgba(255,255,120,0.9)) drop-shadow(0 0 8px rgba(255,210,0,0.8)) sepia(1) saturate(7) hue-rotate(18deg) brightness(1.05)',
+            stone:     'drop-shadow(0 0 2px rgba(160,160,160,0.6)) grayscale(1) brightness(0.52) contrast(0.85)'
+        };
+        monsterImg.style.filter = filterMap[type] || '';
+    }
+
+    /** モンスターのステータスカラーフィルターをクリアする */
+    _clearMonsterStatusMask() {
+        this._activeStatusVisual = null;
+        this._monsterStatusStackCount = 0;
+        const monsterImg = document.getElementById('monster-img');
+        if (monsterImg) monsterImg.style.filter = '';
+    }
+
+    /**
+     * モンスターターン終了後の状態異常効果を処理する。
+     * せきかだま（石化20%）→ どくだま（毒1ダメージ）の順で処理し、
+     * 終了後に nextAction() を呼ぶ。
+     */
+    _afterMonsterTurnEffects(nextAction) {
+        const m = this.monsters[this.currentMonsterIdx];
+        if (!m || m.hp <= 0) {
+            nextAction();
+            return;
+        }
+
+        // せきかだま: 20%の確率で即死
+        if (m.isStoned) {
+            if (Math.random() < 0.2) {
+                m.hp = 0;
+                this._updateMonsterHpUI(m);
+                this._applyMonsterStatusMask('stone');
+                this._showMessage(`${m.name}は\nいしになった！`, false, 2000, 'text-neutral');
+                setTimeout(() => {
+                    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+                    this._onMonsterDefeated(m);
+                }, 2000);
+                return;
+            }
+        }
+
+        // どくだま: モンスターに1ダメージ
+        if (m.isPoisoned) {
+            m.hp = Math.max(0, m.hp - 1);
+            this._updateMonsterHpUI(m);
+            this._showAttackEffect('attack');
+            this._showMessage('どくのダメージを\nうけた！', false, 1500, 'text-monster-action');
+            this.sound.playSe('attack');
+            if (m.hp <= 0) {
+                setTimeout(() => {
+                    if (this.timerIntervalId) clearInterval(this.timerIntervalId);
+                    this._onMonsterDefeated(m);
+                }, 1500);
+                return;
+            }
+            setTimeout(() => nextAction(), 1500);
+            return;
+        }
+
+        nextAction();
     }
 
     _doMalleDrop(bossId, onComplete) {

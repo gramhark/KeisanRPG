@@ -166,7 +166,10 @@
                 </button>
 
                 <div class="monster-container">
-                    <img id="monster-img" src="" alt="Monster">
+                    <div class="monster-img-wrapper">
+                        <img id="monster-img" src="" alt="Monster">
+                        <div id="monster-status-mask" class="monster-status-mask"></div>
+                    </div>
                     <img id="attack-effect-img" class="attack-effect-img" src="" alt="" aria-hidden="true">
                     <div class="monster-stat">
                         <span id="monster-name">モンスター</span>
@@ -461,6 +464,9 @@
             <audio id="se-defup" preload="auto"></audio>
             <audio id="se-throw" preload="auto"></audio>
             <audio id="se-malle" preload="auto"></audio>
+            <audio id="se-doku" preload="auto"></audio>
+            <audio id="se-mahi" preload="auto"></audio>
+            <audio id="se-sekka" preload="auto"></audio>
         </div>
     </div>
     <script src="assets/monster_list.js"></script>

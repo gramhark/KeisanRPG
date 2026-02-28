@@ -944,6 +944,8 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 16px;
+    overflow-y: auto;
+    max-height: 380px;
 }
 
 .battle-bag-card {
@@ -1030,6 +1032,7 @@
 #app.portrait-mode .battle-bag-grid {
     gap: 18px;
     padding: 20px;
+    max-height: 780px;
 }
 
 #app.portrait-mode .battle-bag-card {
@@ -1059,6 +1062,10 @@
 /* landscape overrides */
 #app.landscape-mode .battle-bag-content {
     width: 480px;
+}
+
+#app.landscape-mode .battle-bag-grid {
+    max-height: 500px;
 }
 
 #app.landscape-mode .battle-bag-card {

@@ -64,6 +64,9 @@ const ITEM_DATA = [
     { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくを あげる', img: 'kougekiDama.webp' },
     { name: 'ぼうぎょだま', price: 800, desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp' },
     { name: 'とげだま', price: 300, desc: 'モンスターに なげる', img: 'togeDama.webp' },
+    { name: 'どくだま', price: 100, desc: 'てきを どくにする', img: 'dokuDama.webp' },
+    { name: 'まひだま', price: 100, desc: 'てきを まひにする', img: 'mahiDama.webp' },
+    { name: 'せきかだま', price: 200, desc: 'てきを いしにすることがある', img: 'sekkaDama.webp' },
 ];
 
 /* Boss Malle Drop Amounts (indexed by bossId 1–16; index 0 unused) */
