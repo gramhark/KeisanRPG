@@ -2204,7 +2204,6 @@ class Game {
                 <div class="shop-item-name">${item.name}</div>
                 <div class="shop-item-price">${item.price}マール</div>
             `;
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); this._openShopItemDetail(idx); });
             btn.addEventListener('click', () => this._openShopItemDetail(idx));
             container.appendChild(btn);
         });
@@ -2591,10 +2590,6 @@ class Game {
 
             if (count > 0) {
                 card.addEventListener('click', () => this._onBattleBagItemTap(item.name, card));
-                card.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this._onBattleBagItemTap(item.name, card);
-                }, { passive: false });
             }
 
             grid.appendChild(card);
