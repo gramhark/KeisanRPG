@@ -581,7 +581,7 @@ class Game {
         const sword = SWORD_DATA[this.swordLevel];
         const shield = SHIELD_DATA[this.shieldLevel];
         const playerAtk = CONSTANTS.NORMAL_DAMAGE + sword.bonus + this.swordBonus;
-        const playerDef = shield ? shield.reduction : 0;
+        const playerDef = (shield ? shield.reduction : 0) + this.defenseBonus;
 
         // オーラ段階テキスト
         let auraText, auraHighlight;
@@ -2695,13 +2695,13 @@ class Game {
                 this.swordBonus += 1;
                 this.sound.playSe('atkup');
                 this._showAtkUpEffect();
-                message = 'こうげきりょくが\nあがった！';
+                message = 'こうげきりょくアップ！';
                 break;
             case 'ぼうぎょだま':
                 this.defenseBonus += 1;
                 this.sound.playSe('defup');
                 this._showDefUpEffect();
-                message = 'ぼうぎょりょくが\nあがった！';
+                message = 'ぼうぎょりょくアップ！';
                 break;
             case 'とげだま': {
                 const thornDamage = 3;

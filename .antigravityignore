@@ -1,0 +1,11 @@
+# システム・設定関連（AIのノイズ削減）
+.claude/
+.git/
+.vscode/
+.venv/
+
+# メディア資産（リソース節約）
+assets/image/
+assets/audio/
+*.webp
+*.webm

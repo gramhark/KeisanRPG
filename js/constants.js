@@ -61,8 +61,8 @@ const SHIELD_DROP_RATE = [0.50, 0.35, 0.20, 0.10, 0.06, 0.03, 0];
 /* Shop Item Data */
 const ITEM_DATA = [
     { name: 'かいふくだま', price: 600, desc: 'たいりょくを かいふくする', img: 'kaihukuDama.webp' },
-    { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくを あげる', img: 'kougekiDama.webp' },
-    { name: 'ぼうぎょだま', price: 800, desc: 'ぼうぎょりょくを あげる', img: 'bougyoDama.webp' },
+    { name: 'こうげきだま', price: 1000, desc: 'こうげきりょくが アップする', img: 'kougekiDama.webp' },
+    { name: 'ぼうぎょだま', price: 800, desc: 'ぼうぎょりょくが アップする', img: 'bougyoDama.webp' },
     { name: 'とげだま', price: 300, desc: 'モンスターに なげる', img: 'togeDama.webp' },
     { name: 'どくだま', price: 100, desc: 'てきを どくにする', img: 'dokuDama.webp' },
     { name: 'まひだま', price: 100, desc: 'てきを まひにする', img: 'mahiDama.webp' },
