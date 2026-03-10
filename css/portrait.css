@@ -304,7 +304,7 @@
     color: white;
     font-size: 64px;
     font-family: var(--font-pixel);
-    box-shadow: 0 8px 0 #08091a, 0 12px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 0 #08091a, 0 12px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -2px 0 rgba(0, 0, 0, 0.35);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
@@ -315,7 +315,7 @@
 
 #app.portrait-mode .action-btn.red {
     background: linear-gradient(180deg, #ff7878 0%, #ff3535 50%, #c20000 100%);
-    box-shadow: 0 8px 0 #680000, inset 0 1px 0 rgba(255, 170, 170, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 0 #680000, inset 0 1px 0 rgba(255, 170, 170, 0.12), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
     font-size: 48px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -323,7 +323,7 @@
 #app.portrait-mode .action-btn.green {
     background: linear-gradient(180deg, #7af5c0 0%, #10d870 50%, #009944 100%);
     color: #011f0c;
-    box-shadow: 0 8px 0 #003e1c, inset 0 1px 0 rgba(200, 255, 230, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 0 #003e1c, inset 0 1px 0 rgba(200, 255, 230, 0.12), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
     font-size: 48px;
     text-shadow: 0 1px 3px rgba(0, 50, 20, 0.5);
 }
