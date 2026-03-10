@@ -44,8 +44,8 @@
 
 
 .note-card {
-    background: linear-gradient(145deg, #1a2138, #111526);
-    border: 3px solid var(--border-color);
+    background: linear-gradient(145deg, #1d2748, #111830);
+    border: 3px solid rgba(55, 80, 155, 0.48);
     border-radius: 12px;
     padding: 10px;
     display: flex;
@@ -53,11 +53,12 @@
     align-items: center;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .note-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 0 20px rgba(79, 172, 254, 0.5), 0 4px 14px rgba(0, 0, 0, 0.5);
     border-color: var(--primary-color);
 }
 
@@ -118,14 +119,14 @@
 }
 
 .note-detail-content {
-    background: linear-gradient(135deg, #161b2e 0%, #0b0f19 100%);
+    background: linear-gradient(145deg, #181f3c 0%, #0d1222 100%);
     border: 4px solid var(--primary-color);
     border-radius: 16px;
     padding: 30px;
     width: 400px;
     max-width: 90%;
     position: relative;
-    box-shadow: 0 0 30px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 0 40px rgba(79, 172, 254, 0.45), 0 12px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 #app.portrait-mode .note-detail-content {

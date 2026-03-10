@@ -92,11 +92,12 @@
 
 /* リクエストフォーム */
 #request-overlay .overlay-content {
-    background: var(--panel-color);
+    background: linear-gradient(180deg, rgba(22, 30, 58, 0.97) 0%, rgba(10, 14, 32, 0.98) 100%);
     padding: 40px;
     border-radius: 16px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(79, 172, 254, 0.22);
     width: 800px;
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 #request-overlay h2 {
@@ -245,11 +246,11 @@
 }
 
 .modal-frame-wrapper {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(145deg, #141a32 0%, #0d1220 100%);
     border: 6px solid #ffd700;
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 0 0 6px #b8860b, 0 0 0 12px #1a1a2e, 0 0 30px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 0 6px #8a6000, 0 0 0 12px #0d1220, 0 0 60px rgba(255, 215, 0, 0.7), 0 20px 60px rgba(0, 0, 0, 0.85);
     position: relative;
     animation: zoom 0.3s;
 }
@@ -569,10 +570,11 @@
 }
 
 #quit-confirm-overlay .overlay-content {
-    background: var(--panel-color);
-    border: 2px solid var(--border-color);
+    background: linear-gradient(180deg, rgba(22, 30, 58, 0.97) 0%, rgba(10, 14, 32, 0.98) 100%);
+    border: 2px solid rgba(55, 80, 160, 0.48);
     border-radius: 20px;
     padding: 50px 60px;
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .quit-confirm-msg {
@@ -606,13 +608,14 @@
 }
 
 .info-content {
-    background: var(--panel-color);
-    border: 2px solid var(--border-color);
+    background: linear-gradient(180deg, rgba(22, 30, 58, 0.97) 0%, rgba(10, 14, 32, 0.98) 100%);
+    border: 2px solid rgba(55, 80, 160, 0.48);
     border-radius: 20px;
     padding: 36px 44px 40px;
     width: 680px;
     max-width: 92vw;
     box-sizing: border-box;
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .info-sections {
@@ -700,7 +703,7 @@
    ショップ アイテム詳細オーバーレイ
    ============================================================ */
 .shop-item-content {
-    background: linear-gradient(135deg, #161b2e 0%, #0b0f19 100%);
+    background: linear-gradient(145deg, #181f3c 0%, #0d1222 100%);
     border: 4px solid var(--accent-color);
     border-radius: 20px;
     padding: 30px 40px;
@@ -710,7 +713,7 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 44px rgba(255, 215, 0, 0.45), 0 12px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 240, 100, 0.08);
 }
 
 .shop-item-detail-img {
@@ -774,11 +777,11 @@
 }
 
 .shop-msg-overlay .overlay-content {
-    background: var(--panel-color);
+    background: linear-gradient(180deg, rgba(22, 30, 58, 0.97) 0%, rgba(10, 14, 32, 0.98) 100%);
     border: 3px solid #4facfe;
     border-radius: 20px;
     padding: 40px 50px;
-    box-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 0 30px rgba(79, 172, 254, 0.45), 0 12px 40px rgba(0, 0, 0, 0.75);
 }
 
 .shop-msg-overlay #shop-msg-close-btn {
@@ -795,7 +798,7 @@
 }
 
 .bag-detail-content {
-    background: linear-gradient(135deg, #161b2e 0%, #0b0f19 100%);
+    background: linear-gradient(145deg, #181f3c 0%, #0d1222 100%);
     border: 4px solid var(--accent-color);
     border-radius: 20px;
     padding: 30px 40px;
@@ -805,7 +808,7 @@
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 44px rgba(255, 215, 0, 0.45), 0 12px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 240, 100, 0.08);
 }
 
 .bag-detail-img {
@@ -892,15 +895,15 @@
 }
 
 .battle-bag-content {
-    background: linear-gradient(135deg, #161b2e 0%, #0b0f19 100%);
-    border: 3px solid var(--accent-color);
+    background: linear-gradient(180deg, #181f3c 0%, #0d1222 100%);
+    border: 3px solid rgba(200, 165, 0, 0.62);
     border-radius: 20px;
     padding: 0;
     width: 540px;
     max-width: 92%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 24px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 34px rgba(200, 165, 0, 0.28), 0 12px 44px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 240, 100, 0.07);
     position: relative;
     overflow: hidden;
 }
@@ -936,8 +939,8 @@
 }
 
 .battle-bag-card {
-    background: linear-gradient(145deg, #1e2540, #131829);
-    border: 2px solid var(--border-color);
+    background: linear-gradient(145deg, #1e2848, #131930);
+    border: 2px solid rgba(55, 80, 148, 0.42);
     border-radius: 12px;
     padding: 12px 8px;
     display: flex;
@@ -947,6 +950,7 @@
     transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
     gap: 4px;
     min-height: 90px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .battle-bag-card:hover:not(.battle-bag-card--empty) {
