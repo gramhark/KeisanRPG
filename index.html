@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/portrait.css">
-    <link rel="stylesheet" href="css/landscape.css">
     <link rel="stylesheet" href="css/overlay.css">
     <link rel="stylesheet" href="css/note.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +19,7 @@
 
 <body>
     <div id="app">
-        <script>/* ★追加★ #app直後で即実行。adjustScale()より前に向きを判定して初期クラスを付与しtopページのレイアウト再構築アニメを防ぐ */(function () { var a = document.getElementById('app'); if (window.innerHeight > window.innerWidth) { a.classList.add('portrait-mode'); } else { a.classList.add('landscape-mode'); } })();</script>
+        <script>/* #app直後で即実行。常に縦画面モードを付与 */(function () { document.getElementById('app').classList.add('portrait-mode'); })();</script>
         <!-- Top Screen (Portal) -->
         <div id="top-screen" class="screen active">
             <div class="top-content">

@@ -72,19 +72,11 @@ class Game {
             return;
         }
 
-        const isPortrait = winH > winW;
+        // 常に縦画面レイアウト (800x1600)
+        const baseW = 800;
+        const baseH = 1600;
 
-        // ターゲット仮想解像度
-        const baseW = isPortrait ? 800 : 1200;
-        const baseH = isPortrait ? 1600 : 800;
-
-        if (isPortrait) {
-            app.classList.add('portrait-mode');
-            app.classList.remove('landscape-mode');
-        } else {
-            app.classList.add('landscape-mode');
-            app.classList.remove('portrait-mode');
-        }
+        app.classList.add('portrait-mode');
 
         // Calculate Scale to fit
         const scale = Math.min(winW / baseW, winH / baseH);

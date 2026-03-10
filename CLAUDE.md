@@ -53,7 +53,6 @@ Styles are split across `css/` by feature. Load order in `index.html` matters:
 | `css/base.css` | CSS variables (`:root`), global reset, `body`, `#app`, `.screen` |
 | `css/components.css` | Shared UI: buttons, inputs, HP/timer bars, attack effects & keyframes, message overlay |
 | `css/portrait.css` | All `#app.portrait-mode` overrides (800×1600 virtual canvas) |
-| `css/landscape.css` | All `#app.landscape-mode` overrides (1200×800 virtual canvas) |
 | `css/overlay.css` | Overlays & modals: interval screen, request form, equipment drop, image zoom |
 | `css/note.css` | Monster note (図鑑) grid, cards, and footer |
 
@@ -84,7 +83,7 @@ SETUP → (startGame) → INTERVAL → (startBattle) → BATTLE
 
 ### Responsive Layout
 
-`Game.adjustScale()` scales the `#app` div to fit any screen size using CSS `transform: scale()`. Virtual base resolution is **800×1600 (portrait)** or **1200×800 (landscape)**. A small inline script at the top of `<body>` pre-assigns the orientation class before JS loads to avoid a layout flash.
+`Game.adjustScale()` scales the `#app` div to fit any screen size using CSS `transform: scale()`. Virtual base resolution is **800×1600 (portrait)**. Always uses portrait layout regardless of device orientation. A small inline script at the top of `<body>` pre-assigns the `portrait-mode` class before JS loads.
 
 ### Boss ID Mapping
 

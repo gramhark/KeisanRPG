@@ -65,10 +65,6 @@
     gap: 40px;
 }
 
-#app.landscape-mode .interval-btns {
-    flex-direction: row;
-}
-
 #battle-start-btn {
     /* 【共通】登場画面「たたかう」ボタンのサイズ */
     font-size: 48px;
@@ -634,10 +630,6 @@
     flex-direction: column;
 }
 
-#app.landscape-mode .info-sections {
-    flex-direction: row;
-    align-items: flex-start;
-}
 
 .info-section {
     flex: 1;
@@ -667,11 +659,6 @@
 #app.portrait-mode .info-divider {
     height: 1px;
     width: 100%;
-}
-
-#app.landscape-mode .info-divider {
-    width: 1px;
-    align-self: stretch;
 }
 
 .info-row {
@@ -1059,36 +1046,6 @@
     max-width: 216px;
 }
 
-/* landscape overrides */
-#app.landscape-mode .battle-bag-content {
-    width: 480px;
-}
-
-#app.landscape-mode .battle-bag-grid {
-    max-height: 500px;
-}
-
-#app.landscape-mode .battle-bag-card {
-    min-height: 80px;
-}
-
-#app.landscape-mode .battle-bag-item-img {
-    width: 40px;
-    height: 40px;
-}
-
-#app.landscape-mode .battle-bag-item-count {
-    font-size: 18px;
-}
-
-#app.landscape-mode .battle-bag-item-name {
-    font-size: 14px;
-}
-
-#app.landscape-mode .battle-item-confirm button {
-    font-size: 24px;
-    padding: 10px 28px;
-}
 
 /* ============================================================
    つかえないよ！ メッセージ
@@ -1117,8 +1074,4 @@
 
 #app.portrait-mode .item-limit-text {
     font-size: 52px;
-}
-
-#app.landscape-mode .item-limit-text {
-    font-size: 36px;
 }

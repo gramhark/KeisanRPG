@@ -228,15 +228,3 @@
     height: auto !important;
     width: 100%;
 }
-
-#app.landscape-mode .note-footer-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-}
-
-#app.landscape-mode .note-footer-buttons button {
-    font-size: 18px !important;
-    padding: 10px 20px !important;
-    height: auto !important;
-}
